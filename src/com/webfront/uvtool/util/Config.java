@@ -284,7 +284,7 @@ public class Config {
             sql += "null,";
             sql += "\"" + a.getServerName() + "\",";
             sql += "\"" + a.getName() + "\",";
-            sql += "\"" + a.getPath() + "\",0)";
+            sql += "\"" + a.getPath() + "\")";
             statement.executeUpdate(sql);
             ResultSet rs = statement.executeQuery("SELECT id from accounts order by id desc limit 0,1");
             int id = rs.getInt("id");
@@ -518,7 +518,7 @@ public class Config {
             u.setPassword(rs.getString("password"));
             return u;
         } catch (SQLException ex) {
-            Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
+            
         }
         return null;
     }
