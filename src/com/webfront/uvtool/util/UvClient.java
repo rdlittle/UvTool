@@ -38,6 +38,8 @@ public class UvClient {
 
     private Uv sourceSession;
     private Uv destSession;
+    
+    public Double totalRecords;
 
     public UvClient(Progress p) {
         this.progress = p;
@@ -147,6 +149,7 @@ public class UvClient {
         UniDynArray sourceRecord = null;
         UniDynArray destRecord = null;
         UniSelectList list;
+        Double recordsDone;
         if (doConnect()) {
             try {
                 if (selectType == Uv.SelectType.LIST) {
@@ -163,8 +166,12 @@ public class UvClient {
                 destFile = destSession.getSession().openFile(destData.getFileName());
                 String srcHost = sourceProfile.getServerName();
                 String destHost = destProfile.getServerName();
+                recordsDone = new Double(0);
                 while (!list.isLastRecordRead()) {
                     String recordId = list.next().toString();
+                    recordsDone += 1;
+                    Double pct = recordsDone / totalRecords;
+                    progress.updateProgressBar(pct);
                     if (recordId.isEmpty()) {
                         continue;
                     }
@@ -261,6 +268,7 @@ public class UvClient {
             cmd.setCommand(data.getSelectCriteria());
             cmd.exec();
             list = uv.getSession().selectList(0);
+            totalRecords = new Double(cmd.getAtSelected());
         } catch (UniSessionException ex) {
             Logger.getLogger(UvClient.class.getName()).log(Level.SEVERE, null, ex);
             progress.display(ex.toString());
@@ -277,6 +285,8 @@ public class UvClient {
             list = session.getSession().selectList(0);
             try {
                 list.getList(data.getSelectCriteria());
+                UniDynArray recList = list.readList();
+                totalRecords = new Double(recList.dcount());
             } catch (UniSelectListException ex) {
                 Logger.getLogger(UvClient.class.getName()).log(Level.SEVERE, null, ex);
                 return null;

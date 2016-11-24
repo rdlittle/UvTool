@@ -71,4 +71,9 @@ public class QueryViewController implements ControllerInterface, Initializable, 
 
     }
     
+    @Override
+    public void updateProgressBar(Double d) {
+        
+    }
+    
 }

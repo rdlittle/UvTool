@@ -31,11 +31,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.Circle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -62,6 +64,12 @@ public class CopyViewController implements ControllerInterface, Initializable, P
     ComboBox<Profile> cbDestProfile;
 
     @FXML
+    Circle sourceLed;
+
+    @FXML
+    Circle destLed;
+
+    @FXML
     Label lblStatusMessage;
 
     @FXML
@@ -82,6 +90,9 @@ public class CopyViewController implements ControllerInterface, Initializable, P
     TextField txtSourceField;
     @FXML
     TextField txtSourceValue;
+
+    @FXML
+    ProgressBar progressBar;
 
     @FXML
     RadioButton rbFromSavedList;
@@ -123,6 +134,7 @@ public class CopyViewController implements ControllerInterface, Initializable, P
         cbSourceProfile = new ComboBox<>();
         cbDestProfile = new ComboBox<>();
 
+        destLed = new Circle();
         lblStatusMessage = new Label();
 
         tgDestExisting = new ToggleGroup();
@@ -139,6 +151,9 @@ public class CopyViewController implements ControllerInterface, Initializable, P
         txtSourceFile = new TextField();
         txtSourceField = new TextField();
         txtSourceValue = new TextField();
+
+        progressBar = new ProgressBar();
+        sourceLed = new Circle();
 
         rbCreate = new RadioButton();
         rbFromSavedList = new RadioButton();
@@ -396,7 +411,12 @@ public class CopyViewController implements ControllerInterface, Initializable, P
 
     @Override
     public void state(String message) {
-        Platform.runLater(() ->txtOutput.appendText(message));
+        Platform.runLater(() -> txtOutput.appendText(message));
     }
-    
+
+    @Override
+    public void updateProgressBar(Double p) {
+        Platform.runLater(() -> progressBar.progressProperty().setValue(p));
+    }
+
 }

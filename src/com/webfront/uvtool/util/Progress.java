@@ -24,4 +24,6 @@ public interface Progress {
      */
     public void state(String message);
     
+    public void updateProgressBar(Double p);
+    
 }
