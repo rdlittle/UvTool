@@ -68,7 +68,7 @@ public class QueryViewController implements ControllerInterface, Initializable, 
 
     @Override
     public void state(String message) {
-        
+
     }
     
 }
