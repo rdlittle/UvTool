@@ -37,6 +37,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -417,6 +418,17 @@ public class CopyViewController implements ControllerInterface, Initializable, P
     @Override
     public void updateProgressBar(Double p) {
         Platform.runLater(() -> progressBar.progressProperty().setValue(p));
+    }
+    
+    @Override
+    public void updateLed(String host, boolean onOff) {
+        Color led = Color.LIGHTGREEN;
+        Color ledOff = Color.web("#f2f2f2");
+        if (host.equalsIgnoreCase("source")) {
+            sourceLed.setFill(onOff? led : ledOff);
+        } else {
+            destLed.setFill(onOff? led : ledOff);
+        }
     }
 
 }

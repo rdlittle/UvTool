@@ -75,5 +75,10 @@ public class QueryViewController implements ControllerInterface, Initializable, 
     public void updateProgressBar(Double d) {
         
     }
+
+    @Override
+    public void updateLed(String host, boolean onOff) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
 }

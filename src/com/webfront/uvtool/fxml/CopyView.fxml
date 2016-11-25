@@ -58,7 +58,7 @@
       <TextArea fx:id="txtOutput" editable="false" layoutX="17.0" layoutY="483.0" prefHeight="137.0" prefWidth="497.0" />
       <Label fx:id="lblStatusMessage" layoutX="20.0" layoutY="636.0" prefHeight="16.0" prefWidth="350.0" />
       <ProgressBar fx:id="progressBar" layoutX="20.0" layoutY="634.0" prefHeight="20.0" prefWidth="350.0" progress="0.0" />
-      <Circle fill="#f2f2f2" layoutX="366.0" layoutY="35.0" radius="10.0" stroke="BLACK" strokeType="INSIDE" />
-      <Circle fill="#f2f2f2" layoutX="366.0" layoutY="329.0" radius="10.0" stroke="BLACK" strokeType="INSIDE" />
+      <Circle fx:id="sourceLed" fill="#f2f2f2" layoutX="366.0" layoutY="35.0" radius="10.0" stroke="#d3d3d3" strokeType="INSIDE" />
+      <Circle fx:id="destLed" fill="#f2f2f2" layoutX="366.0" layoutY="329.0" radius="10.0" stroke="LIGHTGRAY" strokeType="INSIDE" />
    </children>
 </AnchorPane>

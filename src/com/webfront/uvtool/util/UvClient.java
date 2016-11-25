@@ -303,6 +303,7 @@ public class UvClient {
         destSession = Uv.newInstance(destProfile);
         try {
             sourceSession.connect();
+            progress.updateLed("source", true);
             progress.display("Connected to "+sourceProfile.getServerName());
         } catch (UniSessionException ex) {
             Logger.getLogger(UvClient.class.getName()).log(Level.SEVERE, null, ex);
@@ -311,12 +312,14 @@ public class UvClient {
         }
         try {
             destSession.connect();
+            progress.updateLed("dest", true);
             progress.display("Connected to "+destProfile.getServerName());
         } catch (UniSessionException ex) {
             Logger.getLogger(UvClient.class.getName()).log(Level.SEVERE, null, ex);
             if (sourceSession.getSession().isActive()) {
                 try {
                     sourceSession.disconnect();
+                    progress.updateLed("source", false);
                 } catch (UniSessionException ex1) {
                     Logger.getLogger(UvClient.class.getName()).log(Level.SEVERE, null, ex1);
                     Platform.runLater(() ->progress.display(ex1.toString()));
@@ -330,10 +333,12 @@ public class UvClient {
 
     public boolean doDisconnect() {
         try {
-            destSession.disconnect();
-            progress.display("Disconnected from "+destProfile.getServerName());
             sourceSession.disconnect();
+            progress.updateLed("source", false);
             progress.display("Disconnected from "+sourceProfile.getServerName());
+            destSession.disconnect();
+            progress.updateLed("dest", false);
+            progress.display("Disconnected from "+destProfile.getServerName());            
         } catch (UniSessionException ex) {
             progress.display(ex.toString());
             return false;

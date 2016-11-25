@@ -5,6 +5,8 @@
  */
 package com.webfront.uvtool.util;
 
+import javafx.scene.shape.Circle;
+
 /**
  *
  * @author rlittle
@@ -23,7 +25,6 @@ public interface Progress {
      * @param message
      */
     public void state(String message);
-    
     public void updateProgressBar(Double p);
-    
+    public void updateLed(String host, boolean onOff);
 }
