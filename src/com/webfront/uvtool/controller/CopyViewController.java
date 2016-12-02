@@ -223,6 +223,7 @@ public class CopyViewController implements ControllerInterface, Initializable, P
     @FXML
     public void onCopy() {
         if (validateForm()) {
+            updateProgressBar(0D);
             String fileName = txtSourceFile.getText();
             String field = txtSourceField.getText();
             String value = txtSourceValue.getText();

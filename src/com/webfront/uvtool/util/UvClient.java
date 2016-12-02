@@ -38,7 +38,7 @@ public class UvClient {
 
     private Uv sourceSession;
     private Uv destSession;
-    
+
     public Double totalRecords;
 
     public UvClient(Progress p) {
@@ -150,6 +150,7 @@ public class UvClient {
         UniDynArray destRecord = null;
         UniSelectList list;
         Double recordsDone;
+        progress.updateProgressBar(0D);
         if (doConnect()) {
             try {
                 if (selectType == Uv.SelectType.LIST) {
@@ -159,6 +160,11 @@ public class UvClient {
                 }
                 if (list == null) {
                     progress.display("Unable to create select list");
+                    doDisconnect();
+                    return false;
+                }
+                if (totalRecords == 0) {
+                    progress.display("No items found");
                     doDisconnect();
                     return false;
                 }
@@ -178,8 +184,8 @@ public class UvClient {
                     sourceData.setId(recordId);
                     destData.setId(recordId);
                     try {
-                        
-                        progress.state("Read "+srcHost +" "+sourceData.getId()+" ");
+
+                        progress.state("Read " + srcHost + " " + sourceData.getId() + " ");
                         int readStatus = getRecord(sourceFile, sourceData);
                         if (readStatus == UniObjectsTokens.UVE_RNF) {
                             progress.display("Not found");
@@ -190,7 +196,7 @@ public class UvClient {
                             continue;
                         }
                         progress.display("OK");
-                        progress.state("Read "+destHost +" "+sourceData.getId()+" ");
+                        progress.state("Read " + destHost + " " + sourceData.getId() + " ");
                         readStatus = getRecord(destFile, destData);
                         if (readStatus == UniObjectsTokens.UVE_RNF) {
                             if (missingPolicy == Uv.Missing.IGNORE) {
@@ -220,7 +226,7 @@ public class UvClient {
                             }
                         }
                         if (existingPolicy == Uv.Existing.OVERWRITE) {
-                            progress.state("Write "+destHost+" "+destData.getId()+" ");
+                            progress.state("Write " + destHost + " " + destData.getId() + " ");
                             writeRecord(destFile, destData);
                             destFile.unlockRecord(recordId);
                             progress.display("OK");
@@ -240,9 +246,9 @@ public class UvClient {
         }
         return true;
     }
-    
+
     public void doQuery() {
-        
+
     }
 
     public void doRecordSetup(UvData source, UvData dest) {
@@ -304,7 +310,7 @@ public class UvClient {
         try {
             sourceSession.connect();
             progress.updateLed("source", true);
-            progress.display("Connected to "+sourceProfile.getServerName());
+            progress.display("Connected to " + sourceProfile.getServerName());
         } catch (UniSessionException ex) {
             Logger.getLogger(UvClient.class.getName()).log(Level.SEVERE, null, ex);
             progress.display(ex.toString());
@@ -313,7 +319,7 @@ public class UvClient {
         try {
             destSession.connect();
             progress.updateLed("dest", true);
-            progress.display("Connected to "+destProfile.getServerName());
+            progress.display("Connected to " + destProfile.getServerName());
         } catch (UniSessionException ex) {
             Logger.getLogger(UvClient.class.getName()).log(Level.SEVERE, null, ex);
             if (sourceSession.getSession().isActive()) {
@@ -322,7 +328,7 @@ public class UvClient {
                     progress.updateLed("source", false);
                 } catch (UniSessionException ex1) {
                     Logger.getLogger(UvClient.class.getName()).log(Level.SEVERE, null, ex1);
-                    Platform.runLater(() ->progress.display(ex1.toString()));
+                    Platform.runLater(() -> progress.display(ex1.toString()));
                 }
             }
             return false;
@@ -335,10 +341,10 @@ public class UvClient {
         try {
             sourceSession.disconnect();
             progress.updateLed("source", false);
-            progress.display("Disconnected from "+sourceProfile.getServerName());
+            progress.display("Disconnected from " + sourceProfile.getServerName());
             destSession.disconnect();
             progress.updateLed("dest", false);
-            progress.display("Disconnected from "+destProfile.getServerName());            
+            progress.display("Disconnected from " + destProfile.getServerName());
         } catch (UniSessionException ex) {
             progress.display(ex.toString());
             return false;
