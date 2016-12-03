@@ -292,6 +292,7 @@ public class UvClient {
             try {
                 list.getList(data.getSelectCriteria());
                 UniDynArray recList = list.readList();
+                list.getList(data.getSelectCriteria());
                 totalRecords = new Double(recList.dcount());
             } catch (UniSelectListException ex) {
                 Logger.getLogger(UvClient.class.getName()).log(Level.SEVERE, null, ex);
