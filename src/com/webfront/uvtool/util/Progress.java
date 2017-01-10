@@ -5,8 +5,6 @@
  */
 package com.webfront.uvtool.util;
 
-import javafx.scene.shape.Circle;
-
 /**
  *
  * @author rlittle
