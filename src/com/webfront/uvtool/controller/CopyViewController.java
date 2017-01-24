@@ -14,6 +14,8 @@ import com.webfront.uvtool.util.Uv;
 import com.webfront.uvtool.util.UvClient;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,6 +40,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.RadialGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.shape.Circle;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -121,11 +126,18 @@ public class CopyViewController implements ControllerInterface, Initializable, P
 
     SimpleObjectProperty<Profile> sourceProfileProperty;
     SimpleObjectProperty<Profile> destProfileProperty;
+    RadialGradient ledOff;
+    RadialGradient ledOn;
 
     ResourceBundle res;
+    
+    List<Stop> stopsOn;
+    List<Stop> stopsOff;
 
     public CopyViewController() {
         config = Config.getInstance();
+        stopsOn = new ArrayList<>();
+        stopsOff = new ArrayList<>();
         sourceProfileProperty = new SimpleObjectProperty();
         destProfileProperty = new SimpleObjectProperty();
 
@@ -140,6 +152,14 @@ public class CopyViewController implements ControllerInterface, Initializable, P
         destLed = new Circle();
         lblCriteria = new Label();
         lblStatusMessage = new Label();
+        
+        stopsOn.add(new Stop(0,Color.web("#06ff0e")));
+        stopsOn.add(new Stop(1.0,Color.web("#1e6824")));
+        ledOn = new RadialGradient(0,-0.02,0.5112359550561798,0.5,0.6666666666666666,true,CycleMethod.NO_CYCLE,stopsOn);
+        
+        stopsOff.add(new Stop(0,Color.web("#cccccc")));
+        stopsOn.add(new Stop(1.0,Color.web("#1e6824")));
+        ledOff = new RadialGradient(0,-0.02,0.5112359550561798,0.5,0.6666666666666666,true,CycleMethod.NO_CYCLE,stopsOff);        
 
         tgDestExisting = new ToggleGroup();
         tbDestMissing = new ToggleGroup();
@@ -437,12 +457,10 @@ public class CopyViewController implements ControllerInterface, Initializable, P
     
     @Override
     public void updateLed(String host, boolean onOff) {
-        Color led = Color.LIGHTGREEN;
-        Color ledOff = Color.web("#f2f2f2");
         if (host.equalsIgnoreCase("source")) {
-            sourceLed.setFill(onOff? led : ledOff);
+            sourceLed.setFill(onOff? ledOn : ledOff);
         } else {
-            destLed.setFill(onOff? led : ledOff);
+            destLed.setFill(onOff? ledOn : ledOff);
         }
     }
 
