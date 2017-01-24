@@ -71,6 +71,8 @@ public class CopyViewController implements ControllerInterface, Initializable, P
     Circle destLed;
 
     @FXML
+    Label lblCriteria;
+    @FXML
     Label lblStatusMessage;
 
     @FXML
@@ -136,6 +138,7 @@ public class CopyViewController implements ControllerInterface, Initializable, P
         cbDestProfile = new ComboBox<>();
 
         destLed = new Circle();
+        lblCriteria = new Label();
         lblStatusMessage = new Label();
 
         tgDestExisting = new ToggleGroup();
@@ -177,6 +180,17 @@ public class CopyViewController implements ControllerInterface, Initializable, P
         cbDestProfile.setItems(config.getProfiles());
         sourceProfileProperty.bind(cbSourceProfile.valueProperty());
         destProfileProperty.bind(cbDestProfile.valueProperty());
+        tgSourceItems.selectedToggleProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                if(((RadioButton) newValue).getId().equals("rbFromSavedList")) {
+                    lblCriteria.setText("List name");
+                } else {
+                    lblCriteria.setText("Selection criteria");
+                }
+            }
+        });
+        
         txtSourceFile.focusedProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
@@ -202,7 +216,7 @@ public class CopyViewController implements ControllerInterface, Initializable, P
             }
         });
         rbFromQuery.selectedProperty().set(true);
-        rbPreserve.selectedProperty().set(true);
+        rbReplace.selectedProperty().set(true);
         rbCreate.selectedProperty().set(true);
     }
 

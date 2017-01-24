@@ -28,7 +28,7 @@
             <ToggleGroup fx:id="tgSourceItems" />
          </toggleGroup></RadioButton>
       <RadioButton fx:id="rbFromSavedList" layoutX="228.0" layoutY="119.0" mnemonicParsing="false" text="From saved list" toggleGroup="$tgSourceItems" />
-      <Label layoutX="13.0" layoutY="158.0" text="Criteria" />
+      <Label fx:id="lblCriteria" layoutX="13.0" layoutY="158.0" text="Selection criteria" />
       <TextArea fx:id="txtCriteria" layoutX="13.0" layoutY="175.0" prefHeight="99.0" prefWidth="497.0" />
       <Line endX="390.0" layoutX="118.0" layoutY="298.0" startX="-100.0" stroke="#b9b4b4" strokeType="OUTSIDE" />
       <Label layoutX="13.0" layoutY="321.0" text="Destination" />
@@ -44,11 +44,11 @@
       <Button fx:id="btnAddSourceProfile" layoutX="297.0" layoutY="22.0" mnemonicParsing="false" onAction="#onAddProfile" text="+" />
       <Button fx:id="btnAddDestProfile" layoutX="304.0" layoutY="316.0" mnemonicParsing="false" onAction="#onAddProfile" text="+" />
       <Label layoutX="13.0" layoutY="412.0" text="Existing data" />
-      <RadioButton fx:id="rbPreserve" layoutX="115.0" layoutY="411.0" mnemonicParsing="false" text="Preserve">
+      <RadioButton fx:id="rbPreserve" layoutX="218.0" layoutY="411.0" mnemonicParsing="false" text="Preserve">
          <toggleGroup>
             <ToggleGroup fx:id="tgExisting" />
          </toggleGroup></RadioButton>
-      <RadioButton fx:id="rbReplace" layoutX="218.0" layoutY="411.0" mnemonicParsing="false" text="Replace" toggleGroup="$tgExisting" />
+      <RadioButton fx:id="rbReplace" layoutX="116.0" layoutY="411.0" mnemonicParsing="false" text="Replace" toggleGroup="$tgExisting" />
       <Label layoutX="14.0" layoutY="447.0" text="Missing data" />
       <RadioButton fx:id="rbCreate" layoutX="115.0" layoutY="446.0" mnemonicParsing="false" text="Create">
          <toggleGroup>
