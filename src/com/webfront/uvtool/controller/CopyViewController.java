@@ -153,13 +153,13 @@ public class CopyViewController implements ControllerInterface, Initializable, P
         lblCriteria = new Label();
         lblStatusMessage = new Label();
         
-        stopsOn.add(new Stop(0,Color.web("#06ff0e")));
+        stopsOn.add(new Stop(0,Color.web("#26ff6B")));
         stopsOn.add(new Stop(1.0,Color.web("#1e6824")));
-        ledOn = new RadialGradient(0,-0.02,0.5112359550561798,0.5,0.6666666666666666,true,CycleMethod.NO_CYCLE,stopsOn);
+        ledOn = new RadialGradient(0,-0.02,0.51,0.5,0.97,true,CycleMethod.NO_CYCLE,stopsOn);
         
         stopsOff.add(new Stop(0,Color.web("#cccccc")));
         stopsOn.add(new Stop(1.0,Color.web("#1e6824")));
-        ledOff = new RadialGradient(0,-0.02,0.5112359550561798,0.5,0.6666666666666666,true,CycleMethod.NO_CYCLE,stopsOff);        
+        ledOff = new RadialGradient(0,-0.02,0.51,0.5,0.67,true,CycleMethod.NO_CYCLE,stopsOff);        
 
         tgDestExisting = new ToggleGroup();
         tbDestMissing = new ToggleGroup();
