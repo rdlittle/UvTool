@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,7 +31,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -130,9 +133,11 @@ public class CopyViewController implements ControllerInterface, Initializable, P
     RadialGradient ledOn;
 
     ResourceBundle res;
-    
+
     List<Stop> stopsOn;
     List<Stop> stopsOff;
+
+    private final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 
     public CopyViewController() {
         config = Config.getInstance();
@@ -152,14 +157,14 @@ public class CopyViewController implements ControllerInterface, Initializable, P
         destLed = new Circle();
         lblCriteria = new Label();
         lblStatusMessage = new Label();
-        
-        stopsOn.add(new Stop(0,Color.web("#26ff6B")));
-        stopsOn.add(new Stop(1.0,Color.web("#1e6824")));
-        ledOn = new RadialGradient(0,-0.02,0.51,0.5,0.97,true,CycleMethod.NO_CYCLE,stopsOn);
-        
-        stopsOff.add(new Stop(0,Color.web("#cccccc")));
-        stopsOn.add(new Stop(1.0,Color.web("#1e6824")));
-        ledOff = new RadialGradient(0,-0.02,0.51,0.5,0.67,true,CycleMethod.NO_CYCLE,stopsOff);        
+
+        stopsOn.add(new Stop(0, Color.web("#26ff6B")));
+        stopsOn.add(new Stop(1.0, Color.web("#1e6824")));
+        ledOn = new RadialGradient(0, -0.02, 0.51, 0.5, 0.97, true, CycleMethod.NO_CYCLE, stopsOn);
+
+        stopsOff.add(new Stop(0, Color.web("#cccccc")));
+        stopsOn.add(new Stop(1.0, Color.web("#1e6824")));
+        ledOff = new RadialGradient(0, -0.02, 0.51, 0.5, 0.67, true, CycleMethod.NO_CYCLE, stopsOff);
 
         tgDestExisting = new ToggleGroup();
         tbDestMissing = new ToggleGroup();
@@ -185,6 +190,9 @@ public class CopyViewController implements ControllerInterface, Initializable, P
         rbIgnore = new RadioButton();
         rbPreserve = new RadioButton();
         rbReplace = new RadioButton();
+
+        alert.setTitle("File name mismatch");
+        alert.contentTextProperty().set("Destination file does not match source file!");
     }
 
     /**
@@ -203,14 +211,14 @@ public class CopyViewController implements ControllerInterface, Initializable, P
         tgSourceItems.selectedToggleProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                if(((RadioButton) newValue).getId().equals("rbFromSavedList")) {
+                if (((RadioButton) newValue).getId().equals("rbFromSavedList")) {
                     lblCriteria.setText("List name");
                 } else {
                     lblCriteria.setText("Selection criteria");
                 }
             }
         });
-        
+
         txtSourceFile.focusedProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
@@ -256,7 +264,14 @@ public class CopyViewController implements ControllerInterface, Initializable, P
 
     @FXML
     public void onCopy() {
-        if (validateForm()) {
+        boolean proceed = true;
+        if (txtSourceFile.getText() != txtDestFile.getText()) {
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.CANCEL) {
+                proceed = false;
+            }
+        }
+        if (proceed && validateForm()) {
             updateProgressBar(0D);
             String fileName = txtSourceFile.getText();
             String field = txtSourceField.getText();
@@ -454,13 +469,13 @@ public class CopyViewController implements ControllerInterface, Initializable, P
     public void updateProgressBar(Double p) {
         Platform.runLater(() -> progressBar.progressProperty().setValue(p));
     }
-    
+
     @Override
     public void updateLed(String host, boolean onOff) {
         if (host.equalsIgnoreCase("source")) {
-            sourceLed.setFill(onOff? ledOn : ledOff);
+            sourceLed.setFill(onOff ? ledOn : ledOff);
         } else {
-            destLed.setFill(onOff? ledOn : ledOff);
+            destLed.setFill(onOff ? ledOn : ledOff);
         }
     }
 
