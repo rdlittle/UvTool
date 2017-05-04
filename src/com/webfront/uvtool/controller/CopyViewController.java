@@ -265,7 +265,7 @@ public class CopyViewController implements ControllerInterface, Initializable, P
     @FXML
     public void onCopy() {
         boolean proceed = true;
-        if (txtSourceFile.getText() != txtDestFile.getText()) {
+        if (!txtSourceFile.getText().equals(txtDestFile.getText())) {
             Optional<ButtonType> result = alert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.CANCEL) {
                 proceed = false;

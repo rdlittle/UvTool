@@ -366,7 +366,6 @@ public class UvClient {
                 }
             }
         } catch (UniFileException ex) {
-            Logger.getLogger(UvClient.class.getName()).log(Level.SEVERE, null, ex);
             if (ex.getErrorCode() == UniObjectsTokens.UVE_RNF) {
                 return UniObjectsTokens.UVE_RNF;
             }
