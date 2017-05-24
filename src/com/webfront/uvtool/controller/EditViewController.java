@@ -16,7 +16,7 @@ import javafx.scene.control.Button;
  *
  * @author rlittle
  */
-public class EditViewController implements ControllerInterface, Initializable {
+public class EditViewController implements Controller, Initializable {
 
     @FXML
     Button btnCancel;

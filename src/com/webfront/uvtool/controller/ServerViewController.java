@@ -25,7 +25,7 @@ import javafx.scene.control.TextField;
  *
  * @author rlittle
  */
-public class ServerViewController implements ControllerInterface, Initializable {
+public class ServerViewController implements Controller, Initializable {
 
     @FXML
     Button btnSave;

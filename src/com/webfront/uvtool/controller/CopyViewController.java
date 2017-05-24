@@ -55,7 +55,7 @@ import javafx.stage.Stage;
  *
  * @author rlittle
  */
-public class CopyViewController implements ControllerInterface, Initializable, Progress {
+public class CopyViewController implements Controller, Initializable, Progress {
 
     @FXML
     Button btnAddSourceProfile;
@@ -440,7 +440,7 @@ public class CopyViewController implements ControllerInterface, Initializable, P
             stage.setScene(new Scene(root));
 //            root.addEventFilter(KeyEvent.KEY_PRESSED, event -> System.out.println("Pressed: "+event.getCode()));
             stage.setTitle(t);
-            ControllerInterface ctrl = viewLoader.getController();
+            Controller ctrl = viewLoader.getController();
             ctrl.getCancelButton().setOnAction(new EventHandler() {
                 @Override
                 public void handle(Event event) {

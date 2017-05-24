@@ -17,7 +17,7 @@ import javafx.scene.control.TextArea;
  * @author rlittle
  */
 
-public class OutputWindowController implements ControllerInterface, Initializable {
+public class OutputWindowController implements Controller, Initializable {
 
     @FXML
     private ResourceBundle resources;

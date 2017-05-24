@@ -154,7 +154,7 @@ public class UvToolController implements Initializable {
             stage.setScene(new Scene(root));
 //            root.addEventFilter(KeyEvent.KEY_PRESSED, event -> System.out.println("Pressed: "+event.getCode()));
             stage.setTitle(t);
-            ControllerInterface ctrl = viewLoader.getController();
+            Controller ctrl = viewLoader.getController();
             ctrl.getCancelButton().setOnAction(new EventHandler() {
                 @Override
                 public void handle(Event event) {

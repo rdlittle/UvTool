@@ -11,7 +11,7 @@ import javafx.scene.control.Button;
  *
  * @author rlittle
  */
-public interface ControllerInterface {
+public interface Controller {
     public Button getCancelButton();
     public void launch(String v,String t);
 }

@@ -18,7 +18,7 @@ import javafx.scene.control.TextArea;
  *
  * @author rlittle
  */
-public class QueryViewController implements ControllerInterface, Initializable, Progress {
+public class QueryViewController implements Controller, Initializable, Progress {
 
     @FXML
     Button btnCancel;

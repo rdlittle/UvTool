@@ -35,7 +35,7 @@ import javafx.stage.Stage;
  *
  * @author rlittle
  */
-public class RunViewController implements ControllerInterface, Initializable {
+public class RunViewController implements Controller, Initializable {
 
     @FXML
     ComboBox<Profile> cbProfile;
@@ -114,7 +114,7 @@ public class RunViewController implements ControllerInterface, Initializable {
             Stage stage = new Stage();
             stage.setTitle(res.getString(title));
             AnchorPane root = viewLoader.<AnchorPane>load();
-            ControllerInterface ctrl = viewLoader.getController();
+            Controller ctrl = viewLoader.getController();
             
             ctrl.getCancelButton().setOnAction(new EventHandler() {
                 @Override

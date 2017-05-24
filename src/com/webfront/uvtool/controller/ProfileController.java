@@ -55,7 +55,7 @@ import javafx.stage.Stage;
  *
  * @author rlittle
  */
-public class ProfileController implements ControllerInterface {
+public class ProfileController implements Controller {
 
     @FXML
     private URL location;
@@ -446,7 +446,7 @@ public class ProfileController implements ControllerInterface {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setScene(new Scene(root));
             stage.setTitle(t);
-            ControllerInterface ctrl = viewLoader.getController();
+            Controller ctrl = viewLoader.getController();
             ctrl.getCancelButton().setOnAction(new EventHandler() {
                 @Override
                 public void handle(Event event) {

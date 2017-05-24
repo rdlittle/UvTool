@@ -22,7 +22,7 @@ import javafx.scene.control.TextField;
  *
  * @author rlittle
  */
-public class AccountViewController implements ControllerInterface, Initializable {
+public class AccountViewController implements Controller, Initializable {
 
     @FXML
     Button btnSave;
