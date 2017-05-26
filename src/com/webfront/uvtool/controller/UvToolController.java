@@ -32,7 +32,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
@@ -214,7 +213,7 @@ public class UvToolController implements Initializable {
     
     @FXML
     public void onEditAccount() {
-        
+        launch("viewAccount","titleAccount");
     }
     
     @FXML
