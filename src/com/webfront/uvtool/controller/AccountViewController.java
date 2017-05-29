@@ -48,6 +48,7 @@ public class AccountViewController implements Controller, Initializable {
     ResourceBundle res;
     private final Config config = Config.getInstance();
     private final FilteredList<Account> filteredAccountList;
+    private Account selectedAccount;
 
     /**
      * Initializes the controller class.
@@ -55,6 +56,7 @@ public class AccountViewController implements Controller, Initializable {
     public AccountViewController() {
         filteredAccountList = new FilteredList<>(config.getAccounts());
         filteredAccountList.setPredicate((e) -> true);
+        selectedAccount = new Account();
         
         btnSave = new Button();
         btnCancel = new Button();
@@ -71,6 +73,14 @@ public class AccountViewController implements Controller, Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         res = rb;
         cbAccount.setItems(filteredAccountList);
+        cbAccount.valueProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                selectedAccount = (Account) newValue;
+                txtPath.setText(((Account) newValue).getPath());
+            }
+        });
+        
         cbServers.getItems().addAll(config.getServers());
         cbServers.valueProperty().addListener(new ChangeListener() {
             @Override
@@ -78,13 +88,23 @@ public class AccountViewController implements Controller, Initializable {
                 Server s = (Server) newValue;
                 String serverName = s.getName();
                 filteredAccountList.setPredicate((a) -> a.getServerName().equalsIgnoreCase(serverName));
+                selectedAccount = new Account();
+                txtPath.setText("");
             }
         });
+        
+        txtPath.textProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                selectedAccount.setPath(((TextField)newValue).getText());
+            }
+        });
+        
     }
 
     @FXML
     public void btnSaveOnAction() {
-        Server server = (Server) cbServers.getSelectionModel().getSelectedItem();
+        Server server = cbServers.getValue();
         String name = cbAccount.getValue().getName();
         String path = txtPath.getText();
         if (server == null) {
@@ -99,7 +119,7 @@ public class AccountViewController implements Controller, Initializable {
         }
         for (Account a : config.getAccounts()) {
             if (name.equals(a.getName()) && a.getServerName().equalsIgnoreCase(server.getName())) {
-                lblStatusMessage.setText(res.getString("errAccountExist"));
+                config.updateAccount(a);
                 return;
             }
         }
