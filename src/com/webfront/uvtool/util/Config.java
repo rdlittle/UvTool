@@ -494,6 +494,9 @@ public class Config {
         try {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
+            if(!rs.next()) {
+                return null;
+            }
             a = new Account();
             a.setId(rs.getInt("id"));
             a.setName(rs.getString("name"));

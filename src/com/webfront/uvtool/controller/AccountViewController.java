@@ -22,6 +22,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 
 /**
  * FXML Controller class
@@ -57,14 +60,14 @@ public class AccountViewController implements Controller, Initializable {
         filteredAccountList = new FilteredList<>(config.getAccounts());
         filteredAccountList.setPredicate((e) -> true);
         selectedAccount = new Account();
-        
+
         btnSave = new Button();
         btnCancel = new Button();
         lblStatusMessage = new Label();
         txtPath = new TextField();
         cbAccount = new ComboBox<>();
         cbAccount.converterProperty().set(new AccountConverter());
-        
+
         cbServers = new ComboBox<>();
         cbServers.converterProperty().set(new ServerConverter());
     }
@@ -76,36 +79,120 @@ public class AccountViewController implements Controller, Initializable {
         cbAccount.valueProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                selectedAccount = (Account) newValue;
-                txtPath.setText(((Account) newValue).getPath());
+                if (newValue instanceof Account) {
+                    Account a = (Account) newValue;
+                    selectedAccount.setName(a.getName());
+                    txtPath.setText(a.getPath());
+                }
             }
         });
-        
+
+        cbAccount.addEventFilter(MouseEvent.MOUSE_CLICKED, eventFilter -> {
+            if (eventFilter.getClickCount() == 2) {
+                cbAccount.editableProperty().set(true);
+                cbAccount.getEditor().requestFocus();
+            }
+        });
+
+        cbAccount.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                cbAccount.editableProperty().set(false);
+                event.consume();
+            } else {
+                if (event.getCode() == KeyCode.ENTER) {
+                    if (cbAccount.getEditor() != null) {
+                        String act = cbAccount.getEditor().getText();
+                        Server s = cbServers.getValue();
+                        if (filteredAccountList.size() == 0) {
+                            Account tAcct = Config.getInstance().getAccountByName(act, s.getName());
+                            if (tAcct == null) {
+                                selectedAccount = new Account();
+                                selectedAccount.setServerName(s.getName());
+                                selectedAccount.setName(act);
+                                cbAccount.setValue(selectedAccount);
+                            } else {
+                                selectedAccount = tAcct;
+                            }
+                        } else {
+                            for (Account a : filteredAccountList) {
+                                if (a.getServerName().equalsIgnoreCase(s.getName())) {
+                                    selectedAccount.setName(act);
+                                }
+                            }
+                        }
+                    }
+                    cbAccount.editableProperty().set(false);
+                    event.consume();
+                }
+            };
+        });
+
+        cbAccount.focusedProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                boolean isFocused = (boolean) newValue;
+                if (isFocused) {
+                    return;
+                }
+                if (cbAccount.getEditor() != null) {
+                    String act = cbAccount.getEditor().getText();
+                    Server s = cbServers.getValue();
+                    if (filteredAccountList.size() == 0) {
+                        Account tAcct = Config.getInstance().getAccountByName(act, s.getName());
+                        if (tAcct == null) {
+                            selectedAccount = new Account();
+                            selectedAccount.setServerName(s.getName());
+                            selectedAccount.setName(act);
+                            cbAccount.setValue(selectedAccount);
+                        } else {
+                            selectedAccount = tAcct;
+                        }
+                    } else {
+                        for (Account a : filteredAccountList) {
+                            if (a.getServerName().equalsIgnoreCase(s.getName())) {
+                                if(!a.getName().equalsIgnoreCase(act)) {
+                                    selectedAccount.setName(act);
+                                    selectedAccount.setPath("");
+                                    txtPath.setText("");
+                                }
+                            }
+                        }
+                    }
+                }
+                cbAccount.editableProperty().set(false);
+            }
+        });
+
         cbServers.getItems().addAll(config.getServers());
         cbServers.valueProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
                 Server s = (Server) newValue;
                 String serverName = s.getName();
-                filteredAccountList.setPredicate((a) -> a.getServerName().equalsIgnoreCase(serverName));
+                filteredAccountList.setPredicate((a) -> a == null || a.getName().length() == 0 || a.getServerName().equalsIgnoreCase(serverName));
                 selectedAccount = new Account();
                 txtPath.setText("");
+                cbAccount.valueProperty().set(selectedAccount);
             }
         });
-        
+
         txtPath.textProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                selectedAccount.setPath(((TextField)newValue).getText());
+                if (oldValue.equals(newValue)) {
+                    return;
+                }
+                selectedAccount.setPath((String) newValue);
             }
         });
-        
+
     }
 
     @FXML
     public void btnSaveOnAction() {
         Server server = cbServers.getValue();
-        String name = cbAccount.getValue().getName();
+        Account acct = cbAccount.getValue();
+        String name = acct.getName();
         String path = txtPath.getText();
         if (server == null) {
             lblStatusMessage.setText(res.getString("errServerSelect"));
