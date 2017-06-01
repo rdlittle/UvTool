@@ -143,7 +143,6 @@ public class AccountViewController implements Controller, Initializable {
                             selectedAccount = new Account();
                             selectedAccount.setServerName(s.getName());
                             selectedAccount.setName(act);
-                            cbAccount.setValue(selectedAccount);
                         } else {
                             selectedAccount = tAcct;
                         }
@@ -159,6 +158,7 @@ public class AccountViewController implements Controller, Initializable {
                         }
                     }
                 }
+                cbAccount.setValue(selectedAccount);
                 cbAccount.editableProperty().set(false);
             }
         });
