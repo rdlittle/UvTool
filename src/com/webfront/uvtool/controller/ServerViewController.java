@@ -7,16 +7,15 @@ package com.webfront.uvtool.controller;
 
 import com.webfront.uvtool.model.Server;
 import com.webfront.uvtool.util.Config;
+import com.webfront.uvtool.util.ServerConverter;
 import java.net.URL;
 import java.util.ResourceBundle;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
@@ -33,9 +32,10 @@ public class ServerViewController implements Controller, Initializable {
     Button btnCancel;
 
     @FXML
-    TextField txtHostName;
+    ComboBox<Server> cbServer;
+
     @FXML
-    TextField txtServerName;
+    TextField txtHostName;
 
     @FXML
     Label lblStatusMessage;
@@ -45,9 +45,11 @@ public class ServerViewController implements Controller, Initializable {
     public ServerViewController() {
         btnCancel = new Button();
         btnSave = new Button();
+        cbServer = new ComboBox<>();
+        cbServer.converterProperty().set(new ServerConverter());
+
         lblStatusMessage = new Label();
         txtHostName = new TextField();
-        txtServerName = new TextField();
     }
 
     /**
@@ -60,29 +62,41 @@ public class ServerViewController implements Controller, Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         this.res = rb;
         txtHostName.setPromptText("Enter host name");
-        txtHostName.disableProperty().bind(txtServerName.textProperty().isEmpty());
-        this.btnSave.disableProperty().bind(this.txtHostName.textProperty().isEmpty());
+        cbServer.setItems(Config.getInstance().getServers());
+        cbServer.valueProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                Server s = (Server) newValue;
+                txtHostName.setText(s.getHost());
+            }
+        });
+        cbServer.requestFocus();
     }
 
     @FXML
     public void btnSaveOnAction() {
-        String serverName = txtServerName.getText();
-        String hostName = txtHostName.getText();
+        Server selectedServer = cbServer.getValue();
+        String serverName = selectedServer.getName();
+        String hostName = selectedServer.getHost();
         if (serverName.isEmpty()) {
             lblStatusMessage.setText(res.getString("errNoServerName"));
-            txtServerName.requestFocus();
+            cbServer.requestFocus();
         } else if (hostName.isEmpty()) {
             lblStatusMessage.setText(res.getString("errNoHostName"));
             txtHostName.requestFocus();
         } else {
             Config cfg = Config.getInstance();
             lblStatusMessage.setText("");
-            Server s = new Server();
-            s.setHost(hostName);
-            s.setName(serverName);
-            cfg.addServer(s);
+            if (cfg.getServer(serverName) != null) {
+                selectedServer.setHost(txtHostName.getText());
+                cfg.updateServer(selectedServer);
+            } else {
+                Server s = new Server();
+                s.setHost(hostName);
+                s.setName(serverName);
+                cfg.addServer(s);
+            }
             txtHostName.clear();
-            txtServerName.clear();
             btnCancel.fire();
         }
     }

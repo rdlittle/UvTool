@@ -218,7 +218,7 @@ public class UvToolController implements Initializable {
     
     @FXML
     public void onEditServer() {
-        
+        launch("viewServer","titleServer");
     }    
     
     @FXML
