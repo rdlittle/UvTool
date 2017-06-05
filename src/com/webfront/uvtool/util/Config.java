@@ -396,7 +396,7 @@ public class Config {
 
     public void updateServer(Server s) {
         String sql = "update servers set host = \"" + s.getHost() + "\" ";
-        sql += "where name = " + s.getName();
+        sql += "where name = \"" + s.getName()+"\"";
         Statement statement;
         try {
             statement = connection.createStatement();
