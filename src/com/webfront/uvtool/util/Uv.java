@@ -38,6 +38,10 @@ public class Uv {
     public static enum Existing {
         OVERWRITE, PRESERVE;
     }
+    
+    public static enum SelectFrom {
+        SOURCE, DESTINATION;
+    }
 
     protected Uv() {
         if(Uv.uj == null) {

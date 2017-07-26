@@ -12,7 +12,6 @@ import com.webfront.uvtool.util.Config;
 import com.webfront.uvtool.util.ServerConverter;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.function.Predicate;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.transformation.FilteredList;

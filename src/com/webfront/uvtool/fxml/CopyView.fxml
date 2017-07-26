@@ -32,7 +32,7 @@
         </RadioButton>
         <RadioButton fx:id="rbFromSavedList" layoutX="228.0" layoutY="119.0" mnemonicParsing="false" text="From saved list" toggleGroup="$tgSourceItems" />
         <Label fx:id="lblCriteria" layoutX="13.0" layoutY="158.0" text="Selection criteria" />
-        <TextArea fx:id="txtCriteria" layoutX="13.0" layoutY="175.0" prefHeight="99.0" prefWidth="497.0" />
+        <TextArea fx:id="txtCriteria" layoutX="13.0" layoutY="175.0" prefHeight="74.0" prefWidth="497.0" />
         <Line endX="390.0" layoutX="118.0" layoutY="298.0" startX="-100.0" stroke="#b9b4b4" strokeType="OUTSIDE" />
         <Label layoutX="13.0" layoutY="321.0" text="Destination" />
         <ComboBox fx:id="cbDestProfile" layoutX="99.0" layoutY="316.0" prefHeight="26.0" prefWidth="197.0" promptText="Select profile" />
@@ -83,5 +83,11 @@
                 </RadialGradient>
             </fill>
         </Circle>
+      <RadioButton fx:id="rbSelectFromSource" layoutX="97.0" layoutY="260.0" mnemonicParsing="false" text="Source">
+         <toggleGroup>
+            <ToggleGroup fx:id="tgSelectFrom" />
+         </toggleGroup></RadioButton>
+      <RadioButton fx:id="rbSelectFromDest" layoutX="228.0" layoutY="260.0" mnemonicParsing="false" text="Destination" toggleGroup="$tgSelectFrom" />
+      <Label layoutX="18.0" layoutY="261.0" text="Select On" />
     </children>
 </AnchorPane>

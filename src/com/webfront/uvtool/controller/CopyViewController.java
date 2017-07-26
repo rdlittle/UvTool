@@ -117,11 +117,17 @@ public class CopyViewController implements Controller, Initializable, Progress {
     RadioButton rbCreate;
     @FXML
     RadioButton rbIgnore;
+    @FXML
+    RadioButton rbSelectFromSource;
+    @FXML
+    RadioButton rbSelectFromDest;
 
     @FXML
     ToggleGroup tgDestExisting;
     @FXML
-    ToggleGroup tbDestMissing;
+    ToggleGroup tgDestMissing;
+    @FXML
+    ToggleGroup tgSelectFrom;
     @FXML
     ToggleGroup tgSourceItems;
 
@@ -167,7 +173,7 @@ public class CopyViewController implements Controller, Initializable, Progress {
         ledOff = new RadialGradient(0, -0.02, 0.51, 0.5, 0.67, true, CycleMethod.NO_CYCLE, stopsOff);
 
         tgDestExisting = new ToggleGroup();
-        tbDestMissing = new ToggleGroup();
+        tgDestMissing = new ToggleGroup();
         tgSourceItems = new ToggleGroup();
 
         txtCriteria = new TextArea();
@@ -190,6 +196,8 @@ public class CopyViewController implements Controller, Initializable, Progress {
         rbIgnore = new RadioButton();
         rbPreserve = new RadioButton();
         rbReplace = new RadioButton();
+        rbSelectFromDest = new RadioButton();
+        rbSelectFromSource = new RadioButton();
 
         alert.setTitle("File name mismatch");
         alert.contentTextProperty().set("Destination file does not match source file!");
@@ -246,6 +254,7 @@ public class CopyViewController implements Controller, Initializable, Progress {
         rbFromQuery.selectedProperty().set(true);
         rbReplace.selectedProperty().set(true);
         rbCreate.selectedProperty().set(true);
+        rbSelectFromSource.selectedProperty().set(true);
     }
 
     @FXML
@@ -277,12 +286,18 @@ public class CopyViewController implements Controller, Initializable, Progress {
             String field = txtSourceField.getText();
             String value = txtSourceValue.getText();
             UvData source = new UvData(fileName, field, value);
-            source.setSelectCriteria(txtCriteria.getText());
+            
 
             fileName = txtDestFile.getText();
             field = txtDestField.getText();
             value = txtDestValue.getText();
             UvData destination = new UvData(fileName, field, value);
+            
+            if(rbSelectFromDest.isSelected()) {
+                destination.setSelectCriteria(txtCriteria.getText());
+            } else {
+                source.setSelectCriteria(txtCriteria.getText());
+            }
 
             UvClient client = new UvClient(this);
             client.setSourceProfile(sourceProfileProperty.get());
@@ -303,6 +318,11 @@ public class CopyViewController implements Controller, Initializable, Progress {
                 client.setMissingPolicy(Uv.Missing.CREATE);
             } else {
                 client.setMissingPolicy(Uv.Missing.IGNORE);
+            }
+            if (rbSelectFromSource.isSelected()) {
+                client.setSelectFrom(Uv.SelectFrom.SOURCE);
+            } else {
+                client.setSelectFrom(Uv.SelectFrom.DESTINATION);
             }
             Runnable task = () -> client.doCopy();
             Thread backgroundThread = new Thread(task);

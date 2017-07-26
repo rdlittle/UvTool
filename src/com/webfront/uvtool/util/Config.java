@@ -89,10 +89,10 @@ public class Config {
                 size = defaultWindowSize;
                 initDb();
                 if (newInstall) {
-                    FileWriter writer = new FileWriter(dotFile);
-                    writer.write(uvToolDir.getAbsolutePath());
-                    writer.flush();
-                    writer.close();
+                    try (FileWriter writer = new FileWriter(dotFile)) {
+                        writer.write(uvToolDir.getAbsolutePath());
+                        writer.flush();
+                    }
                     newInstall = false;
                 }
             } catch (IOException ex) {

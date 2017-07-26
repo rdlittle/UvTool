@@ -33,6 +33,7 @@ public class UvClient {
     private Uv.SelectType selectType;
     private Uv.Existing existingPolicy;
     private Uv.Missing missingPolicy;
+    private Uv.SelectFrom selectFrom;
     private UvData sourceData;
     private UvData destData;
 
@@ -154,9 +155,17 @@ public class UvClient {
         if (doConnect()) {
             try {
                 if (selectType == Uv.SelectType.LIST) {
-                    list = getList(sourceSession, sourceData);
+                    if (selectFrom == Uv.SelectFrom.SOURCE) {
+                        list = getList(sourceSession, sourceData);
+                    } else {
+                        list = getList(destSession,destData);
+                    }
                 } else {
-                    list = doQuery(sourceSession, sourceData);
+                    if (selectFrom == Uv.SelectFrom.SOURCE) {
+                        list = doQuery(sourceSession, sourceData);
+                    } else {
+                        list = doQuery(destSession, destData);
+                    }
                 }
                 if (list == null) {
                     progress.display("Unable to create select list");
@@ -415,6 +424,20 @@ public class UvClient {
             return -1;
         }
         return 0;
+    }
+
+    /**
+     * @return the selectFrom
+     */
+    public Uv.SelectFrom getSelectFrom() {
+        return selectFrom;
+    }
+
+    /**
+     * @param selectFrom the selectFrom to set
+     */
+    public void setSelectFrom(Uv.SelectFrom selectFrom) {
+        this.selectFrom = selectFrom;
     }
 
 }

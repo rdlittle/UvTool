@@ -28,6 +28,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /**
@@ -48,6 +49,9 @@ public class RunViewController implements Controller, Initializable {
     
     @FXML
     Button btnCancel;
+    
+    @FXML
+    Button btnOptions;
     
     @FXML
     TextField txtProgram;
@@ -76,6 +80,7 @@ public class RunViewController implements Controller, Initializable {
     public RunViewController() {
         btnCancel = new Button();
         btnRun = new Button();
+        btnOptions = new Button();
         cbProfile = new ComboBox<>();
     }
     /**
@@ -87,6 +92,7 @@ public class RunViewController implements Controller, Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         res = rb;
         cbProfile.setItems(config.getProfiles());
+        btnOptions.onActionProperty().set(new ButtonHandler());
     } 
     
     class ButtonHandler implements EventHandler {
@@ -101,6 +107,8 @@ public class RunViewController implements Controller, Initializable {
                 launch("viewAccount","titleAccount");
             } else if(id.equalsIgnoreCase("btnAddUser")) {
                 launch("viewUser","titleUser");
+            } else if(id.equalsIgnoreCase("btnOptions")) {
+                launch("viewWizard","titleWizard");
             }
         }
     }
@@ -113,9 +121,9 @@ public class RunViewController implements Controller, Initializable {
         try {
             Stage stage = new Stage();
             stage.setTitle(res.getString(title));
-            AnchorPane root = viewLoader.<AnchorPane>load();
-            Controller ctrl = viewLoader.getController();
-            
+            VBox root = viewLoader.<VBox>load();
+            VirtualBatchWizardController ctrl = viewLoader.getController();
+            ctrl.setStage(stage);
             ctrl.getCancelButton().setOnAction(new EventHandler() {
                 @Override
                 public void handle(Event event) {
