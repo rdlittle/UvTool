@@ -120,6 +120,7 @@ public class UvTool extends Application {
             InputStream is = UvTool.class.getResourceAsStream("/U2_24x24.png");
             Image image = ImageIO.read(is);
             trayIcon = new TrayIcon(image);
+            trayIcon.setToolTip(res.getString("msgToolTipSysTray"));
             trayIcon.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -137,7 +138,7 @@ public class UvTool extends Application {
 
             java.awt.PopupMenu popup = new java.awt.PopupMenu();
             Font defaultFont = Font.decode(null);
-            Font boldFont = defaultFont.deriveFont(Font.BOLD, 12);
+            Font boldFont = defaultFont.deriveFont(Font.BOLD, 14);
             exitItem.setFont(boldFont);
             popup.add(exitItem);
             trayIcon.setPopupMenu(popup);
