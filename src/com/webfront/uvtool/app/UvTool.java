@@ -13,8 +13,8 @@ import java.awt.Image;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -120,27 +120,7 @@ public class UvTool extends Application {
             InputStream is = UvTool.class.getResourceAsStream("/U2_24x24.png");
             Image image = ImageIO.read(is);
             trayIcon = new TrayIcon(image);
-            trayIcon.addMouseListener(new MouseListener() {
-                @Override
-                public void mouseExited(MouseEvent e) {
-
-                }
-
-                @Override
-                public void mouseEntered(MouseEvent e) {
-
-                }
-
-                @Override
-                public void mouseReleased(MouseEvent e) {
-
-                }
-
-                @Override
-                public void mousePressed(MouseEvent e) {
-
-                }
-
+            trayIcon.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     if (MouseEvent.BUTTON1 == e.getButton()) {
