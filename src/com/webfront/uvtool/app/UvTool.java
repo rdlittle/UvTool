@@ -41,7 +41,6 @@ public class UvTool extends Application {
 
     private final String fxml = "/com/webfront/uvtool/fxml/UvToolView.fxml";
     private final String propertyString = "com.webfront.uvtool.util.UvTool";
-    private static final String iconLoc = "image/U2_24x24.png";
     private Config config;
     Scene scene;
     Stage stage;
@@ -144,25 +143,21 @@ public class UvTool extends Application {
 
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    e.consume();
-                    toggleStage();
+                    if (MouseEvent.BUTTON1 == e.getButton()) {
+                        e.consume();
+                        toggleStage();
+                    }
                 }
             });
 
             java.awt.MenuItem exitItem = new java.awt.MenuItem("Exit");
             exitItem.addActionListener(event -> {
-//                config.setWindowLocation((int) scene.getWindow().getX(), (int) scene.getWindow().getY());
-//                config.setWindowSize((int) scene.getWindow().getWidth(), (int) scene.getWindow().getHeight());
-//                config.setConfig();
-//                config.shutdown();
-//                Platform.exit();
-                sysTray.remove(trayIcon);
-                Platform.runLater(()->stage.fireEvent(new Event(WindowEvent.WINDOW_CLOSE_REQUEST)));
+                Platform.runLater(() -> stage.fireEvent(new Event(WindowEvent.WINDOW_CLOSE_REQUEST)));
             });
 
             java.awt.PopupMenu popup = new java.awt.PopupMenu();
             Font defaultFont = Font.decode(null);
-            Font boldFont = defaultFont.deriveFont(Font.BOLD,12);
+            Font boldFont = defaultFont.deriveFont(Font.BOLD, 12);
             exitItem.setFont(boldFont);
             popup.add(exitItem);
             trayIcon.setPopupMenu(popup);
