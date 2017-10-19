@@ -123,7 +123,7 @@ public class ProfileController implements Controller {
 
         lblStatusMessage.setText("");
         isNew = new SimpleBooleanProperty(true);
-        imgSpinner.setImage(new Image("/com/webfront/uvtool/resources/images/loading.gif"));
+        imgSpinner.setImage(new Image("/com/webfront/uvtool/image/loading.gif"));
         imgSpinner.setVisible(false);
         btnSave.disableProperty().set(true);
         DropShadow shadow = new DropShadow(1, 6, 6, Color.LIGHTGRAY);

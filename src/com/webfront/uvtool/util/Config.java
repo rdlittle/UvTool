@@ -64,7 +64,7 @@ public class Config {
         String uvToolDb = uvToolDir.getAbsolutePath() + fileSep + "uvtool.db";
         String fileList[] = uvToolDir.list();
         if (fileList.length > 0) {
-            for (int i = 0; i <= fileList.length; i++) {
+            for (int i = 0; i < fileList.length; i++) {
                 if (fileList[i].equals("uvtool.db")) {
                     hasDb = true;
                     break;

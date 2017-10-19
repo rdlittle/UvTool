@@ -144,6 +144,7 @@ public class UvToolController implements Initializable {
         String v = res.getString(view);
         String t = res.getString(title);
         URL url = UvTool.class.getResource(v);
+        System.out.println(url.toString());
         viewLoader.setLocation(url);
         viewLoader.setResources(res);
         try {
