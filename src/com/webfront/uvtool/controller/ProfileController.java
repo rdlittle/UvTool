@@ -104,6 +104,7 @@ public class ProfileController implements Controller {
 
     public SimpleObjectProperty<Profile> profile;
     private SimpleBooleanProperty isNew;
+    private SimpleBooleanProperty isPasswordChange;
     private final Config config = Config.getInstance();
     Profile selectedProfile;
     private FilteredList<Server> filteredServerList;
@@ -123,6 +124,7 @@ public class ProfileController implements Controller {
 
         lblStatusMessage.setText("");
         isNew = new SimpleBooleanProperty(true);
+        isPasswordChange = new SimpleBooleanProperty(false);
         imgSpinner.setImage(new Image("/com/webfront/uvtool/image/loading.gif"));
         imgSpinner.setVisible(false);
         btnSave.disableProperty().set(true);
@@ -183,6 +185,7 @@ public class ProfileController implements Controller {
                 String prevValue = (String) oldValue;
                 if (prevValue != null && !prevValue.isEmpty()) {
                     btnSave.disableProperty().set(false);
+                    isPasswordChange.set(true);
                 }
             }
         });
@@ -208,7 +211,7 @@ public class ProfileController implements Controller {
 
                 btnSave.disableProperty().set(true);
                 Uv uv = Uv.newInstance(h, u, pw, p);
-                
+
                 try {
                     imgSpinner.setVisible(true);
 //                    btnTest.disableProperty().set(true);
@@ -252,8 +255,10 @@ public class ProfileController implements Controller {
                     config.updateAccount(selectedProfile.getAccount());
                 }
             }
-            if (p.getUser() != selectedProfile.getUser()) {
+            if (p.getUser() != selectedProfile.getUser() || isPasswordChange.get()) {
+                selectedProfile.getUser().setPassword(pwPassword.getText());
                 config.updateUser(selectedProfile.getUser());
+                isPasswordChange.setValue(false);
             }
             if (p.getServer() != selectedProfile.getServer()) {
                 config.updateServer(selectedProfile.getServer());
@@ -396,10 +401,15 @@ public class ProfileController implements Controller {
     public void updateModel() {
         Account a = cbAccounts.getValue();
         Server s = cbServers.getValue();
-        User u = config.getUser(txtUserName.getText(), pwPassword.getText());
-        if (u == null) {
-            u = new User(txtUserName.getText(), pwPassword.getText());
-            u.setId(config.addUser(u));
+        User u;
+        if (isPasswordChange.get()) {
+            u = selectedProfile.getUser();
+        } else {
+            u = config.getUser(txtUserName.getText(), pwPassword.getText());
+            if (u == null) {
+                u = new User(txtUserName.getText(), pwPassword.getText());
+                u.setId(config.addUser(u));
+            }
         }
 
         a.setPath(txtPath.getText());

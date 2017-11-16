@@ -5,6 +5,8 @@
  */
 package com.webfront.uvtool.model;
 
+import java.util.Objects;
+
 /**
  *
  * @author rlittle
@@ -14,6 +16,7 @@ public class User {
     private int id;
     private String name;
     private String password;
+    
 
     public User() {
         id = -1;
@@ -30,6 +33,32 @@ public class User {
     public User(String n, String p) {
         name = n;
         password = p;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final User other = (User) obj;
+        if (this.id != other.id) {
+            return false;
+        }
+               
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 83 * hash + this.id;
+        return hash;
     }
     /**
      * @return the id
