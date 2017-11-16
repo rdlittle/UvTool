@@ -239,6 +239,7 @@ public class ProfileController implements Controller {
 
     @FXML
     void btnSaveOnAction() {
+        lblStatusMessage.setText("");
         updateModel();
         Profile p = (Profile) cbProfiles.getSelectionModel().getSelectedItem();
         if (p == null) {
@@ -263,6 +264,8 @@ public class ProfileController implements Controller {
             if (p.getServer() != selectedProfile.getServer()) {
                 config.updateServer(selectedProfile.getServer());
             }
+            lblStatusMessage.setText("Profile saved");
+            btnSave.disableProperty().set(true);
         } else {
             lblStatusMessage.setText("");
             Server s = new Server();
