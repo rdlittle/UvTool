@@ -212,7 +212,7 @@ public class Config {
                 String url = rs.getString("url");
                 servers.add(new Server(name, host));
             }
-            
+
 //            // Load accounts
 //            // CREATE TABLE accounts (
 //            //  id integer primary key autoincrement, server char(16), 
@@ -226,7 +226,6 @@ public class Config {
 //                String p = rs.getString("path");
 //                accounts.add(new Account(id,s,n,p));
 //            }
-
             // Load program settings
             sql = "select * from settings where key = \"window\"";
             rs = statement.executeQuery(sql);
@@ -348,8 +347,8 @@ public class Config {
 
     public void updateAccount(Account a) {
         String sql = "update accounts set server = \"" + a.getServerName() + "\", ";
-        sql += "name = \"" + a.getName()+ "\", ";
-        sql += "path = \"" + a.getPath()+ "\" ";
+        sql += "name = \"" + a.getName() + "\", ";
+        sql += "path = \"" + a.getPath() + "\" ";
         sql += "where id = " + a.getId();
         Statement statement;
         try {
@@ -361,27 +360,23 @@ public class Config {
             Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public void updateProfile(Profile p) {
+
+    public void updateProfile(Profile p) throws SQLException {
         String sql = "update profiles set name = \"" + p.getProfileName() + "\",";
         sql += "server = \"" + p.getServerName() + "\",";
         sql += "user = " + p.getUserId() + ",";
         sql += "account = " + p.getAccountId() + " ";
         sql += "where id = " + p.getId();
         Statement statement;
-        try {
-            statement = connection.createStatement();
-            statement.executeUpdate(sql);
-            int idx = profiles.indexOf(p);
-            profiles.set(idx, p);
-        } catch (SQLException ex) {
-            Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        statement = connection.createStatement();
+        statement.executeUpdate(sql);
+        int idx = profiles.indexOf(p);
+        profiles.set(idx, p);
     }
-    
+
     public void updateUser(User u) {
         String sql = "update users set name = \"" + u.getName() + "\", ";
-        sql += "password = \"" + u.getPassword()+ "\" ";
+        sql += "password = \"" + u.getPassword() + "\" ";
         sql += "where id = " + u.getId();
         Statement statement;
         try {
@@ -392,11 +387,11 @@ public class Config {
         } catch (SQLException ex) {
             Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }    
+    }
 
     public void updateServer(Server s) {
         String sql = "update servers set host = \"" + s.getHost() + "\" ";
-        sql += "where name = \"" + s.getName()+"\"";
+        sql += "where name = \"" + s.getName() + "\"";
         Statement statement;
         try {
             statement = connection.createStatement();
@@ -465,13 +460,14 @@ public class Config {
     }
 
     public Server getServer(String name) {
-        for(Server s : servers) {
+        for (Server s : servers) {
             if (s.getName().equals(name)) {
                 return s;
             }
         }
         return null;
     }
+
     /**
      * @return the servers
      */
@@ -489,12 +485,12 @@ public class Config {
     public Account getAccountByName(String name, String svr) {
         Account a;
         String sql = "select * from accounts ";
-        sql += "where name = \""+name+"\" ";
-        sql += "and server = \""+svr+"\"";
+        sql += "where name = \"" + name + "\" ";
+        sql += "and server = \"" + svr + "\"";
         try {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
-            if(!rs.next()) {
+            if (!rs.next()) {
                 return null;
             }
             a = new Account();
@@ -507,11 +503,11 @@ public class Config {
         }
         return null;
     }
-    
+
     public User getUser(String n, String p) {
         User u;
-        String sql = "select * from users where name = \""+n+"\" ";
-        sql += "and password = \""+p+"\"";
+        String sql = "select * from users where name = \"" + n + "\" ";
+        sql += "and password = \"" + p + "\"";
         try {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
@@ -525,6 +521,7 @@ public class Config {
         }
         return null;
     }
+
     /**
      * @return the users
      */

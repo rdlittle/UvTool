@@ -18,6 +18,7 @@ import com.webfront.uvtool.util.ServerConverter;
 import com.webfront.uvtool.util.Uv;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -248,24 +249,28 @@ public class ProfileController implements Controller {
             cbProfiles.editableProperty().set(true);
             cbProfiles.requestFocus();
         } else if (!isNew.getValue()) {
-            config.updateProfile(p);
-            if (p.getAccount() != selectedProfile.getAccount()) {
-                if (p.getAccountId() <= 0) {
-                    config.addAccount(selectedProfile.getAccount());
-                } else {
-                    config.updateAccount(selectedProfile.getAccount());
+            try {
+                config.updateProfile(p);
+                if (p.getAccount() != selectedProfile.getAccount()) {
+                    if (p.getAccountId() <= 0) {
+                        config.addAccount(selectedProfile.getAccount());
+                    } else {
+                        config.updateAccount(selectedProfile.getAccount());
+                    }
                 }
+                if (p.getUser() != selectedProfile.getUser() || isPasswordChange.get()) {
+                    selectedProfile.getUser().setPassword(pwPassword.getText());
+                    config.updateUser(selectedProfile.getUser());
+                    isPasswordChange.setValue(false);
+                }
+                if (p.getServer() != selectedProfile.getServer()) {
+                    config.updateServer(selectedProfile.getServer());
+                }
+                lblStatusMessage.setText("Profile saved");
+                btnSave.disableProperty().set(true);
+            } catch (SQLException e) {
+                lblStatusMessage.setText(e.getMessage());
             }
-            if (p.getUser() != selectedProfile.getUser() || isPasswordChange.get()) {
-                selectedProfile.getUser().setPassword(pwPassword.getText());
-                config.updateUser(selectedProfile.getUser());
-                isPasswordChange.setValue(false);
-            }
-            if (p.getServer() != selectedProfile.getServer()) {
-                config.updateServer(selectedProfile.getServer());
-            }
-            lblStatusMessage.setText("Profile saved");
-            btnSave.disableProperty().set(true);
         } else {
             lblStatusMessage.setText("");
             Server s = new Server();

@@ -158,7 +158,7 @@ public class UvClient {
                     if (selectFrom == Uv.SelectFrom.SOURCE) {
                         list = getList(sourceSession, sourceData);
                     } else {
-                        list = getList(destSession,destData);
+                        list = getList(destSession, destData);
                     }
                 } else {
                     if (selectFrom == Uv.SelectFrom.SOURCE) {
@@ -207,19 +207,22 @@ public class UvClient {
                         progress.display("OK");
                         progress.state("Read " + destHost + " " + sourceData.getId() + " ");
                         readStatus = getRecord(destFile, destData);
-                        if (readStatus == UniObjectsTokens.UVE_RNF) {
-                            if (missingPolicy == Uv.Missing.IGNORE) {
-                                progress.display("Not found.  Skipping");
+                        switch (readStatus) {
+                            case -1:
+                                progress.display("Error");
                                 continue;
-                            }
-                        }
-                        if (readStatus == -1) {
-                            progress.display("Error");
-                            continue;
-                        }
-                        if (existingPolicy == Uv.Existing.PRESERVE) {
-                            progress.display("Skipping existing record");
-                            continue;
+                            case UniObjectsTokens.UVE_RNF:
+                                if (missingPolicy == Uv.Missing.IGNORE) {
+                                    progress.display("Not found.  Skipping");
+                                    continue;
+                                }
+                                break;
+                            case UniObjectsTokens.UVE_NOERROR:
+                                if (existingPolicy == Uv.Existing.PRESERVE) {
+                                    progress.display("Skipping existing record");
+                                    continue;
+                                }
+                                break;
                         }
                         progress.display("OK");
                         doRecordSetup(sourceData, destData);
@@ -381,7 +384,7 @@ public class UvClient {
             return -1;
         }
         data.setData(record);
-        return 0;
+        return UniObjectsTokens.UVE_NOERROR;
     }
 
     public int lockRecord(UniFile file, UvData data) {
