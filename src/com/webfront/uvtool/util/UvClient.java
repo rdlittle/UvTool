@@ -227,23 +227,30 @@ public class UvClient {
                         progress.display("OK");
                         doRecordSetup(sourceData, destData);
                         int lockStatus = lockRecord(destFile, destData);
-                        if (lockStatus == UniObjectsTokens.LOCK_NO_LOCK) {
-                            progress.display("Lock failed: " + destData.getId());
-                            continue;
-                        }
-                        if (lockStatus == UniObjectsTokens.UVE_RNF) {
-                            if (getMissingPolicy() == Uv.Missing.IGNORE) {
-                                destFile.unlockRecord(recordId);
+                        switch (lockStatus) {
+                            case UniObjectsTokens.LOCK_NO_LOCK:
+                                progress.display("Lock failed: " + destData.getId());
                                 continue;
-                            }
-                        }
-                        if (existingPolicy == Uv.Existing.OVERWRITE) {
-                            progress.state("Write " + destHost + " " + destData.getId() + " ");
-                            writeRecord(destFile, destData);
-                            destFile.unlockRecord(recordId);
-                            progress.display("OK");
-                        } else {
-                            destFile.unlockRecord(recordId);
+                            case UniObjectsTokens.UVE_RNF:
+                                if (getMissingPolicy() == Uv.Missing.IGNORE) {
+                                    destFile.unlockRecord(recordId);
+                                    continue;
+                                }
+                                progress.state("Write " + destHost + " " + destData.getId() + " ");
+                                writeRecord(destFile, destData);
+                                destFile.unlockRecord(recordId);
+                                progress.display("OK");
+                                break;
+                            default:
+                                if (existingPolicy == Uv.Existing.PRESERVE) {
+                                    destFile.unlockRecord(recordId);
+                                    continue;
+                                }
+                                progress.state("Write " + destHost + " " + destData.getId() + " ");
+                                writeRecord(destFile, destData);
+                                destFile.unlockRecord(recordId);
+                                progress.display("OK");
+                                break;
                         }
                     } catch (UniFileException ex) {
                         Logger.getLogger(UvClient.class.getName()).log(Level.SEVERE, null, ex);
