@@ -7,6 +7,7 @@ package com.webfront.uvtool.util;
 
 import com.webfront.uvtool.model.Account;
 import com.webfront.uvtool.model.Profile;
+import com.webfront.uvtool.model.Program;
 import com.webfront.uvtool.model.Server;
 import com.webfront.uvtool.model.User;
 import java.awt.Dimension;
@@ -43,6 +44,7 @@ public class Config {
     private ObservableList<Profile> profiles;
     private ObservableList<Server> servers;
     private ObservableList<User> users;
+    private ObservableList<Program> programs;
 
     protected Config() {
         location = new Point();
@@ -51,6 +53,7 @@ public class Config {
         profiles = FXCollections.<Profile>observableArrayList();
         servers = FXCollections.<Server>observableArrayList();
         users = FXCollections.<User>observableArrayList();
+        programs = FXCollections.<Program>observableArrayList();
 
         hasDb = false;
         String homeDir = System.getProperty("user.home");
@@ -112,12 +115,15 @@ public class Config {
             statement.executeUpdate("drop table if exists servers");
             statement.executeUpdate("drop table if exists settings");
             statement.executeUpdate("drop table if exists users");
+            statement.executeUpdate("drop table if exists programs");
 
             statement.executeUpdate("create table accounts (id integer primary key autoincrement, server char(16), name char(128), path char(256))");
             statement.executeUpdate("create table profiles (id integer primary key autoincrement, name char(128), server char(16), account int, user int)");
             statement.executeUpdate("create table servers (name char(16), host char(128), url char(256))");
             statement.executeUpdate("create table settings (key char(6) not null, x int, y int, w int, h int)");
             statement.executeUpdate("create table users (id integer primary key autoincrement, name char(16), password char(256))");
+            statement.executeUpdate("create table programs (id integer primary key autoincrement, type char(1), name char(128), classname char(128), selecttype char(1), "
+                    + "selectcriteria text, readfrom  integer, writeto integer)");
 
             this.setConfig();
             hasDb = true;
@@ -226,6 +232,26 @@ public class Config {
 //                String p = rs.getString("path");
 //                accounts.add(new Account(id,s,n,p));
 //            }
+
+            // Load programs
+//            statement.executeUpdate("create table programs (id integer primary key autoincrement, type char(1), 
+//                      name char(128), classname char(128), selecttype char(1), "
+//                    + "selectcriteria text, readfrom  integer, writeto integer)");
+            sql = "select * from programs";
+            rs = statement.executeQuery(sql);
+            while(rs.next()) {
+                int id = rs.getInt("id");
+                String type = rs.getString("type");
+                String name = rs.getString("name");
+                String cls = rs.getString("classname");
+                String sel = rs.getString("selecttype");
+                String criteria = rs.getString("selectcriteria");
+                int readfrom = rs.getInt("readfrom");
+                int writeto = rs.getInt("writeto");
+                Program p = new Program(id,type.charAt(0),name,cls,sel.charAt(0),criteria,readfrom,writeto);
+                programs.add(p);
+            }
+            
             // Load program settings
             sql = "select * from settings where key = \"window\"";
             rs = statement.executeQuery(sql);
@@ -450,6 +476,10 @@ public class Config {
      */
     public ObservableList<Profile> getProfiles() {
         return profiles;
+    }
+    
+    public ObservableList<Program> getPrograms() {
+        return programs;
     }
 
     /**

@@ -5,8 +5,10 @@
  */
 package com.webfront.uvtool.controller;
 
+import com.webfront.app.AbstractApp;
 import com.webfront.uvtool.app.UvTool;
 import com.webfront.uvtool.model.Profile;
+import com.webfront.uvtool.model.Program;
 import com.webfront.uvtool.util.Config;
 import java.io.IOException;
 import java.net.URL;
@@ -21,13 +23,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -39,80 +36,76 @@ import javafx.stage.Stage;
 public class RunViewController implements Controller, Initializable {
 
     @FXML
-    ComboBox<Profile> cbProfile;
-    
+    ComboBox<Profile> cbReadFrom;
+
     @FXML
-    Label statusMessage;
-    
+    ComboBox<Profile> cbWriteTo;
+
     @FXML
-    Button btnRun;
-    
+    ComboBox<Program> cbAppName;
+
+    @FXML
+    TextArea txtCriteria;
+
+    @FXML
+    Button btnOk;
+
     @FXML
     Button btnCancel;
-    
+
     @FXML
-    Button btnOptions;
-    
-    @FXML
-    TextField txtProgram;
-    
-    @FXML
-    TextField txtLibrary;
-    
-    @FXML
-    TextArea txtResponse;
-    
-    @FXML
-    ToggleGroup progType;
-    
-    @FXML
-    RadioButton rbProgram;
-    
-    @FXML
-    RadioButton rbSubroutine;
-    
-    @FXML
-    Pane optionPane;
-            
+    ProgressBar pbProgress;
+
     private final Config config = Config.getInstance();
     ResourceBundle res;
-    
+    private AbstractApp app;
+
     public RunViewController() {
         btnCancel = new Button();
-        btnRun = new Button();
-        btnOptions = new Button();
-        cbProfile = new ComboBox<>();
+        btnOk = new Button();
+        cbReadFrom = new ComboBox<>();
+        cbWriteTo = new ComboBox<>();
+        cbAppName = new ComboBox<>();
+        pbProgress = new ProgressBar();
     }
+
     /**
      * Initializes the controller class.
+     *
      * @param url
      * @param rb
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         res = rb;
-        cbProfile.setItems(config.getProfiles());
-        btnOptions.onActionProperty().set(new ButtonHandler());
-    } 
+        cbAppName.setItems(config.getPrograms());
+        cbReadFrom.setItems(config.getProfiles());
+        cbWriteTo.setItems(config.getProfiles());
+    }
     
+    @FXML
+    public void exec() {
+        
+    }
+
     class ButtonHandler implements EventHandler {
 
         @Override
         public void handle(Event event) {
             Button btn = (Button) event.getSource();
             String id = btn.getId();
-            if(id.equalsIgnoreCase("btnAddServer")) {
-                launch("viewServer","titleServer");
-            } else if(id.equalsIgnoreCase("btnAddAccount")) {
-                launch("viewAccount","titleAccount");
-            } else if(id.equalsIgnoreCase("btnAddUser")) {
-                launch("viewUser","titleUser");
-            } else if(id.equalsIgnoreCase("btnOptions")) {
-                launch("viewWizard","titleWizard");
+            if (id.equalsIgnoreCase("btnCancel")) {
+                launch("viewServer", "titleServer");
+            } else if (id.equalsIgnoreCase("btnOk")) {
+                launch("viewAccount", "titleAccount");
+            } else if (id.equalsIgnoreCase("btnAddUser")) {
+                launch("viewUser", "titleUser");
+            } else if (id.equalsIgnoreCase("btnOptions")) {
+                launch("viewWizard", "titleWizard");
             }
         }
     }
-    
+
     @Override
     public void launch(String view, String title) {
         FXMLLoader viewLoader = new FXMLLoader();
@@ -127,7 +120,7 @@ public class RunViewController implements Controller, Initializable {
             ctrl.getCancelButton().setOnAction(new EventHandler() {
                 @Override
                 public void handle(Event event) {
-                   stage.close();
+                    stage.close();
                 }
             });
             stage.setScene(new Scene(root));
@@ -135,12 +128,12 @@ public class RunViewController implements Controller, Initializable {
         } catch (IOException ex) {
             Logger.getLogger(UvToolController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
-    
+
     @Override
     public Button getCancelButton() {
         return btnCancel;
     }
-    
+
 }

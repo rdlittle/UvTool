@@ -48,6 +48,7 @@ public class UvToolController implements Initializable {
     private final ObservableList<Profile> profileList = FXCollections.observableArrayList();
     private final ObservableList<Server> serverList = FXCollections.<Server>observableArrayList();
     private final ObservableList<User> userList = FXCollections.observableArrayList();
+    private final ObservableList<String> programList = FXCollections.observableArrayList();
     
     ResourceBundle res;
     
