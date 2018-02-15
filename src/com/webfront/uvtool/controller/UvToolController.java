@@ -78,11 +78,15 @@ public class UvToolController implements Initializable {
     @FXML
     MenuItem mnuFileNewProfile;
     @FXML
+    MenuItem mnuFileNewProgram;
+    @FXML
     MenuItem mnuEditAccount;
     @FXML
     MenuItem mnuEditServer;
     @FXML
-    MenuItem mnuEditProfile;    
+    MenuItem mnuEditProfile;  
+    @FXML
+    MenuItem mnuEditApp;
 
     public UvToolController() {
         config = Config.getInstance();
@@ -100,9 +104,11 @@ public class UvToolController implements Initializable {
         mnuFileNewAccount = new MenuItem();
         mnuFileNewServer = new MenuItem();
         mnuFileNewProfile = new MenuItem();
+        mnuFileNewProgram = new MenuItem();
         mnuEditAccount = new MenuItem();
         mnuEditServer = new MenuItem();
         mnuEditProfile = new MenuItem();
+        mnuEditApp = new MenuItem();
     }
 
     @Override
@@ -209,7 +215,12 @@ public class UvToolController implements Initializable {
     @FXML
     public void onFileNewProfile() {
         launch("viewProfile","titleProfile");
-    }    
+    } 
+    
+    @FXML
+    public void onFileNewProgram() {
+        launch("viewProgram","titleProgram");
+    }
     
     @FXML
     public void onEditAccount() {
@@ -224,6 +235,11 @@ public class UvToolController implements Initializable {
     @FXML
     public void onEditProfile() {
         launch("viewProfile","titleProfile");
+    }
+    
+    @FXML
+    public void onEditApp() {
+        launch("viewAppEdit","titleAppEdit");
     }
 
 }

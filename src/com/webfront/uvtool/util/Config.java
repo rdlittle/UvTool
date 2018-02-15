@@ -10,6 +10,7 @@ import com.webfront.uvtool.model.Profile;
 import com.webfront.uvtool.model.Program;
 import com.webfront.uvtool.model.Server;
 import com.webfront.uvtool.model.User;
+import com.webfront.uvtool.model.UvFile;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.io.File;
@@ -20,6 +21,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
@@ -115,15 +117,16 @@ public class Config {
             statement.executeUpdate("drop table if exists servers");
             statement.executeUpdate("drop table if exists settings");
             statement.executeUpdate("drop table if exists users");
-            statement.executeUpdate("drop table if exists programs");
+            statement.executeUpdate("drop table if exists apps");
+            statement.executeUpdate("drop table if exists files");
 
             statement.executeUpdate("create table accounts (id integer primary key autoincrement, server char(16), name char(128), path char(256))");
             statement.executeUpdate("create table profiles (id integer primary key autoincrement, name char(128), server char(16), account int, user int)");
             statement.executeUpdate("create table servers (name char(16), host char(128), url char(256))");
             statement.executeUpdate("create table settings (key char(6) not null, x int, y int, w int, h int)");
             statement.executeUpdate("create table users (id integer primary key autoincrement, name char(16), password char(256))");
-            statement.executeUpdate("create table programs (id integer primary key autoincrement, type char(1), name char(128), classname char(128), selecttype char(1), "
-                    + "selectcriteria text, readfrom  integer, writeto integer)");
+            statement.executeUpdate("create table apps (id integer primary key autoincrement, name char(128), package char(256))");
+            statement.executeUpdate("create table files (id integer primary key autoincrement, name char(128), remote tinyint, local tinyint");
 
             this.setConfig();
             hasDb = true;
@@ -219,39 +222,28 @@ public class Config {
                 servers.add(new Server(name, host));
             }
 
-//            // Load accounts
-//            // CREATE TABLE accounts (
-//            //  id integer primary key autoincrement, server char(16), 
-//            //  name char(128), path char(256), user int);
-//            sql = "select * from accounts";
-//            rs = statement.executeQuery(sql);
-//            while(rs.next()) {
-//                int id = rs.getInt("id");
-//                String s = rs.getString("server");
-//                String n = rs.getString("name");
-//                String p = rs.getString("path");
-//                accounts.add(new Account(id,s,n,p));
-//            }
-
-            // Load programs
-//            statement.executeUpdate("create table programs (id integer primary key autoincrement, type char(1), 
-//                      name char(128), classname char(128), selecttype char(1), "
-//                    + "selectcriteria text, readfrom  integer, writeto integer)");
-            sql = "select * from programs";
+            // Load apps
+            sql = "select * from apps";
             rs = statement.executeQuery(sql);
-            while(rs.next()) {
+            while (rs.next()) {
                 int id = rs.getInt("id");
-                String type = rs.getString("type");
+                sql = "select * from files where appid = " + id + " order by name";
+                Statement stmt = connection.createStatement();
+                ResultSet rs2 = stmt.executeQuery(sql);
                 String name = rs.getString("name");
-                String cls = rs.getString("classname");
-                String sel = rs.getString("selecttype");
-                String criteria = rs.getString("selectcriteria");
-                int readfrom = rs.getInt("readfrom");
-                int writeto = rs.getInt("writeto");
-                Program p = new Program(id,type.charAt(0),name,cls,sel.charAt(0),criteria,readfrom,writeto);
+                String cls = rs.getString("package");
+                Program p = new Program(id, name, cls);
+                while (rs2.next()) {
+                    int fid = rs2.getInt("id");
+                    String fname = rs2.getString("name");
+                    int remote = rs2.getInt("remote");
+                    int local = rs2.getInt("local");
+                    UvFile uvf = new UvFile(id, fname, remote == 1, local == 1);
+                    p.getFileList().add(uvf);
+                }
                 programs.add(p);
             }
-            
+
             // Load program settings
             sql = "select * from settings where key = \"window\"";
             rs = statement.executeQuery(sql);
@@ -339,6 +331,41 @@ public class Config {
         }
     }
 
+    public int addProgram(Program p) {
+        try {
+            Statement statement = connection.createStatement();
+            String sql;
+            sql = "insert into apps (name,package) values (";
+            sql += '"' + p.getName() + '"' + ',' + '"' + p.getClassName() + '"' + ")";
+            statement.executeUpdate(sql);
+            ResultSet rs = statement.executeQuery("SELECT id from apps order by id desc limit 0,1");
+            int id = rs.getInt("id");
+            p.setId(id);
+            programs.add(p);
+            return id;
+        } catch (SQLException ex) {
+            Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return -1;
+    }
+
+    public void addFiles(ArrayList<UvFile> list) {
+        try {
+            Statement statement = connection.createStatement();
+            String insert = "insert into files (name, appid, remote, local)";
+            for (UvFile uvf : list) {
+                String sql = insert + " values (";
+                sql += "\"" + uvf.getFileName() + "\",";
+                sql += uvf.getAppId() + ",";
+                sql += uvf.getRemote() + ",";
+                sql += uvf.getLocal() + ")";
+                statement.executeUpdate(sql);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     public void addServer(Server s) {
         try {
             Statement statement = connection.createStatement();
@@ -398,6 +425,32 @@ public class Config {
         statement.executeUpdate(sql);
         int idx = profiles.indexOf(p);
         profiles.set(idx, p);
+    }
+
+    public void updateProgram(Program p) {
+        try {
+            Statement statement = connection.createStatement();
+            String sql;
+            sql = "update apps set name = ";
+            sql += '"' + p.getName() + "\", package = ";
+            sql += '"' + p.getClassName() + "\" where id = "+p.getId();
+            statement.executeUpdate(sql);
+            statement.close();
+            Statement stmt = connection.createStatement();
+            sql = "delete from files where appid = "+p.getId();
+            stmt.execute(sql);
+            stmt.close();
+            addFiles(p.getFileList());
+            for(Program p1 : programs) {
+                if(p1.getId()==p.getId()) {
+                    int idx=programs.indexOf(p1);
+                    programs.set(idx, p);
+                    break;
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public void updateUser(User u) {
@@ -477,7 +530,7 @@ public class Config {
     public ObservableList<Profile> getProfiles() {
         return profiles;
     }
-    
+
     public ObservableList<Program> getPrograms() {
         return programs;
     }

@@ -5,6 +5,7 @@
  */
 package com.webfront.uvtool.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -22,24 +23,17 @@ public class Program {
     private char type;
     private String name;
     private String className;
-    private char selectType;
-    private String selectCriteria;
-    private int readProfile;
-    private int writeProfile;
+    private ArrayList<UvFile> fileList;
     
     public Program() {
         
     }
     
-    public Program(int id, char type, String name, String className, char selectType, String criteria, int readProf, int writeProf) {
+    public Program(int id, String name, String pkg) {
         this.id=id;
-        this.type=type;
         this.name=name;
-        this.className=className;
-        this.selectType=selectType;
-        this.selectCriteria=criteria;
-        this.readProfile=readProf;
-        this.writeProfile=writeProf;
+        this.className=pkg;
+        this.fileList = new ArrayList<>();
     }
 
     @Override
@@ -187,59 +181,17 @@ public class Program {
     }
 
     /**
-     * @return the selectType
+     * @return the fileList
      */
-    public char getSelectType() {
-        return selectType;
+    public ArrayList<UvFile> getFileList() {
+        return fileList;
     }
 
     /**
-     * @param selectType the selectType to set
+     * @param fileList the fileList to set
      */
-    public void setSelectType(char selectType) {
-        this.selectType = selectType;
-    }
-
-    /**
-     * @return the selectCriteria
-     */
-    public String getSelectCriteria() {
-        return selectCriteria;
-    }
-
-    /**
-     * @param selectCriteria the selectCriteria to set
-     */
-    public void setSelectCriteria(String selectCriteria) {
-        this.selectCriteria = selectCriteria;
-    }
-
-    /**
-     * @return the readProfile
-     */
-    public int getReadProfile() {
-        return readProfile;
-    }
-
-    /**
-     * @param readProfile the readProfile to set
-     */
-    public void setReadProfile(int readProfile) {
-        this.readProfile = readProfile;
-    }
-
-    /**
-     * @return the writeProfile
-     */
-    public int getWriteProfile() {
-        return writeProfile;
-    }
-
-    /**
-     * @param writeProfile the writeProfile to set
-     */
-    public void setWriteProfile(int writeProfile) {
-        this.writeProfile = writeProfile;
+    public void setFileList(ArrayList<UvFile> fileList) {
+        this.fileList = fileList;
     }
 
 }

@@ -21,6 +21,7 @@
                         <MenuItem fx:id="mnuFileNewAccount" mnemonicParsing="false" onAction="#onFileNewAccount" text="Account" />
                       <MenuItem fx:id="mnuFileNewServer" mnemonicParsing="false" onAction="#onFileNewServer" text="Server" />
                         <MenuItem fx:id="mnuFileNewProfile" mnemonicParsing="false" onAction="#onFileNewProfile" text="Profile" />
+                        <MenuItem fx:id="mnuFileNewProgram" mnemonicParsing="false" onAction="#onFileNewProgram" text="Program" />
                     </items>
                   </Menu>
                   <SeparatorMenuItem mnemonicParsing="false" />
@@ -32,6 +33,7 @@
                   <MenuItem fx:id="mnuEditAccount" mnemonicParsing="false" onAction="#onEditAccount" text="Account" />
                   <MenuItem fx:id="mnuEditServer" mnemonicParsing="false" onAction="#onEditServer" text="Server" />
                   <MenuItem fx:id="mnuEditProfile" mnemonicParsing="false" onAction="#onEditProfile" text="Profile" />
+                  <MenuItem fx:id="mnuEditApp" mnemonicParsing="false" onAction="#onEditApp" text="Applications" />
                   <SeparatorMenuItem mnemonicParsing="false" />
               <MenuItem fx:id="mnuEditPreferences" mnemonicParsing="false" text="Preferences" />
             </items>
