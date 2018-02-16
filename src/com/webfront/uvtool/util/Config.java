@@ -397,6 +397,23 @@ public class Config {
         }
         return u.getId();
     }
+    
+    public void deleteProgram(Program p) {
+        try {
+            Statement statement = connection.createStatement();
+            String sql;
+            sql = "delete from files where appid = "+p.getId();
+            statement.execute(sql);
+            statement.close();
+            Statement stmt = connection.createStatement();
+            sql = "delete from apps where id = "+p.getId();
+            stmt.execute(sql);
+            stmt.close();
+            programs.remove(p);
+        } catch (SQLException ex) {
+            Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     public void updateAccount(Account a) {
         String sql = "update accounts set server = \"" + a.getServerName() + "\", ";

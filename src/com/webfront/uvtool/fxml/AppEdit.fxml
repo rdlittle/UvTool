@@ -28,7 +28,7 @@
             </HBox>
             <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                <children>
-                  <Button fx:id="btnDelete" mnemonicParsing="false" prefHeight="26.0" prefWidth="70.0" text="Delete" />
+                  <Button fx:id="btnDelete" mnemonicParsing="false" onAction="#onBtnDelete" prefHeight="26.0" prefWidth="70.0" text="Delete" />
                   <Button fx:id="btnCancel" mnemonicParsing="false" prefHeight="26.0" prefWidth="70.0" text="Cancel" />
                   <Button fx:id="btnSave" mnemonicParsing="false" onAction="#onBtnSave" prefHeight="26.0" prefWidth="70.0" text="Save" />
                </children>

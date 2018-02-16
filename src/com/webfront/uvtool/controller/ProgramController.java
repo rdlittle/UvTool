@@ -95,11 +95,16 @@ public class ProgramController implements Controller, Initializable {
                 }
             }
         });
-//        cbAppSelector.focusedProperty().addListener( listener -> {
-//            if(cbAppSelector.editableProperty().get()) {
-//                cbAppSelector.setEditable(false);
-//            }
-//        });
+
+    }
+    
+    @FXML
+    public void onBtnDelete() {
+        Program p = cbAppSelector.getValue();
+        if (p == null) {
+            return;
+        }
+        config.deleteProgram(p);
     }
 
     @FXML
@@ -117,6 +122,7 @@ public class ProgramController implements Controller, Initializable {
                 return;
             }
             p.setId(appId);
+            p.setName((String) o);
         } else {
             p = cbAppSelector.getValue();
             isNew = false;
@@ -166,7 +172,12 @@ public class ProgramController implements Controller, Initializable {
             return;
         }
         Program p = cbAppSelector.getValue();
+        if(p==null) {
+            return;
+        }
         txtPackage.setText(p.getClassName());
+        txtLocalFiles.clear();
+        txtRemoteFiles.clear();
 
         for (UvFile uvf : p.getFileList()) {
             String fname = uvf.getFileName();
