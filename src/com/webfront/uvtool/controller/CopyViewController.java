@@ -5,13 +5,14 @@
  */
 package com.webfront.uvtool.controller;
 
+import com.webfront.u2.Uv;
+import com.webfront.u2.client.UvClient;
+import com.webfront.u2.model.Profile;
+import com.webfront.u2.model.UvData;
+import com.webfront.u2.util.Config;
+import com.webfront.u2.util.Progress;
 import com.webfront.uvtool.app.UvTool;
-import com.webfront.uvtool.model.Profile;
-import com.webfront.uvtool.model.UvData;
-import com.webfront.uvtool.util.Config;
-import com.webfront.uvtool.util.Progress;
-import com.webfront.uvtool.util.Uv;
-import com.webfront.uvtool.util.UvClient;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -286,14 +287,13 @@ public class CopyViewController implements Controller, Initializable, Progress {
             String field = txtSourceField.getText();
             String value = txtSourceValue.getText();
             UvData source = new UvData(fileName, field, value);
-            
 
             fileName = txtDestFile.getText();
             field = txtDestField.getText();
             value = txtDestValue.getText();
             UvData destination = new UvData(fileName, field, value);
-            
-            if(rbSelectFromDest.isSelected()) {
+
+            if (rbSelectFromDest.isSelected()) {
                 destination.setSelectCriteria(txtCriteria.getText());
             } else {
                 source.setSelectCriteria(txtCriteria.getText());

@@ -5,9 +5,9 @@
  */
 package com.webfront.uvtool.controller;
 
-import com.webfront.uvtool.model.Server;
-import com.webfront.uvtool.util.Config;
-import com.webfront.uvtool.util.ServerConverter;
+import com.webfront.u2.model.Server;
+import com.webfront.u2.util.Config;
+import com.webfront.u2.util.ServerConverter;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.beans.value.ChangeListener;

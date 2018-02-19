@@ -5,10 +5,9 @@
  */
 package com.webfront.uvtool.controller;
 
-import com.webfront.uvtool.model.Program;
-import com.webfront.uvtool.model.Server;
-import com.webfront.uvtool.model.UvFile;
-import com.webfront.uvtool.util.Config;
+import com.webfront.u2.model.Program;
+import com.webfront.u2.model.UvFile;
+import com.webfront.u2.util.Config;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;

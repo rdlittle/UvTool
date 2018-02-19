@@ -6,10 +6,10 @@
 package com.webfront.uvtool.controller;
 
 import com.webfront.app.AbstractApp;
+import com.webfront.u2.model.Profile;
+import com.webfront.u2.model.Program;
+import com.webfront.u2.util.Config;
 import com.webfront.uvtool.app.UvTool;
-import com.webfront.uvtool.model.Profile;
-import com.webfront.uvtool.model.Program;
-import com.webfront.uvtool.util.Config;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -85,7 +85,22 @@ public class RunViewController implements Controller, Initializable {
     
     @FXML
     public void exec() {
-        
+        Program p = cbAppName.getValue();
+        String appClass = p.getClassName()+"."+p.getName();
+        try {
+            Class c = Class.forName(appClass);
+            AbstractApp a = (AbstractApp) c.newInstance();
+            Profile readProfile = cbReadFrom.getValue();
+            Profile writeProfile = cbWriteTo.getValue();
+            String[] criteria = txtCriteria.getText().split("\n");
+            a.setup(p.getId(), readProfile, writeProfile, criteria);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(RunViewController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            Logger.getLogger(RunViewController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            Logger.getLogger(RunViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     class ButtonHandler implements EventHandler {
@@ -108,26 +123,26 @@ public class RunViewController implements Controller, Initializable {
 
     @Override
     public void launch(String view, String title) {
-        FXMLLoader viewLoader = new FXMLLoader();
-        viewLoader.setLocation(UvTool.class.getResource(res.getString(view)));
-        viewLoader.setResources(res);
-        try {
-            Stage stage = new Stage();
-            stage.setTitle(res.getString(title));
-            VBox root = viewLoader.<VBox>load();
-            VirtualBatchWizardController ctrl = viewLoader.getController();
-            ctrl.setStage(stage);
-            ctrl.getCancelButton().setOnAction(new EventHandler() {
-                @Override
-                public void handle(Event event) {
-                    stage.close();
-                }
-            });
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException ex) {
-            Logger.getLogger(UvToolController.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//        FXMLLoader viewLoader = new FXMLLoader();
+//        viewLoader.setLocation(UvTool.class.getResource(res.getString(view)));
+//        viewLoader.setResources(res);
+//        try {
+//            Stage stage = new Stage();
+//            stage.setTitle(res.getString(title));
+//            VBox root = viewLoader.<VBox>load();
+//            VirtualBatchWizardController ctrl = viewLoader.getController();
+//            ctrl.setStage(stage);
+//            ctrl.getCancelButton().setOnAction(new EventHandler() {
+//                @Override
+//                public void handle(Event event) {
+//                    stage.close();
+//                }
+//            });
+//            stage.setScene(new Scene(root));
+//            stage.show();
+//        } catch (IOException ex) {
+//            Logger.getLogger(UvToolController.class.getName()).log(Level.SEVERE, null, ex);
+//        }
 
     }
 

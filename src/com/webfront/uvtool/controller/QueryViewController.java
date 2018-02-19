@@ -5,7 +5,7 @@
  */
 package com.webfront.uvtool.controller;
 
-import com.webfront.uvtool.util.Progress;
+import com.webfront.u2.util.Progress;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
