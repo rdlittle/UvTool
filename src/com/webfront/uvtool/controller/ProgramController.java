@@ -41,10 +41,10 @@ public class ProgramController implements Controller, Initializable {
     ComboBox<Program> cbAppSelector;
 
     @FXML
-    TextArea txtLocalFiles;
+    TextArea txtReadFiles;
 
     @FXML
-    TextArea txtRemoteFiles;
+    TextArea txtWriteFiles;
 
     @FXML
     TextField txtAppName;
@@ -96,7 +96,7 @@ public class ProgramController implements Controller, Initializable {
         });
 
     }
-    
+
     @FXML
     public void onBtnDelete() {
         Program p = cbAppSelector.getValue();
@@ -126,24 +126,27 @@ public class ProgramController implements Controller, Initializable {
             p = cbAppSelector.getValue();
             isNew = false;
         }
-        String[] rfiles = txtRemoteFiles.getText().split("\n");
-        String[] lfiles = txtLocalFiles.getText().split("\n");
+
+        String[] rdFiles = txtReadFiles.getText().split("\n");
+        String[] wrFiles = txtWriteFiles.getText().split("\n");
+
         if (!txtAppName.getText().isEmpty()) {
             p.setName(txtAppName.getText());
         }
         p.setClassName(txtPackage.getText());
 
         ArrayList<UvFile> fileList = new ArrayList<>();
-        if (rfiles.length > 0) {
-            for (String s : rfiles) {
+
+        if (rdFiles.length > 0) {
+            for (String s : rdFiles) {
                 if (s.isEmpty()) {
                     continue;
                 }
                 fileList.add(new UvFile(p.getId(), s, true, false));
             }
         }
-        if (lfiles.length > 0) {
-            for (String s : lfiles) {
+        if (wrFiles.length > 0) {
+            for (String s : wrFiles) {
                 if (s.isEmpty()) {
                     continue;
                 }
@@ -152,9 +155,9 @@ public class ProgramController implements Controller, Initializable {
         }
 
         p.setFileList(fileList);
-        
+
         if (isNew) {
-             config.addProgram(p);
+            config.addProgram(p);
             if (fileList.size() > 0) {
                 config.addFiles(fileList);
             }
@@ -171,20 +174,20 @@ public class ProgramController implements Controller, Initializable {
             return;
         }
         Program p = cbAppSelector.getValue();
-        if(p==null) {
+        if (p == null) {
             return;
         }
         txtPackage.setText(p.getClassName());
-        txtLocalFiles.clear();
-        txtRemoteFiles.clear();
+        txtReadFiles.clear();
+        txtWriteFiles.clear();
 
         for (UvFile uvf : p.getFileList()) {
             String fname = uvf.getFileName();
-            if (uvf.isLocal()) {
-                txtLocalFiles.appendText(fname + "\n");
+            if (uvf.isRead()) {
+                txtReadFiles.appendText(fname + "\n");
             }
-            if (uvf.isRemote()) {
-                txtRemoteFiles.appendText(fname + "\n");
+            if (uvf.isWrite()) {
+                txtWriteFiles.appendText(fname + "\n");
             }
         }
     }
