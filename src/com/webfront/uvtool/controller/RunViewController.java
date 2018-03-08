@@ -6,12 +6,17 @@
 package com.webfront.uvtool.controller;
 
 import com.webfront.app.AbstractApp;
+import com.webfront.app.BaseApp;
 import com.webfront.u2.model.Profile;
 import com.webfront.u2.model.Program;
+import com.webfront.u2.model.Prompt;
 import com.webfront.u2.util.Config;
 import com.webfront.u2.util.Progress;
+import com.webfront.uvtool.util.Ilist;
+import com.webfront.uvtool.util.PromptDialog;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -64,6 +69,9 @@ public class RunViewController implements Controller, Progress, Initializable {
 
     @FXML
     TextArea txtCriteria;
+    
+    @FXML
+    TextArea txtDescription;
 
     @FXML
     TextArea txtOutput;
@@ -76,6 +84,7 @@ public class RunViewController implements Controller, Progress, Initializable {
 
     @FXML
     ProgressBar pbProgress;
+    
 
     private final Config config = Config.getInstance();
     ResourceBundle res;
@@ -88,6 +97,7 @@ public class RunViewController implements Controller, Progress, Initializable {
     RadialGradient ledOn;
 
     Thread backgroundThread = null;
+    final InputList iList = new InputList();
 
     public RunViewController() {
         stopsOn = new ArrayList<>();
@@ -100,10 +110,11 @@ public class RunViewController implements Controller, Progress, Initializable {
         cbWriteTo = new ComboBox<>();
         cbAppName = new ComboBox<>();
         pbProgress = new ProgressBar();
-        lockProfilesProperty = new SimpleBooleanProperty(false);
+        lockProfilesProperty = new SimpleBooleanProperty(true);
         txtListName = new TextField();
         txtOutput = new TextArea();
         txtCriteria = new TextArea();
+        txtDescription = new TextArea();
         stopsOn.add(new Stop(0, Color.web("#26ff6B")));
         stopsOn.add(new Stop(1.0, Color.web("#1e6824")));
         ledOn = new RadialGradient(0, -0.02, 0.51, 0.5, 0.97, true, CycleMethod.NO_CYCLE, stopsOn);
@@ -156,12 +167,24 @@ public class RunViewController implements Controller, Progress, Initializable {
     public void exec() {
         try {
             Program p = cbAppName.getValue();
+            PromptDialog dialog = new PromptDialog(p,iList);
             String appClassName = p.getClassName() + "." + p.getName();
-            AbstractApp a = (AbstractApp) Class.forName(appClassName).newInstance();
+            BaseApp a = (BaseApp) Class.forName(appClassName).newInstance();
             a.setProgress(this);
             Profile readProfile = cbReadFrom.getValue();
             Profile writeProfile = cbWriteTo.getValue();
             String[] criteria = txtCriteria.getText().split("\n");
+            if(p.getPromptList().size()>0) {
+                dialog.showAndWait();
+            }
+            if(iList.getIlist() != null) {
+                iList.iList.keySet().forEach((i) -> {
+                    String msg = iList.getIlist().get(i);
+                    Prompt prp = p.getPrompts().get(i);
+                    prp.setMessage(msg);
+                    p.getPrompts().put(i, prp);
+                });
+            }
             p.setListName(txtListName.getText());
             p.setSelectCriteria(criteria);
             a.setup(p, readProfile, writeProfile);
@@ -186,7 +209,7 @@ public class RunViewController implements Controller, Progress, Initializable {
             String id = btn.getId();
             if (id.equalsIgnoreCase("btnCancel")) {
                 EventType type = event.getEventType();
-                if (type == MOUSE_RELEASED) {
+                if (type == MOUSE_RELEASED && backgroundThread != null) {
                     if (backgroundThread.isAlive()) {
                         backgroundThread.interrupt();
                     }
@@ -194,15 +217,40 @@ public class RunViewController implements Controller, Progress, Initializable {
             }
         }
     }
+    
+    class InputList implements Ilist {
+        
+        private HashMap<Integer,String> iList;
+        
+        public InputList() {
+            this.iList = new HashMap<>();
+        }
+
+        @Override
+        public HashMap<Integer,String> getIlist() {
+            return this.iList;
+        }
+
+        @Override
+        public void setIlist(HashMap<Integer, String> iList) {
+            this.iList=iList;
+        }
+        
+    }
 
     @Override
     public void launch(String view, String title) {
-
+        
     }
 
     @Override
     public Button getCancelButton() {
         return btnCancel;
+    }
+    
+    @FXML
+    public void onAppSelect() {
+        txtDescription.setText(cbAppName.getValue().getDescription());
     }
 
 }

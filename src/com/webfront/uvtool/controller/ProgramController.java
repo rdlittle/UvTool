@@ -6,17 +6,25 @@
 package com.webfront.uvtool.controller;
 
 import com.webfront.u2.model.Program;
+import com.webfront.u2.model.Prompt;
 import com.webfront.u2.model.UvFile;
 import com.webfront.u2.util.Config;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TreeTableColumn.CellEditEvent;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -29,16 +37,37 @@ import javafx.scene.input.MouseEvent;
 public class ProgramController implements Controller, Initializable {
 
     @FXML
+    Button btnAddRow;
+
+    @FXML
     Button btnCancel;
 
     @FXML
     Button btnDelete;
 
     @FXML
+    Button btnDeleteRow;
+
+    @FXML
     Button btnSave;
 
     @FXML
+    CheckBox chkIsSubroutine;
+
+    @FXML
     ComboBox<Program> cbAppSelector;
+
+    @FXML
+    TableView<Prompt> tblInputs;
+
+    @FXML
+    TableColumn tblColInputNumber;
+
+    @FXML
+    TableColumn tblColPrompt;
+
+    @FXML
+    TextArea txtDescription;
 
     @FXML
     TextArea txtReadFiles;
@@ -55,8 +84,23 @@ public class ProgramController implements Controller, Initializable {
     private final Config config = Config.getInstance();
 
     public ProgramController() {
+        chkIsSubroutine = new CheckBox();
         cbAppSelector = new ComboBox<>();
         txtAppName = new TextField();
+        txtDescription = new TextArea();
+        txtPackage = new TextField();
+        txtReadFiles = new TextArea();
+        txtWriteFiles = new TextArea();
+        tblInputs = new TableView<>();
+        tblColInputNumber = new TableColumn();
+        tblColPrompt = new TableColumn();
+        tblColPrompt.setCellFactory(TextFieldTableCell.forTableColumn());
+        tblColPrompt.setOnEditCommit(new EventHandler<CellEditEvent<Prompt, String>>() {
+            @Override
+            public void handle(CellEditEvent<Prompt, String> t) {
+                System.out.println(t.getSource().toString());
+            }
+        });
     }
 
     @Override
@@ -94,7 +138,8 @@ public class ProgramController implements Controller, Initializable {
                 }
             }
         });
-
+        tblColInputNumber.setCellValueFactory(new PropertyValueFactory<>("num"));
+        tblColPrompt.setCellValueFactory(new PropertyValueFactory<>("message"));
     }
 
     @FXML
@@ -110,18 +155,20 @@ public class ProgramController implements Controller, Initializable {
     public void onBtnSave() {
         Object o = cbAppSelector.getValue();
         boolean isNew = true;
-        if (o == null) {
-            return;
-        }
+
         Program p;
-        if (o instanceof String) {
+        if (o == null || o instanceof String) {
+            String desc = txtDescription.getText();
             p = new Program();
+            p.setName(txtAppName.getText());
+            p.setClassName(txtPackage.getText());
+            p.setDescription(desc == null ? "" : txtDescription.getText());
+            p.setSubroutine(chkIsSubroutine.isSelected());
             int appId = config.addProgram(p);
             if (appId == -1) {
                 return;
             }
             p.setId(appId);
-            p.setName((String) o);
         } else {
             p = cbAppSelector.getValue();
             isNew = false;
@@ -134,7 +181,8 @@ public class ProgramController implements Controller, Initializable {
             p.setName(txtAppName.getText());
         }
         p.setClassName(txtPackage.getText());
-
+        p.setDescription(txtDescription.getText());
+        p.setSubroutine(chkIsSubroutine.isSelected());
         ArrayList<UvFile> fileList = new ArrayList<>();
 
         if (rdFiles.length > 0) {
@@ -155,9 +203,15 @@ public class ProgramController implements Controller, Initializable {
         }
 
         p.setFileList(fileList);
+        p.getPrompts().clear();
+        for (Prompt prp : tblInputs.getItems()) {
+            int pNum = prp.getNum();
+            String msg = prp.getMessage();
+            p.getPrompts().put(pNum, prp);
+        }
 
         if (isNew) {
-            config.addProgram(p);
+//            config.addProgram(p);
             if (fileList.size() > 0) {
                 config.addFiles(fileList);
             }
@@ -165,6 +219,24 @@ public class ProgramController implements Controller, Initializable {
             config.updateProgram(p);
         }
         cbAppSelector.setEditable(false);
+    }
+
+    @FXML
+    public void onAddRow() {
+        Object o = cbAppSelector.getValue();
+        Prompt p = new Prompt();
+        int nextPrompt = 1;
+        if (o instanceof Program) {
+            Program prog = (Program) o;
+            nextPrompt = prog.getPrompts().size() + 1;
+        }
+        p.setNum(nextPrompt);
+        tblInputs.getItems().add(p);
+    }
+
+    @FXML
+    public void onDeleteRow() {
+
     }
 
     @FXML
@@ -178,6 +250,7 @@ public class ProgramController implements Controller, Initializable {
             return;
         }
         txtPackage.setText(p.getClassName());
+        txtDescription.setText(p.getDescription());
         txtReadFiles.clear();
         txtWriteFiles.clear();
 
@@ -190,6 +263,8 @@ public class ProgramController implements Controller, Initializable {
                 txtWriteFiles.appendText(fname + "\n");
             }
         }
+        tblInputs.setItems(p.getPromptList());
+        chkIsSubroutine.selectedProperty().set(p.isSubroutine());
     }
 
 }
