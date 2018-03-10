@@ -19,7 +19,7 @@
       <VBox layoutX="16.0" layoutY="100.0" prefHeight="523.0" prefWidth="568.0" spacing="10.0">
          <children>
             <Label text="Description" />
-            <TextArea fx:id="txtDescription" prefHeight="231.0" prefWidth="568.0" />
+            <TextArea fx:id="txtDescription" onKeyTyped="#onDescriptionKeyTyped" prefHeight="231.0" prefWidth="568.0" />
             <HBox prefHeight="34.0" prefWidth="568.0" spacing="230.0">
                <children>
                   <Label text="Read Files" />
@@ -32,17 +32,17 @@
                   <TextArea fx:id="txtWriteFiles" prefHeight="168.0" prefWidth="277.0" />
                </children>
             </HBox>
-            <TableView fx:id="tblInputs" prefHeight="200.0" prefWidth="200.0">
+            <TableView fx:id="tblInputs" editable="true" prefHeight="200.0" prefWidth="200.0">
               <columns>
                 <TableColumn fx:id="tblColInputNumber" prefWidth="75.0" resizable="false" sortable="false" text="Number" />
-                <TableColumn fx:id="tblColPrompt" prefWidth="492.0" resizable="false" sortable="false" text="Message" />
+                <TableColumn fx:id="tblColPrompt" onEditCancel="#onEditCancel" onEditStart="#onEditStart" prefWidth="492.0" resizable="false" sortable="false" text="Message" />
               </columns>
             </TableView>
             <CheckBox fx:id="chkIsSubroutine" mnemonicParsing="false" text="This is a subroutine" />
             <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                <children>
-                  <Button fx:id="btnDelete" mnemonicParsing="false" onAction="#onBtnDelete" prefHeight="26.0" prefWidth="70.0" text="Delete" />
                   <Button fx:id="btnCancel" mnemonicParsing="false" prefHeight="26.0" prefWidth="70.0" text="Cancel" />
+                  <Button fx:id="btnDelete" mnemonicParsing="false" onAction="#onBtnDelete" prefHeight="26.0" prefWidth="70.0" text="Delete" />
                   <Button fx:id="btnSave" mnemonicParsing="false" onAction="#onBtnSave" prefHeight="26.0" prefWidth="70.0" text="Save" />
                </children>
             </HBox>

@@ -12,6 +12,10 @@ import com.webfront.u2.util.Config;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -19,10 +23,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TreeTableColumn.CellEditEvent;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
@@ -64,7 +68,7 @@ public class ProgramController implements Controller, Initializable {
     TableColumn tblColInputNumber;
 
     @FXML
-    TableColumn tblColPrompt;
+    TableColumn<Prompt, String> tblColPrompt;
 
     @FXML
     TextArea txtDescription;
@@ -82,6 +86,8 @@ public class ProgramController implements Controller, Initializable {
     TextField txtPackage;
 
     private final Config config = Config.getInstance();
+    SimpleBooleanProperty rowSelected;
+    SimpleBooleanProperty changed;
 
     public ProgramController() {
         chkIsSubroutine = new CheckBox();
@@ -93,14 +99,9 @@ public class ProgramController implements Controller, Initializable {
         txtWriteFiles = new TextArea();
         tblInputs = new TableView<>();
         tblColInputNumber = new TableColumn();
-        tblColPrompt = new TableColumn();
-        tblColPrompt.setCellFactory(TextFieldTableCell.forTableColumn());
-        tblColPrompt.setOnEditCommit(new EventHandler<CellEditEvent<Prompt, String>>() {
-            @Override
-            public void handle(CellEditEvent<Prompt, String> t) {
-                System.out.println(t.getSource().toString());
-            }
-        });
+        tblColPrompt = new TableColumn<>();
+        rowSelected = new SimpleBooleanProperty(false);
+        changed = new SimpleBooleanProperty(false);
     }
 
     @Override
@@ -138,8 +139,33 @@ public class ProgramController implements Controller, Initializable {
                 }
             }
         });
+
+        chkIsSubroutine.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler() {
+            @Override
+            public void handle(Event event) {
+                changed.set(true);
+            }
+        });
+
         tblColInputNumber.setCellValueFactory(new PropertyValueFactory<>("num"));
+
         tblColPrompt.setCellValueFactory(new PropertyValueFactory<>("message"));
+        tblColPrompt.setCellFactory(TextFieldTableCell.<Prompt>forTableColumn());
+        tblColPrompt.setOnEditCommit((CellEditEvent<Prompt, String> t) -> {
+            Prompt p = t.getRowValue();
+            int row = tblColPrompt.getTableView().getEditingCell().getRow();
+            p.setMessage(t.getNewValue());
+        });
+
+        tblInputs.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Prompt>() {
+            @Override
+            public void changed(ObservableValue<? extends Prompt> observable, Prompt oldValue, Prompt newValue) {
+                rowSelected.set(newValue != null);
+            }
+        });
+
+        btnDeleteRow.disableProperty().bind(rowSelected.not());
+        btnSave.disableProperty().bind(changed.not());
     }
 
     @FXML
@@ -211,7 +237,6 @@ public class ProgramController implements Controller, Initializable {
         }
 
         if (isNew) {
-//            config.addProgram(p);
             if (fileList.size() > 0) {
                 config.addFiles(fileList);
             }
@@ -219,6 +244,7 @@ public class ProgramController implements Controller, Initializable {
             config.updateProgram(p);
         }
         cbAppSelector.setEditable(false);
+        changed.set(false);
     }
 
     @FXML
@@ -236,11 +262,22 @@ public class ProgramController implements Controller, Initializable {
 
     @FXML
     public void onDeleteRow() {
-
+        Prompt p = tblInputs.getSelectionModel().getSelectedItem();
+        Program program = (Program) cbAppSelector.getValue();
+        program.getPromptList().remove(p);
+        program.getPrompts().remove(p.getNum());
+        changed.set(true);
+    }
+    
+    @FXML
+    public void onDescriptionKeyTyped() {
+        changed.set(true);
     }
 
     @FXML
     public void onAppSelect() {
+        changed.set(false);
+        btnDelete.disableProperty().set(true);
         Object o = cbAppSelector.getValue();
         if (o instanceof String) {
             return;
@@ -265,6 +302,27 @@ public class ProgramController implements Controller, Initializable {
         }
         tblInputs.setItems(p.getPromptList());
         chkIsSubroutine.selectedProperty().set(p.isSubroutine());
+
+    }
+
+    @FXML
+    public void onEditCancel() {
+        changed.set(false);
+    }
+
+    @FXML
+    public void onEditCommit() {
+        Prompt p = new Prompt();
+        int row = tblColPrompt.getTableView().getEditingCell().getRow();
+        String msg = tblColPrompt.getCellData(row);
+        p.setNum(row);
+        tblColPrompt.getTableView().getItems().get(row).getMessage();
+        changed.set(true);
+    }
+
+    @FXML
+    public void onEditStart() {
+        changed.set(true);
     }
 
 }
