@@ -69,7 +69,7 @@ public class RunViewController implements Controller, Progress, Initializable {
 
     @FXML
     TextArea txtCriteria;
-    
+
     @FXML
     TextArea txtDescription;
 
@@ -84,7 +84,6 @@ public class RunViewController implements Controller, Progress, Initializable {
 
     @FXML
     ProgressBar pbProgress;
-    
 
     private final Config config = Config.getInstance();
     ResourceBundle res;
@@ -167,23 +166,23 @@ public class RunViewController implements Controller, Progress, Initializable {
     public void exec() {
         try {
             Program p = cbAppName.getValue();
-            PromptDialog dialog = new PromptDialog(p,iList);
+            PromptDialog dialog = new PromptDialog(p, iList);
             String appClassName = p.getClassName() + "." + p.getName();
             BaseApp a = (BaseApp) Class.forName(appClassName).newInstance();
             a.setProgress(this);
             Profile readProfile = cbReadFrom.getValue();
             Profile writeProfile = cbWriteTo.getValue();
             String[] criteria = txtCriteria.getText().split("\n");
-            if(p.getPromptList().size()>0) {
+            if (p.getPromptList().size() > 0) {
                 dialog.showAndWait();
             }
-            if(iList.getIlist() != null) {
-                iList.iList.keySet().forEach((i) -> {
-                    String msg = iList.getIlist().get(i);
+            if (iList.getIlist() != null) {
+                for (int i : iList.iList.keySet()) {
+                    String r = iList.getIlist().get(i);
                     Prompt prp = p.getPrompts().get(i);
-                    prp.setMessage(msg);
+                    prp.setResponse(r);
                     p.getPrompts().put(i, prp);
-                });
+                };
             }
             p.setListName(txtListName.getText());
             p.setSelectCriteria(criteria);
@@ -217,37 +216,37 @@ public class RunViewController implements Controller, Progress, Initializable {
             }
         }
     }
-    
+
     class InputList implements Ilist {
-        
-        private HashMap<Integer,String> iList;
-        
+
+        private HashMap<Integer, String> iList;
+
         public InputList() {
             this.iList = new HashMap<>();
         }
 
         @Override
-        public HashMap<Integer,String> getIlist() {
+        public HashMap<Integer, String> getIlist() {
             return this.iList;
         }
 
         @Override
         public void setIlist(HashMap<Integer, String> iList) {
-            this.iList=iList;
+            this.iList = iList;
         }
-        
+
     }
 
     @Override
     public void launch(String view, String title) {
-        
+
     }
 
     @Override
     public Button getCancelButton() {
         return btnCancel;
     }
-    
+
     @FXML
     public void onAppSelect() {
         txtDescription.setText(cbAppName.getValue().getDescription());
