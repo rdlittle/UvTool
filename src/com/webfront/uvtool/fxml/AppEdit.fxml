@@ -38,7 +38,7 @@
                 <TableColumn fx:id="tblColPrompt" onEditCancel="#onEditCancel" onEditStart="#onEditStart" prefWidth="492.0" resizable="false" sortable="false" text="Message" />
               </columns>
             </TableView>
-            <CheckBox fx:id="chkIsSubroutine" mnemonicParsing="false" text="This is a subroutine" />
+            <CheckBox fx:id="chkIsSubroutine" mnemonicParsing="false" text="This is a subroutine wrapper" />
             <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                <children>
                   <Button fx:id="btnCancel" mnemonicParsing="false" prefHeight="26.0" prefWidth="70.0" text="Cancel" />
