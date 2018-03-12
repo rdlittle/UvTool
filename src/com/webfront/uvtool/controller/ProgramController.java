@@ -251,11 +251,7 @@ public class ProgramController implements Controller, Initializable {
     public void onAddRow() {
         Object o = cbAppSelector.getValue();
         Prompt p = new Prompt();
-        int nextPrompt = 1;
-        if (o instanceof Program) {
-            Program prog = (Program) o;
-            nextPrompt = prog.getPrompts().size() + 1;
-        }
+        int nextPrompt = tblInputs.getItems().size() + 1;
         p.setNum(nextPrompt);
         tblInputs.getItems().add(p);
     }
