@@ -57,6 +57,9 @@ public class ProgramController implements Controller, Initializable {
 
     @FXML
     CheckBox chkIsSubroutine;
+    
+    @FXML
+    CheckBox chkIsNew;
 
     @FXML
     ComboBox<Program> cbAppSelector;
@@ -90,6 +93,7 @@ public class ProgramController implements Controller, Initializable {
     SimpleBooleanProperty changed;
 
     public ProgramController() {
+        chkIsNew = new CheckBox();
         chkIsSubroutine = new CheckBox();
         cbAppSelector = new ComboBox<>();
         txtAppName = new TextField();
@@ -164,6 +168,9 @@ public class ProgramController implements Controller, Initializable {
             }
         });
 
+        if(chkIsNew.selectedProperty().get()) {
+            changed.set(true);
+        }
         btnDeleteRow.disableProperty().bind(rowSelected.not());
         btnSave.disableProperty().bind(changed.not());
     }
@@ -175,13 +182,16 @@ public class ProgramController implements Controller, Initializable {
             return;
         }
         config.deleteProgram(p);
+        txtPackage.setText("");
+        txtReadFiles.clear();
+        txtWriteFiles.clear();
+        chkIsSubroutine.selectedProperty().set(false);
     }
 
     @FXML
     public void onBtnSave() {
         Object o = cbAppSelector.getValue();
         boolean isNew = true;
-
         Program p;
         if (o == null || o instanceof String) {
             String desc = txtDescription.getText();
@@ -202,7 +212,7 @@ public class ProgramController implements Controller, Initializable {
 
         String[] rdFiles = txtReadFiles.getText().split("\n");
         String[] wrFiles = txtWriteFiles.getText().split("\n");
-
+        
         if (!txtAppName.getText().isEmpty()) {
             p.setName(txtAppName.getText());
         }
@@ -273,7 +283,6 @@ public class ProgramController implements Controller, Initializable {
     @FXML
     public void onAppSelect() {
         changed.set(false);
-        btnDelete.disableProperty().set(true);
         Object o = cbAppSelector.getValue();
         if (o instanceof String) {
             return;
