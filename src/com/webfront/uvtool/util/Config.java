@@ -5,11 +5,15 @@
  */
 package com.webfront.uvtool.util;
 
-import com.webfront.uvtool.model.Account;
-import com.webfront.uvtool.model.Profile;
+//import com.webfront.uvtool.model.Account;
+//import com.webfront.uvtool.model.Profile;
+import com.webfront.u2.model.Profile;
+import com.webfront.u2.model.Account;
+import com.webfront.u2.model.User;
+import com.webfront.u2.model.Server;
 import com.webfront.uvtool.model.Program;
-import com.webfront.uvtool.model.Server;
-import com.webfront.uvtool.model.User;
+//import com.webfront.uvtool.model.Server;
+//import com.webfront.uvtool.model.User;
 import com.webfront.uvtool.model.UvFile;
 import java.awt.Dimension;
 import java.awt.Point;

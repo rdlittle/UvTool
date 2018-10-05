@@ -67,6 +67,8 @@ public class UvToolController implements Initializable {
     @FXML
     Button btnEdit;
     @FXML
+    Button btnPull;
+    @FXML
     Button btnCopy;
 
     @FXML
@@ -100,6 +102,7 @@ public class UvToolController implements Initializable {
         btnRun = new Button();
         btnQuery = new Button();
         btnEdit = new Button();
+        btnPull = new Button();
         btnCopy = new Button();
         mnuFileNewAccount = new MenuItem();
         mnuFileNewServer = new MenuItem();
@@ -139,6 +142,10 @@ public class UvToolController implements Initializable {
         btnRun.setOnAction(event ->launch("viewRun","titleRun"));
         btnRun.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
         btnRun.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());
+        
+        btnPull.setOnAction(event ->launch("viewPullSource","titlePullSource"));
+        btnPull.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
+        btnPull.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());        
        
     }
 

@@ -5,7 +5,7 @@
  */
 package com.webfront.uvtool.util;
 
-import com.webfront.uvtool.model.Profile;
+import com.webfront.u2.model.Profile;
 import javafx.util.StringConverter;
 
 /**
