@@ -8,7 +8,6 @@ package com.webfront.uvtool.util;
 import asjava.uniobjects.UniJava;
 import asjava.uniobjects.UniSession;
 import asjava.uniobjects.UniSessionException;
-//import com.webfront.uvtool.model.Profile;
 import com.webfront.u2.model.Profile;
 
 /**

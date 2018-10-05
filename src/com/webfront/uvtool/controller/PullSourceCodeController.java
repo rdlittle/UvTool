@@ -8,8 +8,9 @@ package com.webfront.uvtool.controller;
 import com.webfront.u2.util.Config;
 
 import com.webfront.u2.model.Profile;
+import com.webfront.u2.util.Progress;
 import com.webfront.uvtool.app.UvTool;
-import com.webfront.uvtool.util.Progress;
+//import com.webfront.uvtool.util.Progress;
 import com.webfront.uvtool.util.UvClient;
 import java.io.IOException;
 import java.net.URL;

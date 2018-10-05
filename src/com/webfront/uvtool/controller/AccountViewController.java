@@ -7,11 +7,9 @@ package com.webfront.uvtool.controller;
 
 import com.webfront.u2.model.Account;
 import com.webfront.u2.model.Server;
-//import com.webfront.uvtool.model.Account;
-//import com.webfront.uvtool.model.Server;
 import com.webfront.u2.util.AccountConverter;
-import com.webfront.uvtool.util.Config;
 import com.webfront.u2.util.ServerConverter;
+import com.webfront.uvtool.util.Config;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.beans.value.ChangeListener;
