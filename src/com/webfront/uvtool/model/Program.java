@@ -5,6 +5,7 @@
  */
 package com.webfront.uvtool.model;
 
+import com.webfront.u2.model.UvFile;
 import java.util.ArrayList;
 import java.util.HashMap;
 

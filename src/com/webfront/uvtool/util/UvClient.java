@@ -16,7 +16,7 @@ import asjava.uniobjects.UniSelectListException;
 import asjava.uniobjects.UniSessionException;
 import com.webfront.u2.model.Profile;
 import com.webfront.u2.util.Progress;
-import com.webfront.uvtool.model.UvData;
+import com.webfront.u2.model.UvData;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
