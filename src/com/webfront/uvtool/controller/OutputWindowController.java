@@ -11,6 +11,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
+import javafx.stage.Stage;
 
 /**
  *
@@ -33,6 +34,11 @@ public class OutputWindowController implements Controller, Initializable {
 
     @FXML
     private Button btnSave;
+
+    @Override
+    public void setStage(Stage s) {
+        
+    }
 
     @FXML
     public void initialize(URL url, ResourceBundle rb) {

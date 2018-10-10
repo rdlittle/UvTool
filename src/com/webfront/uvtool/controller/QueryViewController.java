@@ -12,6 +12,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
+import javafx.stage.Stage;
 
 /**
  * FXML Controller class
@@ -34,6 +35,11 @@ public class QueryViewController implements Controller, Initializable, Progress 
     public QueryViewController() {
         btnCancel = new Button();
         btnRun = new Button();
+    }
+
+    @Override
+    public void setStage(Stage s) {
+        
     }
     /**
      * Initializes the controller class.

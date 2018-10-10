@@ -174,6 +174,7 @@ public class UvToolController implements Initializable {
                    stage.close();
                 }
             });
+            ctrl.setStage(stage);
             
             stage.showAndWait();
         } catch (IOException ex) {

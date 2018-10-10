@@ -4,6 +4,7 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.paint.RadialGradient?>
 <?import javafx.scene.paint.Stop?>
@@ -11,18 +12,18 @@
 
 <AnchorPane id="AnchorPane" prefHeight="429.0" prefWidth="719.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.webfront.uvtool.controller.PullSourceCodeController">
    <children>
-      <ComboBox fx:id="cbSourceProfile" layoutX="74.0" layoutY="14.0" onAction="#onSourceProfileChange" prefHeight="26.0" prefWidth="200.0" />
+      <ComboBox fx:id="cbSourceProfile" layoutX="74.0" layoutY="14.0" onHidden="#onSourceProfileChange" prefHeight="26.0" prefWidth="200.0" />
       <Label layoutX="14.0" layoutY="19.0" text="Source" />
       <Label layoutX="357.0" layoutY="19.0" text="Destination" />
       <ComboBox fx:id="cbDestProfile" layoutX="447.0" layoutY="14.0" onAction="#onDestProfileChange" prefHeight="26.0" prefWidth="200.0" />
       <Label layoutX="14.0" layoutY="66.0" text="From" />
       <ComboBox fx:id="cbFromFile" layoutX="74.0" layoutY="61.0" prefHeight="26.0" prefWidth="200.0" />
-      <Label layoutX="357.0" layoutY="66.0" text="To" />
+      <Label layoutX="378.0" layoutY="66.0" text="To" />
       <ComboBox fx:id="cbToFile" layoutX="447.0" layoutY="61.0" prefHeight="26.0" prefWidth="200.0" />
-      <ListView fx:id="lbSourceItems" layoutX="74.0" layoutY="109.0" prefHeight="259.0" prefWidth="200.0" />
-      <ListView fx:id="lvDestItems" layoutX="447.0" layoutY="109.0" prefHeight="259.0" prefWidth="200.0" />
+      <ListView fx:id="lvSourceItems" layoutX="14.0" layoutY="109.0" prefHeight="259.0" prefWidth="264.0" />
+      <ListView fx:id="lvDestItems" layoutX="386.0" layoutY="109.0" prefHeight="259.0" prefWidth="264.0" />
       <Button fx:id="btnCancel" layoutX="638.0" layoutY="389.0" mnemonicParsing="false" text="Cancel" />
-      <Button fx:id="btnOk" layoutX="566.0" layoutY="389.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="63.0" text="OK" />
+      <Button fx:id="btnOk" layoutX="566.0" layoutY="389.0" mnemonicParsing="false" onAction="#onOk" prefHeight="26.0" prefWidth="63.0" text="OK" />
       <Circle fx:id="sourceLed" layoutX="295.0" layoutY="27.0" radius="10.0" stroke="#d3d3d3" strokeType="INSIDE">
          <fill>
             <RadialGradient centerX="0.5112359550561798" centerY="0.5" focusDistance="-0.023809523809523836" radius="0.6666666666666666">
@@ -43,5 +44,10 @@
             </RadialGradient>
          </fill>
       </Circle>
+      <Button fx:id="btnAllRight" layoutX="310.0" layoutY="152.0" mnemonicParsing="false" onAction="#moveAllRight" text="&gt;&gt;" />
+      <Button fx:id="btnOneRight" layoutX="310.0" layoutY="187.0" mnemonicParsing="false" onAction="#moveOneRight" prefHeight="26.0" prefWidth="40.0" text="&gt;" />
+      <Button fx:id="btnOneLeft" layoutX="310.0" layoutY="265.0" mnemonicParsing="false" onAction="#moveOneLeft" prefHeight="26.0" prefWidth="40.0" text="&lt;" />
+      <Button fx:id="btnAllLeft" layoutX="310.0" layoutY="302.0" mnemonicParsing="false" onAction="#moveAllLeft" text="&lt;&lt;" />
+      <TextField fx:id="txtStatus" editable="false" layoutX="14.0" layoutY="389.0" prefHeight="26.0" prefWidth="538.0" style="-fx-background-color: #f4f4f4;" />
    </children>
 </AnchorPane>

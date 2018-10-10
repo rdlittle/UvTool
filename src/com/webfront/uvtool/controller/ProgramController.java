@@ -32,6 +32,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
 
 /**
  * FXML Controller class
@@ -106,6 +107,11 @@ public class ProgramController implements Controller, Initializable {
         tblColPrompt = new TableColumn<>();
         rowSelected = new SimpleBooleanProperty(false);
         changed = new SimpleBooleanProperty(false);
+    }
+
+    @Override
+    public void setStage(Stage s) {
+        
     }
 
     @Override

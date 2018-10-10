@@ -145,6 +145,8 @@ public class CopyViewController implements Controller, Initializable, Progress {
     List<Stop> stopsOff;
 
     private final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+    
+    private Stage stage;
 
     public CopyViewController() {
         config = Config.getInstance();
@@ -202,6 +204,11 @@ public class CopyViewController implements Controller, Initializable, Progress {
 
         alert.setTitle("File name mismatch");
         alert.contentTextProperty().set("Destination file does not match source file!");
+    }
+
+    @Override
+    public void setStage(Stage s) {
+        
     }
 
     /**

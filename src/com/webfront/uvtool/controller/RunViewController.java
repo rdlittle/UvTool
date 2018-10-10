@@ -41,6 +41,7 @@ import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.Circle;
+import javafx.stage.Stage;
 
 /**
  * FXML Controller class
@@ -122,6 +123,10 @@ public class RunViewController implements Controller, Progress, Initializable {
         stopsOn.add(new Stop(1.0, Color.web("#1e6824")));
         ledOff = new RadialGradient(0, -0.02, 0.51, 0.5, 0.67, true, CycleMethod.NO_CYCLE, stopsOff);
 
+    }
+
+    @Override
+    public void setStage(Stage s) {
     }
 
     @Override

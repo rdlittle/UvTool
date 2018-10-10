@@ -10,6 +10,7 @@ import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.stage.Stage;
 
 /**
  * FXML Controller class
@@ -23,6 +24,11 @@ public class EditViewController implements Controller, Initializable {
 
     public EditViewController() {
         btnCancel = new Button();
+    }
+
+    @Override
+    public void setStage(Stage s) {
+        
     }
     /**
      * Initializes the controller class.

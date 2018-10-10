@@ -18,6 +18,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
 /**
  * FXML Controller class
@@ -50,6 +51,11 @@ public class ServerViewController implements Controller, Initializable {
 
         lblStatusMessage = new Label();
         txtHostName = new TextField();
+    }
+
+    @Override
+    public void setStage(Stage s) {
+        
     }
 
     /**

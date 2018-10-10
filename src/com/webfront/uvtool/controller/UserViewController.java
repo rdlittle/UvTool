@@ -13,6 +13,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
 /**
  * FXML Controller class
@@ -34,6 +35,11 @@ public class UserViewController implements Controller, Initializable {
 
     public UserViewController() {
         btnCancel = new Button();
+    }
+
+    @Override
+    public void setStage(Stage s) {
+        
     }
     /**
      * Initializes the controller class.

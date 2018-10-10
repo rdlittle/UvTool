@@ -114,6 +114,11 @@ public class ProfileController implements Controller {
     public ProfileController() {
     }
 
+    @Override
+    public void setStage(Stage s) {
+        
+    }
+
     @FXML
     public void initialize() {
         selectedProfile = new Profile();

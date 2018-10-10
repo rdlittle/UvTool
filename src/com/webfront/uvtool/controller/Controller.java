@@ -6,6 +6,7 @@
 package com.webfront.uvtool.controller;
 
 import javafx.scene.control.Button;
+import javafx.stage.Stage;
 
 /**
  *
@@ -14,4 +15,5 @@ import javafx.scene.control.Button;
 public interface Controller {
     public Button getCancelButton();
     public void launch(String v,String t);
+    public void setStage(Stage s);
 }

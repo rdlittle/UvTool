@@ -24,6 +24,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
 
 /**
  * FXML Controller class
@@ -51,6 +52,8 @@ public class AccountViewController implements Controller, Initializable {
     private final Config config = Config.getInstance();
     private final FilteredList<Account> filteredAccountList;
     private Account selectedAccount;
+    
+    private Stage stage;
 
     /**
      * Initializes the controller class.
@@ -69,6 +72,11 @@ public class AccountViewController implements Controller, Initializable {
 
         cbServers = new ComboBox<>();
         cbServers.converterProperty().set(new ServerConverter());
+    }
+
+    @Override
+    public void setStage(Stage s) {
+        
     }
 
     @Override
