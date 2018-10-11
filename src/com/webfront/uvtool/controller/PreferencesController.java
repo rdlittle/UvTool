@@ -13,7 +13,6 @@ import java.sql.SQLException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.collections.ObservableMap;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -31,7 +30,6 @@ public class PreferencesController implements Controller, Initializable, Progres
 
     private ResourceBundle res;
     private final Config config = Config.getInstance();
-    private final ObservableMap<String, String> preferences = config.getPreferences();
     private Stage stage;
 
     @FXML

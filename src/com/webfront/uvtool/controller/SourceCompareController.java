@@ -239,13 +239,15 @@ public class SourceCompareController implements Controller, Initializable, Progr
                 Runtime.getRuntime().exec(cmd).waitFor();
             }
         } catch (IOException ex) {
+            txtMessages.setText(ex.getMessage());
             Logger.getLogger(SourceCompareController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (UniSessionException ex) {
+            txtMessages.setText(ex.getMessage());
             Logger.getLogger(SourceCompareController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (UniFileException ex) {
+            txtMessages.setText(ex.getMessage());
             Logger.getLogger(SourceCompareController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
-            Logger.getLogger(SourceCompareController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
