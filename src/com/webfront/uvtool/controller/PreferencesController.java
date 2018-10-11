@@ -101,33 +101,8 @@ public class PreferencesController implements Controller, Initializable, Progres
     }
 
     @Override
-    public void updateLed(String host, boolean onOff) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void updateProgressBar(Double p) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void state(String message) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void display(String message) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public void setStage(Stage s) {
         this.stage = s;
-    }
-
-    @Override
-    public void launch(String v, String t) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -142,7 +117,7 @@ public class PreferencesController implements Controller, Initializable, Progres
             File selectedFile = dc.showDialog(stage.getOwner());
             if (selectedFile != null) {
                 return selectedFile.getAbsolutePath();
-            }            
+            }
         } else {
             FileChooser fc = new FileChooser();
             fc.setTitle(title);
@@ -153,4 +128,30 @@ public class PreferencesController implements Controller, Initializable, Progres
         }
         return null;
     }
+
+    @Override
+    public void updateLed(String host, boolean onOff) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void updateProgressBar(Double p) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void state(String message) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void display(String message) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void launch(String v, String t) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 }
