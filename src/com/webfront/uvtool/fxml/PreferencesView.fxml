@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.webfront.uvtool.controller.PreferencesController">
+   <children>
+      <Label layoutX="14.0" layoutY="14.0" text="Temporary files location" />
+      <TextField fx:id="txtTempLocation" layoutX="14.0" layoutY="30.0" prefHeight="26.0" prefWidth="289.0" />
+      <Button fx:id="btnTempLocation" layoutX="316.0" layoutY="30.0" mnemonicParsing="false" onAction="#btnTempLocationOnClick" text="Browse" />
+      <Label layoutX="14.0" layoutY="67.0" text="Diff program" />
+      <TextField fx:id="txtDiffProgram" layoutX="14.0" layoutY="83.0" prefHeight="26.0" prefWidth="289.0" />
+      <Button fx:id="btnDiffProgram" layoutX="316.0" layoutY="83.0" mnemonicParsing="false" onAction="#btnDiffProgramOnClick" text="Browse" />
+      <Button fx:id="btnCancel" layoutX="524.0" layoutY="360.0" mnemonicParsing="false" text="Cancel" />
+      <Button fx:id="btnOk" layoutX="450.0" layoutY="360.0" mnemonicParsing="false" onAction="#btnOkOnClick" prefHeight="26.0" prefWidth="63.0" text="OK" />
+   </children>
+</AnchorPane>

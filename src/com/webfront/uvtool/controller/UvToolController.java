@@ -251,24 +251,10 @@ public class UvToolController implements Initializable {
     public void onEditApp() {
         launch("viewAppEdit", "titleAppEdit");
     }
-
+    
     @FXML
-    public void onBtnDiff() {
-        /*
-        String[] cmd = new String[3];
-        cmd[0] = "meld";
-        cmd[1] = "/home/rlittle/ma.src/compare/setAoputilCbIbv.uvp";
-        cmd[2] = "/home/rlittle/ma.src/peer/setAoputilCbIbv.uvp";
-        try {
-            Runtime.getRuntime().exec(cmd).waitFor();
-            System.out.println("meld exited");
-        } catch (IOException ex) {
-            Logger.getLogger(UvToolController.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(UvToolController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-         */
-        
+    public void onEditPreferences() {
+        launch("viewPreferences", "titleEditPreferences");
     }
 
 }

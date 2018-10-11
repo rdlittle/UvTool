@@ -35,7 +35,7 @@
                   <MenuItem fx:id="mnuEditProfile" mnemonicParsing="false" onAction="#onEditProfile" text="Profile" />
                   <MenuItem fx:id="mnuEditApp" mnemonicParsing="false" onAction="#onEditApp" text="Applications" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-              <MenuItem fx:id="mnuEditPreferences" mnemonicParsing="false" text="Preferences" />
+              <MenuItem fx:id="mnuEditPreferences" mnemonicParsing="false" onAction="#onEditPreferences" text="Preferences" />
             </items>
           </Menu>
           <Menu fx:id="mnuHelp" mnemonicParsing="false" text="Help">
