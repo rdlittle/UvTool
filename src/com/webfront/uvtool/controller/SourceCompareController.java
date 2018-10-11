@@ -5,6 +5,7 @@
  */
 package com.webfront.uvtool.controller;
 
+import asjava.uniclientlibs.UniString;
 import asjava.uniobjects.UniFile;
 import asjava.uniobjects.UniFileException;
 import asjava.uniobjects.UniSessionException;
@@ -24,6 +25,7 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -36,8 +38,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.RadialGradient;
@@ -74,7 +76,7 @@ public class SourceCompareController implements Controller, Initializable, Progr
     private Circle destLed;
 
     @FXML
-    private TextArea txtMessages;
+    private Label txtMessages;
 
     @FXML
     private ComboBox<Profile> cbSourceProfile;
@@ -99,14 +101,14 @@ public class SourceCompareController implements Controller, Initializable, Progr
     RadialGradient ledOn;
     List<Stop> stopsOn;
     List<Stop> stopsOff;
-
+    
     public SourceCompareController() {
         config = Config.getInstance();
         stopsOn = new ArrayList<>();
         stopsOff = new ArrayList<>();
         btnCompare = new Button();
         btnCancel = new Button();
-        txtMessages = new TextArea();
+        txtMessages = new Label();
         cbSourceProfile = new ComboBox<>();
         cbDestProfile = new ComboBox<>();
         cbFiles = new ComboBox<>();
@@ -144,7 +146,8 @@ public class SourceCompareController implements Controller, Initializable, Progr
             }
         });
         SimpleListProperty slp = new SimpleListProperty(fileItems);
-        btnCompare.disableProperty().bind(slp.emptyProperty().or(cbDestProfile.getSelectionModel().selectedItemProperty().isNull()));
+        btnCompare.disableProperty().bind(lvItems.getSelectionModel().selectedItemProperty().isNull().or(cbDestProfile.getSelectionModel().selectedItemProperty().isNull()));
+        lvItems.disableProperty().bind(cbDestProfile.valueProperty().isNull());
     }
 
     @Override
@@ -158,6 +161,7 @@ public class SourceCompareController implements Controller, Initializable, Progr
 
     @FXML
     public void onSourceProfileChange() {
+        Platform.runLater(() ->txtMessages.setText("Collecting file names"));
         client.setSourceProfile(cbSourceProfile.getValue());
         sourceFileList.clear();
         cbFiles.disableProperty().set(true);
@@ -171,6 +175,7 @@ public class SourceCompareController implements Controller, Initializable, Progr
                 cbFiles.setItems(sourceFileList);
                 cbFiles.disableProperty().set(false);
                 stage.getScene().setCursor(Cursor.DEFAULT);
+                Platform.runLater(() ->txtMessages.setText(""));
             }
         });
         stage.getScene().setCursor(Cursor.WAIT);
@@ -181,6 +186,7 @@ public class SourceCompareController implements Controller, Initializable, Progr
     }
 
     private void getFileItems(String fileName) {
+        Platform.runLater(() ->txtMessages.setText("Reading "+fileName));
         ArrayList<String> list = new ArrayList<>();
         SelectorTask selectorTask = new SelectorTask(client, "SELECT " + fileName);
         selectorTask.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED,
@@ -192,6 +198,7 @@ public class SourceCompareController implements Controller, Initializable, Progr
                 fileItems.setAll(list);
                 lvItems.setItems(fileItems.sorted());
                 stage.getScene().setCursor(Cursor.DEFAULT);
+                Platform.runLater(() ->txtMessages.setText(""));
             }
         });
         stage.getScene().setCursor(Cursor.WAIT);
@@ -239,18 +246,60 @@ public class SourceCompareController implements Controller, Initializable, Progr
                 Runtime.getRuntime().exec(cmd).waitFor();
             }
         } catch (IOException ex) {
-            txtMessages.setText(ex.getMessage());
-            Logger.getLogger(SourceCompareController.class.getName()).log(Level.SEVERE, null, ex);
+            Platform.runLater(() ->txtMessages.setText(ex.getMessage()));
+            Logger.getLogger(SourceCompareController.class.getName()).log(Level.SEVERE, null, ex.getMessage());
+            client.doDisconnect();
         } catch (UniSessionException ex) {
-            txtMessages.setText(ex.getMessage());
-            Logger.getLogger(SourceCompareController.class.getName()).log(Level.SEVERE, null, ex);
+            Platform.runLater(() ->txtMessages.setText(ex.getMessage()));
+            client.doDisconnect();
         } catch (UniFileException ex) {
-            txtMessages.setText(ex.getMessage());
-            Logger.getLogger(SourceCompareController.class.getName()).log(Level.SEVERE, null, ex);
+            Platform.runLater(() ->txtMessages.setText(ex.getMessage()));
         } catch (InterruptedException ex) {
+            client.doDisconnect();
         }
     }
-
+    
+    private boolean checkDestFile(String fileName, String itemId) {
+        if(cbDestProfile.getValue() == null) {
+            return false;
+        }
+        try {
+            client.doSingleConnect("dest");
+            UniFile destFile = client.getDestSession().getSession().open(fileName);
+            UniString s = destFile.read(itemId);
+            client.doSingleDisconnect("dest");
+        } catch (UniSessionException ex) {
+            try {
+                client.doSingleDisconnect("dest");
+                return false;
+            } catch (UniSessionException ex1) {
+                Logger.getLogger(SourceCompareController.class.getName()).log(Level.SEVERE, null, ex1);
+                return false;
+            }
+        } catch (UniFileException ex) {
+            try {
+                client.doSingleDisconnect("dest");
+                return false;
+            } catch (UniSessionException ex1) {
+                Logger.getLogger(SourceCompareController.class.getName()).log(Level.SEVERE, null, ex1);
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    @FXML
+    public void lvItemsOnMouseRelease() {
+        txtMessages.setText("");
+        String fileName = cbFiles.getValue();
+        String itemId = lvItems.getSelectionModel().getSelectedItem();
+        if(!checkDestFile(fileName, itemId)) {
+            txtMessages.setText("Cannot read "+fileName+" "+itemId+" on "+client.getDestProfile().getServerName());
+            lvItems.getSelectionModel().clearSelection();
+        } else {
+            txtMessages.setText("");
+        }
+    }
     @FXML
     public void onDestProfileChanged() {
         client.setDestProfile(cbDestProfile.getValue());

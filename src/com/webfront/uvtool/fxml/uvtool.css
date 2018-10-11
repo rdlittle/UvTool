@@ -1,0 +1,23 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Oct 11, 2018, 11:57:25 AM
+    Author     : rlittle
+*/
+
+.ta:focused .content {
+    -fx-background-color:  transparent;
+}
+.ta .content {
+    -fx-background-color:  transparent;
+}
+
+.ta {
+    -fx-focus-color: transparent;
+    -fx-border-style: none;
+    -fx-background-radius: 0.0px;
+    -fx-border-radius: 0.0px;
+}

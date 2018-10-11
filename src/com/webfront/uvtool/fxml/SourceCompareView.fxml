@@ -4,7 +4,6 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.paint.RadialGradient?>
 <?import javafx.scene.paint.Stop?>
@@ -16,13 +15,12 @@
       <Label layoutX="14.0" layoutY="24.0" text="Source server" />
       <Label layoutX="14.0" layoutY="62.0" text="Source file" />
       <ComboBox fx:id="cbFiles" layoutX="122.0" layoutY="57.0" prefHeight="26.0" prefWidth="232.0" />
-      <ListView fx:id="lvItems" layoutX="371.0" layoutY="35.0" prefHeight="344.0" prefWidth="367.0" />
+      <ListView fx:id="lvItems" layoutX="371.0" layoutY="35.0" onMouseReleased="#lvItemsOnMouseRelease" prefHeight="344.0" prefWidth="367.0" />
       <Label layoutX="14.0" layoutY="126.0" text="Compare to" />
       <ComboBox fx:id="cbDestProfile" layoutX="122.0" layoutY="121.0" onAction="#onDestProfileChanged" prefHeight="26.0" prefWidth="194.0" />
       <Label layoutX="371.0" layoutY="14.0" text="Items" />
       <Button fx:id="btnCancel" layoutX="115.0" layoutY="353.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="78.0" text="Cancel" />
       <Button fx:id="btnCompare" layoutX="18.0" layoutY="353.0" mnemonicParsing="false" onAction="#btnCompareOnClick" text="Compare" />
-      <TextArea fx:id="txtMessages" editable="false" layoutX="15.0" layoutY="157.0" opacity="0.0" prefHeight="185.0" prefWidth="343.0" style="-fx-background-color: #e9e9e9; -fx-border-width: 0;" wrapText="true" />
       <Circle fx:id="sourceLed" layoutX="336.0" layoutY="30.0" radius="10.0" stroke="#d3d3d3" strokeType="INSIDE">
          <fill>
             <RadialGradient centerX="0.5112359550561798" centerY="0.5" focusDistance="-0.023809523809523836" radius="0.6666666666666666">
@@ -43,5 +41,6 @@
             </RadialGradient>
          </fill>
       </Circle>
+      <Label fx:id="txtMessages" alignment="TOP_LEFT" layoutX="18.0" layoutY="177.0" prefHeight="160.0" prefWidth="334.0" wrapText="true" />
    </children>
 </AnchorPane>
