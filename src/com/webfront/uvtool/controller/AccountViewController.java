@@ -9,7 +9,7 @@ import com.webfront.u2.model.Account;
 import com.webfront.u2.model.Server;
 import com.webfront.u2.util.AccountConverter;
 import com.webfront.u2.util.ServerConverter;
-import com.webfront.uvtool.util.Config;
+import com.webfront.u2.util.Config;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.beans.value.ChangeListener;

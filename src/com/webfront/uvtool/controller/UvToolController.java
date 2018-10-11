@@ -49,9 +49,9 @@ public class UvToolController implements Initializable {
     private final ObservableList<Server> serverList = FXCollections.<Server>observableArrayList();
     private final ObservableList<User> userList = FXCollections.observableArrayList();
     private final ObservableList<String> programList = FXCollections.observableArrayList();
-    
+
     ResourceBundle res;
-    
+
     @FXML
     ComboBox cbServers;
     @FXML
@@ -59,7 +59,7 @@ public class UvToolController implements Initializable {
 
     @FXML
     Label statusMessage;
-    
+
     @FXML
     Button btnRun;
     @FXML
@@ -86,7 +86,7 @@ public class UvToolController implements Initializable {
     @FXML
     MenuItem mnuEditServer;
     @FXML
-    MenuItem mnuEditProfile;  
+    MenuItem mnuEditProfile;
     @FXML
     MenuItem mnuEditApp;
 
@@ -119,40 +119,40 @@ public class UvToolController implements Initializable {
         res = rb;
         cbServers.converterProperty().setValue(new ServerConverter());
         cbServers.getItems().addAll(serverList);
-        
+
         cbServers.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
 //                btnEditServer.disableProperty().set(newValue.toString().equalsIgnoreCase("Select"));
             }
         });
-        
-        btnCopy.setOnAction(event -> launch("viewCopy","titleCopy"));        
-        btnCopy.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
-        btnCopy.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());         
 
-        btnEdit.setOnAction(event ->launch("viewEdit","titleEdit"));
+        btnCopy.setOnAction(event -> launch("viewCopy", "titleCopy"));
+        btnCopy.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
+        btnCopy.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());
+
+        btnEdit.setOnAction(event ->launch("viewCompareSource","titleCompareSource"));
         btnEdit.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
-        btnEdit.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());        
-        
-        btnQuery.setOnAction(event -> launch("viewQuery","titleQuery"));
+        btnEdit.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());
+
+        btnQuery.setOnAction(event -> launch("viewQuery", "titleQuery"));
         btnQuery.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
         btnQuery.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());
-        
-        btnRun.setOnAction(event ->launch("viewRun","titleRun"));
+
+        btnRun.setOnAction(event -> launch("viewRun", "titleRun"));
         btnRun.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
         btnRun.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());
-        
-        btnPull.setOnAction(event ->launch("viewPullSource","titlePullSource"));
+
+        btnPull.setOnAction(event -> launch("viewPullSource", "titlePullSource"));
         btnPull.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
-        btnPull.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());        
-       
+        btnPull.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());
+
     }
 
     public MenuItem getFileExit() {
         return fileExit;
     }
-    
+
     private void launch(String view, String title) {
         FXMLLoader viewLoader = new FXMLLoader();
         String v = res.getString(view);
@@ -170,30 +170,31 @@ public class UvToolController implements Initializable {
             ctrl.getCancelButton().setOnAction(new EventHandler() {
                 @Override
                 public void handle(Event event) {
-                   ctrl.getCancelButton().removeEventHandler(EventType.ROOT, this);
-                   stage.close();
+                    ctrl.getCancelButton().removeEventHandler(EventType.ROOT, this);
+                    stage.close();
                 }
             });
             ctrl.setStage(stage);
-            
+
             stage.showAndWait();
         } catch (IOException ex) {
             Logger.getLogger(UvToolController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
-    
+
     @FXML
     public void displayMessage(String msg) {
         statusMessage.setText(msg);
     }
-    
+
     @FXML
     public void removeMessage() {
         statusMessage.setText("");
     }
-    
+
     class MouseOver implements EventHandler<MouseEvent> {
+
         @Override
         public void handle(MouseEvent event) {
             Button src = (Button) event.getSource();
@@ -202,52 +203,72 @@ public class UvToolController implements Initializable {
             displayMessage(msg);
         }
     }
-    
+
     class MouseOut implements EventHandler<MouseEvent> {
+
         @Override
         public void handle(MouseEvent event) {
             removeMessage();
         }
-    } 
+    }
 
     @FXML
     public void onFileNewAccount() {
-        launch("viewAccount","titleAccount");
+        launch("viewAccount", "titleAccount");
     }
-    
+
     @FXML
     public void onFileNewServer() {
-        launch("viewServer","titleServer");
-    }    
-    
+        launch("viewServer", "titleServer");
+    }
+
     @FXML
     public void onFileNewProfile() {
-        launch("viewProfile","titleProfile");
-    } 
-    
+        launch("viewProfile", "titleProfile");
+    }
+
     @FXML
     public void onFileNewProgram() {
-        launch("viewProgram","titleProgram");
+        launch("viewProgram", "titleProgram");
     }
-    
+
     @FXML
     public void onEditAccount() {
-        launch("viewAccount","titleAccount");
+        launch("viewAccount", "titleAccount");
     }
-    
+
     @FXML
     public void onEditServer() {
-        launch("viewServer","titleServer");
-    }    
-    
+        launch("viewServer", "titleServer");
+    }
+
     @FXML
     public void onEditProfile() {
-        launch("viewProfile","titleProfile");
+        launch("viewProfile", "titleProfile");
     }
-    
+
     @FXML
     public void onEditApp() {
-        launch("viewAppEdit","titleAppEdit");
+        launch("viewAppEdit", "titleAppEdit");
+    }
+
+    @FXML
+    public void onBtnDiff() {
+        /*
+        String[] cmd = new String[3];
+        cmd[0] = "meld";
+        cmd[1] = "/home/rlittle/ma.src/compare/setAoputilCbIbv.uvp";
+        cmd[2] = "/home/rlittle/ma.src/peer/setAoputilCbIbv.uvp";
+        try {
+            Runtime.getRuntime().exec(cmd).waitFor();
+            System.out.println("meld exited");
+        } catch (IOException ex) {
+            Logger.getLogger(UvToolController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(UvToolController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+         */
+        
     }
 
 }

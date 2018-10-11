@@ -18,6 +18,7 @@ import com.webfront.u2.util.Config;
 import com.webfront.u2.model.Profile;
 import com.webfront.u2.util.Progress;
 import com.webfront.u2.client.UvClient;
+import com.webfront.uvtool.util.SelectorTask;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -283,7 +284,7 @@ public class PullSourceCodeController implements Controller, Initializable, Prog
     public void onSourceProfileChange() {
         sourceFileList.clear();
         cbFromFile.disableProperty().set(true);
-        FileSelector selectorTask = new FileSelector(client, stmt);
+        SelectorTask selectorTask = new SelectorTask(client, stmt);
         selectorTask.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED,
                 new EventHandler<WorkerStateEvent>() {
             @Override
@@ -309,7 +310,7 @@ public class PullSourceCodeController implements Controller, Initializable, Prog
 
     private void getFileItems(String fileName) {
         ArrayList<String> list = new ArrayList<>();
-        FileSelector selectorTask = new FileSelector(client, "SELECT " + fileName);
+        SelectorTask selectorTask = new SelectorTask(client, "SELECT " + fileName);
         selectorTask.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED,
                 new EventHandler<WorkerStateEvent>() {
             @Override
@@ -349,43 +350,6 @@ public class PullSourceCodeController implements Controller, Initializable, Prog
     @FXML
     public void moveAllLeft() {
         lvDestItems.getItems().clear();
-    }
-
-    class FileSelector extends Task<ArrayList<String>> {
-
-        private UvClient client;
-        private String stmt;
-        private ArrayList<String> list;
-
-        public FileSelector(UvClient client, String stmt) {
-            this.client = client;
-            this.stmt = stmt;
-            this.list = new ArrayList<>();
-        }
-
-        @Override
-        protected ArrayList<String> call() throws Exception {
-            client.doSingleConnect("source");
-            try {
-                UniCommand cmd = client.getSourceSession().getSession().command(stmt);
-                cmd.exec();
-                UniSelectList selectList = client.getSourceSession().getSession().selectList(0);
-                while (!selectList.isLastRecordRead()) {
-                    String rec = selectList.next().toString();
-                    if (rec.isEmpty()) {
-                        continue;
-                    }
-                    list.add(rec);
-                }
-            } catch (UniCommandException ex) {
-                Logger.getLogger(PullSourceCodeController.class.getName()).log(Level.SEVERE, ex.getMessage());
-            } catch (UniSelectListException ex) {
-                Logger.getLogger(PullSourceCodeController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            client.doSingleDisconnect("source");
-            return list;
-        }
-
     }
 
 }
