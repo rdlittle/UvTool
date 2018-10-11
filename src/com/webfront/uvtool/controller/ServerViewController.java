@@ -72,8 +72,10 @@ public class ServerViewController implements Controller, Initializable {
         cbServer.valueProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                if (newValue != null) {
                 Server s = (Server) newValue;
-                txtHostName.setText(s.getHost());
+                txtHostName.setText(s.getHost());                    
+                }
             }
         });
         cbServer.requestFocus();

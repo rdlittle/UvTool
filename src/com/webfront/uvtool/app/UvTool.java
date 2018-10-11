@@ -119,7 +119,7 @@ public class UvTool extends Application {
         }
         try {
             sysTray = SystemTray.getSystemTray();
-            InputStream is = UvTool.class.getResourceAsStream("/u2-24X24.png");
+            InputStream is = UvTool.class.getResourceAsStream("u2-24X24.png");
             Image image = ImageIO.read(is);
             trayIcon = new TrayIcon(image);
             trayIcon.setToolTip(res.getString("msgToolTipSysTray"));

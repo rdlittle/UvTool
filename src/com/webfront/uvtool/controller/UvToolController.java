@@ -65,7 +65,7 @@ public class UvToolController implements Initializable {
     @FXML
     Button btnQuery;
     @FXML
-    Button btnEdit;
+    Button btnCompare;
     @FXML
     Button btnPull;
     @FXML
@@ -101,7 +101,7 @@ public class UvToolController implements Initializable {
         cbProfiles = new ComboBox<>();
         btnRun = new Button();
         btnQuery = new Button();
-        btnEdit = new Button();
+        btnCompare = new Button();
         btnPull = new Button();
         btnCopy = new Button();
         mnuFileNewAccount = new MenuItem();
@@ -123,7 +123,7 @@ public class UvToolController implements Initializable {
         cbServers.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-//                btnEditServer.disableProperty().set(newValue.toString().equalsIgnoreCase("Select"));
+//                btnCompareServer.disableProperty().set(newValue.toString().equalsIgnoreCase("Select"));
             }
         });
 
@@ -131,9 +131,9 @@ public class UvToolController implements Initializable {
         btnCopy.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
         btnCopy.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());
 
-        btnEdit.setOnAction(event ->launch("viewCompareSource","titleCompareSource"));
-        btnEdit.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
-        btnEdit.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());
+        btnCompare.setOnAction(event ->launch("viewCompareSource","titleCompareSource"));
+        btnCompare.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
+        btnCompare.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());
 
         btnQuery.setOnAction(event -> launch("viewQuery", "titleQuery"));
         btnQuery.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
@@ -255,6 +255,11 @@ public class UvToolController implements Initializable {
     @FXML
     public void onEditPreferences() {
         launch("viewPreferences", "titleEditPreferences");
+    }
+    
+    @FXML
+    public void onMnuHelpAbout() {
+        launch("viewHelpAbout", "titleHelpAbout");
     }
 
 }

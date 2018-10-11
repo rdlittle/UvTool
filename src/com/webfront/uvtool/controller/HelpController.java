@@ -5,12 +5,13 @@
  */
 package com.webfront.uvtool.controller;
 
+import com.webfront.uvtool.app.UvTool;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
 /**
@@ -18,42 +19,46 @@ import javafx.stage.Stage;
  * @author rlittle
  */
 
-public class OutputWindowController implements Controller, Initializable {
+public class HelpController implements Controller, Initializable {
 
-    @FXML
     private ResourceBundle resources;
-
-    @FXML
     private URL location;
 
     @FXML
-    private TextArea txtWindow;
-
+    private Button btnOk;
+    
     @FXML
-    private Button btnClose;
+    private WebView webview;
+    
+    private Stage stage;
 
-    @FXML
-    private Button btnSave;
-
-    @Override
-    public void setStage(Stage s) {
-        
+    public HelpController() {
+        btnOk = new Button();
+        webview = new WebView();
     }
 
     @FXML
     public void initialize(URL url, ResourceBundle rb) {
         location = url;
         resources = rb;
+        URL helpUrl = UvTool.class.getResource("resources/help.html");
+        webview.getEngine().load(helpUrl.toExternalForm());
+    }    
+    
+    @Override
+    public void setStage(Stage s) {
+        this.stage = s;
     }
+
 
     @Override
     public Button getCancelButton() {
-        return btnClose;
+        return btnOk;
     }
 
     @Override
     public void launch(String v, String t) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

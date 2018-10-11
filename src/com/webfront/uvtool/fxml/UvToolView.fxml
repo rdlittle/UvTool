@@ -40,7 +40,7 @@
           </Menu>
           <Menu fx:id="mnuHelp" mnemonicParsing="false" text="Help">
             <items>
-              <MenuItem fx:id="mnuHelpAbout" mnemonicParsing="false" text="About" />
+              <MenuItem fx:id="mnuHelpAbout" mnemonicParsing="false" onAction="#onMnuHelpAbout" text="About" />
             </items>
           </Menu>
         </menus>
@@ -48,7 +48,7 @@
       <HBox layoutX="15.0" layoutY="89.0" prefHeight="29.0" prefWidth="380.0" spacing="10.0">
          <children>
             <Button fx:id="btnRun" mnemonicParsing="false" prefHeight="26.0" prefWidth="74.0" text="Run" />
-            <Button fx:id="btnEdit" mnemonicParsing="false" prefHeight="26.0" prefWidth="87.0" text="Compare" />
+            <Button fx:id="btnCompare" mnemonicParsing="false" prefHeight="26.0" prefWidth="87.0" text="Compare" />
             <Button fx:id="btnPull" mnemonicParsing="false" prefHeight="26.0" prefWidth="86.0" text="Pull/Push" />
             <Button fx:id="btnCopy" mnemonicParsing="false" prefHeight="26.0" prefWidth="82.0" text="Copy" />
          </children>

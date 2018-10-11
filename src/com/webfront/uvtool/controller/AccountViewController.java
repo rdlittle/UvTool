@@ -155,6 +155,9 @@ public class AccountViewController implements Controller, Initializable {
                         }
                     } else {
                         for (Account a : filteredAccountList) {
+                            if (s==null) {
+                                continue;
+                            }
                             if (a.getServerName().equalsIgnoreCase(s.getName())) {
                                 if(!a.getName().equalsIgnoreCase(act)) {
                                     selectedAccount.setName(act);

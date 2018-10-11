@@ -25,7 +25,6 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -306,38 +305,33 @@ public class SourceCompareController implements Controller, Initializable, Progr
     }
 
     @Override
-    public void updateProgressBar(Double p
-    ) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void state(String message
-    ) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void display(String message
-    ) {
+    public void display(String message) {
         txtMessages.setText(message);
     }
 
     @Override
-    public void setStage(Stage s
-    ) {
+    public void setStage(Stage s) {
         this.stage = s;
     }
-
-    @Override
-    public void launch(String v, String t
-    ) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
+    
+    
     @Override
     public Button getCancelButton() {
         return this.btnCancel;
     }
 
+    @Override
+    public void launch(String v, String t) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void updateProgressBar(Double p) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void state(String message) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }
