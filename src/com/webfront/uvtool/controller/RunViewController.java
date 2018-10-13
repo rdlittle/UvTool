@@ -98,6 +98,7 @@ public class RunViewController implements Controller, Progress, Initializable {
 
     Thread backgroundThread = null;
     final InputList iList = new InputList();
+    private Stage stage;
 
     public RunViewController() {
         stopsOn = new ArrayList<>();
@@ -127,6 +128,11 @@ public class RunViewController implements Controller, Progress, Initializable {
 
     @Override
     public void setStage(Stage s) {
+        this.stage = s;
+    }
+    
+    public Stage getStage() {
+        return this.stage;
     }
 
     @Override
@@ -175,6 +181,7 @@ public class RunViewController implements Controller, Progress, Initializable {
             String appClassName = p.getClassName() + "." + p.getName();
             BaseApp a = (BaseApp) Class.forName(appClassName).newInstance();
             a.setProgress(this);
+            a.setStage(this.stage);
             Profile readProfile = cbReadFrom.getValue();
             Profile writeProfile = cbWriteTo.getValue();
             String[] criteria = txtCriteria.getText().split("\n");

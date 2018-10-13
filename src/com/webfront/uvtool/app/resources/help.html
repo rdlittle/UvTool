@@ -13,17 +13,148 @@ and open the template in the editor.
     <body>
         <div>
             <img src="u2-96X96.png"/>
-            <h1 style="display: inline;">UvTool - A JavaFX Application</h1>
+            <h1 style="display: inline;">UvTool - A JavaFX Application for interacting with UniVerse</h1>
+            <br>
+            <h2>Contents</h2>
+            <ul style="list-style: none;">
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#main">The main window</a></li>
+                <li><a href="#setup">Setup</a></li>
+                <li><a href="#usage">Usage</a></li>
+            </ul>
         </div>
-        <div>
-            <h2>The application window</h2>
+        <div id="overview">
+        <h3>Overview</h3>
+        <p>UvTool is an application to allow a user to do various operations on a UniVerse server.  The program is written in Java and utilizes JavaFX and UniObjects for Java technologies.  
+        Its a work in progress, so there may be some issues.  Having said that, I've been using it for quite some time and most (if not all) of the major bugs have been fixed.</p>
+        <p>The application has 4 primary functions:
+           <ul>
+               <li>Running a java program locally to read/write UniVerse data</li>
+               <li>Copying data from one UniVerse server to another</li>
+               <li>Copying source code from one UniVerse server to another</li>
+               <li>Comparing two versions of source code via a user-specified third party program</li>
+           </ul>
+        </p>
+        </div>
+     
+        <hr>
+        <div id="main">
+            <h3>The main window</h3>
+            <img src="mainWindow.png"/>
+            <br>
             The application window has 4 buttons:
             <ul>
-                <li>Run - Runs a pre-defined application</li>
-                <li>Compare - Utilizes user-defined external difference program to compare source code</li>
-                <li>Pull/Push - Copies source code items between servers</li>
-                <li>Copy - Copies data records from one server to another</li>
+                <li><a href="#run">Run</a> - Runs a pre-defined application</li>
+                <li><a href="#compare">Compare</a> - Utilizes user-defined external difference program to compare source code</li>
+                <li><a href="#pull">Pull/Push</a> - Copies source code items between servers</li>
+                <li><a href="#copy">Copy</a> - Copies data records from one server to another</li>
             </ul>
+        </div>
+        <div id="run">
+            <h4>Run</h4>
+            <p>
+            <b>NOTE:</b>This feature currently presumes you know how to write Java code and use UniObjects&copy; for Java.  
+            The plan is for UvTool to create a program itself by allowing the user to simply define the interface.  But that's a long way off.
+            </p>
+            The run button will open this dialog box:
+            <br>
+            <img src="runWindow.png"/>
+            <br>
+            The allows you to select and run a previously defined java program. See <a href="#appdefinition">application definition</a> for more information.  
+        </div>
+        <div id="compare">
+            <h4>Compare</h4>
+            The compare button opens a dialog box allowing you to select a source server and file, then compare to the same file on a destination server.
+            <br>
+            <img src="compareWindow.png"/>
+        </div>
+        <div id="pull">
+            <h4>Pull/Push</h4>
+            Pull/Push will copy source code items from server to server.
+            <br>
+            <img src="pullWindow.png"/>
+        </div>
+        <div id="copy">
+            <h4>Copy</h4>
+            Copy is used primarily to copy data records from one server to another.
+            <br>
+            <img src="copyWindow.png"/>
+        </div>
+        <div id="setup">
+            <hr/>
+            <h3>Setup</h3>
+            <ul style="list-style: none;">
+                <li><a href = "#server">Server</a></li>
+                <li><a href="#account">Account</a></li>
+                <li><a href="#user">User</a></li>
+                <li><a href="#profile">Profile</a></li>
+            </ul>
+            In order to use the system you must establish a connection profile.  
+            A connection profile is comprised of 3 items: a server, an account and a user name/password.
+            A server can have one or more accounts, and an account may have one or more users.
+            
+            <div id='server'><h4>Server</h4></div>
+            The basis for all connections is a "Server".  To create a server, click File->New->Server from the main menu:<br/>
+            <img src="mnuFileNewServer.png"/><br>
+            This will present the server setup dialog.<br>
+            <img src="newServerDialog.png"/><br/>
+            "Server name" is simply a name to call the server.  "Host" is the actual network host name or IP address of the UniVerse server you'll be connecting to.
+            <br>
+            For example: <br>
+            <img src="serverSetupExample.png"/>
+            
+            <div id="account"><h4>Account</h4>
+            Once a server is defined, you can then define one or more UniVerse accounts that exist on the server.  
+            To do this, from the main menu click File->New->Account<br>
+            <img src="mnuFileNewAccount.png"/><br>
+            which will bring up the following dialog box:<br>
+            <img src="newAccountDialog.png"/><br>
+            Select the server on which the account exists.&nbsp;&nbsp;  
+            Next, double click the Account name drop-down menu and type in the UniVerse account name.&nbsp;&nbsp;
+            Finally, enter the full path name of the account.  You may need to consult a system administrator to get this info.<br/>
+            <img src="accountSetupExample.png"/><br>Now you can complete the connection by setting up a profile.
+            </div>
+         
+            <div id = "profile">
+            <h4>Profile</h4>
+            A profile is where you enter your logon credentials to a given account on a given server.&nbsp;&nbsp;
+            To create a profile, from the main menu, click File->New->Profile 
+            <img src="mnuFileNewProfile.png"/><br>
+            which will present the profile setup dialog box:<br>
+            <img src="newProfileDialog.png"/><br>
+            <pre>
+            <b>NOTE:</b> At this writing, some of the features of the profile create dialog may not be working smoothly.  
+            Particularly, the "+" buttons which are supposed to let you define a new server or account on the fly.
+            </pre>
+            The "Test connection" and "Save" buttons will be disabled until all the required information is entered.&nbsp;&nbsp;
+            Select the server and accounts from the drop-down box for each.&nbsp;&nbsp;
+            Next, enter your user name and password in the appropriate boxes.&nbsp;&nbsp;
+            Next, click the "Test connection" button.  If the connection succeeds, the Profile Title drop-down will be cleared.  
+            Enter a title for this profile, such as "admin on corvette", then click the Save button.<br> 
+            <img src="profileSetupExample.png"/>
+            <br>
+            </div>
+            <hr>
+            <div id="usage">
+               <h2>Usage</h2>
+               <ul style="list-style: none;">
+                  <!-- <li><a href=""></a></li> -->
+                  <li><a href="appdefinition">Application definition</a></li>
+               </ul>
+               <div id="appdefinition">
+                  <p>
+                     To run a java application, you must first write one, then define the interface.  Writing the program is beyond the scope of this document.  
+                     Refer to Rocket's UniObjects for Java documention for more information.
+                  </p>
+                  To define a program, select File->New->Application from the main menu and the following dialog box will be presented<br>
+                  <img src="appDefinition.png"/><br>
+                  <p>
+                  Fill out the name of the application class, the package in which the class resides, and a description of what the application does.  
+                  The files that the application uses is split into two sections:  Files that are read from and files that are written to.  
+                  The reason for the two sections is to allow an application to read from one server, and write to another. 
+                  </p>
+               </div>
+            </div>
         </div>
     </body>
 </html>

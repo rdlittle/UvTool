@@ -11,11 +11,11 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="AnchorPane" prefHeight="527.0" prefWidth="619.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.webfront.uvtool.controller.ProgramController">
+<AnchorPane id="AnchorPane" prefHeight="562.0" prefWidth="619.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.webfront.uvtool.controller.ProgramController">
    <children>
-      <TextField fx:id="txtAppName" layoutX="14.0" layoutY="14.0" prefHeight="26.0" prefWidth="568.0" promptText="Application name" />
-      <TextField fx:id="txtPackage" layoutX="14.0" layoutY="61.0" prefHeight="26.0" prefWidth="568.0" promptText="Package" />
-      <VBox layoutX="14.0" layoutY="100.0" prefHeight="415.0" prefWidth="568.0" spacing="10.0">
+      <TextField fx:id="txtAppName" layoutX="14.0" layoutY="34.0" prefHeight="26.0" prefWidth="568.0" promptText="Application name" />
+      <TextField fx:id="txtPackage" layoutX="14.0" layoutY="81.0" prefHeight="26.0" prefWidth="568.0" promptText="Package" />
+      <VBox layoutX="14.0" layoutY="120.0" prefHeight="415.0" prefWidth="568.0" spacing="10.0">
          <children>
             <HBox prefHeight="20.0" prefWidth="568.0" spacing="230.0">
                <children>
@@ -52,8 +52,9 @@
             </HBox>
          </children>
       </VBox>
-      <Button fx:id="btnAddRow" layoutX="582.0" layoutY="343.0" mnemonicParsing="false" onAction="#onAddRow" text="+" />
-      <Button fx:id="btnDeleteRow" layoutX="582.0" layoutY="369.0" mnemonicParsing="false" onAction="#onDeleteRow" prefHeight="26.0" prefWidth="29.0" text="-" />
-      <CheckBox fx:id="chkIsNew" layoutX="585.0" layoutY="402.0" mnemonicParsing="false" selected="true" visible="false" />
+      <Button fx:id="btnAddRow" layoutX="582.0" layoutY="363.0" mnemonicParsing="false" onAction="#onAddRow" text="+" />
+      <Button fx:id="btnDeleteRow" layoutX="582.0" layoutY="389.0" mnemonicParsing="false" onAction="#onDeleteRow" prefHeight="26.0" prefWidth="29.0" text="-" />
+      <CheckBox fx:id="chkIsNew" layoutX="585.0" layoutY="422.0" mnemonicParsing="false" selected="true" visible="false" />
+      <Label layoutX="14.0" layoutY="14.0" text="Application name" />
    </children>
 </AnchorPane>

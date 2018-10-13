@@ -18,10 +18,10 @@
             <items>
                   <Menu fx:id="mnuFileNew" mnemonicParsing="false" text="New">
                     <items>
-                        <MenuItem fx:id="mnuFileNewAccount" mnemonicParsing="false" onAction="#onFileNewAccount" text="Account" />
                       <MenuItem fx:id="mnuFileNewServer" mnemonicParsing="false" onAction="#onFileNewServer" text="Server" />
+                        <MenuItem fx:id="mnuFileNewAccount" mnemonicParsing="false" onAction="#onFileNewAccount" text="Account" />
                         <MenuItem fx:id="mnuFileNewProfile" mnemonicParsing="false" onAction="#onFileNewProfile" text="Profile" />
-                        <MenuItem fx:id="mnuFileNewProgram" mnemonicParsing="false" onAction="#onFileNewProgram" text="Program" />
+                        <MenuItem fx:id="mnuFileNewProgram" mnemonicParsing="false" onAction="#onFileNewProgram" text="Application" />
                     </items>
                   </Menu>
                   <SeparatorMenuItem mnemonicParsing="false" />
@@ -30,8 +30,8 @@
           </Menu>
           <Menu fx:id="mnuEdit" mnemonicParsing="false" text="Edit">
             <items>
-                  <MenuItem fx:id="mnuEditAccount" mnemonicParsing="false" onAction="#onEditAccount" text="Account" />
                   <MenuItem fx:id="mnuEditServer" mnemonicParsing="false" onAction="#onEditServer" text="Server" />
+                  <MenuItem fx:id="mnuEditAccount" mnemonicParsing="false" onAction="#onEditAccount" text="Account" />
                   <MenuItem fx:id="mnuEditProfile" mnemonicParsing="false" onAction="#onEditProfile" text="Profile" />
                   <MenuItem fx:id="mnuEditApp" mnemonicParsing="false" onAction="#onEditApp" text="Applications" />
                   <SeparatorMenuItem mnemonicParsing="false" />
@@ -40,7 +40,7 @@
           </Menu>
           <Menu fx:id="mnuHelp" mnemonicParsing="false" text="Help">
             <items>
-              <MenuItem fx:id="mnuHelpAbout" mnemonicParsing="false" onAction="#onMnuHelpAbout" text="About" />
+              <MenuItem fx:id="mnuHelpAbout" mnemonicParsing="false" onAction="#onMnuHelpAbout" text="Help" />
             </items>
           </Menu>
         </menus>
