@@ -123,6 +123,8 @@ public class PullSourceCodeController implements Controller, Initializable, Prog
     private ObservableList<String> sourceFileList;
     private ObservableList<String> fileItems;
 
+    private ObservableList<String> destFileList;
+
     private final Config config;
     private Stage stage;
 
@@ -146,6 +148,7 @@ public class PullSourceCodeController implements Controller, Initializable, Prog
         sourceProfileProperty = new SimpleObjectProperty<>();
         destProfileProperty = new SimpleObjectProperty<>();
         sourceFileList = FXCollections.observableArrayList();
+        destFileList = FXCollections.observableArrayList();
         fileItems = FXCollections.observableArrayList();
         stopsOn.add(new Stop(0, Color.web("#26ff6B")));
         stopsOn.add(new Stop(1.0, Color.web("#1e6824")));
@@ -278,8 +281,13 @@ public class PullSourceCodeController implements Controller, Initializable, Prog
     @FXML
     public void onSourceProfileChange() {
         sourceFileList.clear();
+        client.setSourceProfile(cbSourceProfile.getValue());
         cbFromFile.disableProperty().set(true);
-        SelectorTask selectorTask = new SelectorTask(client, stmt);
+        String path = "/uvcode";
+        if (client.getSourceProfile().getServerName().equalsIgnoreCase("mustang")) {
+            path = "/usr/local/madev";
+        }
+        SelectorTask selectorTask = new SelectorTask(client.getSourceProfile(), path, "");
         selectorTask.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED,
                 new EventHandler<WorkerStateEvent>() {
             @Override
@@ -295,17 +303,43 @@ public class PullSourceCodeController implements Controller, Initializable, Prog
         Thread t = new Thread(selectorTask);
         t.setDaemon(true);
         t.start();
-        client.setSourceProfile(cbSourceProfile.getValue());
     }
 
     @FXML
     public void onDestProfileChange() {
         client.setDestProfile(cbDestProfile.getValue());
+        if (cbDestProfile.getValue().getServerName().equalsIgnoreCase("mustang")) {
+            SelectorTask selectorTask = new SelectorTask(client.getDestProfile(), "/usr/local/madev", "");
+            selectorTask.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED,
+                    new EventHandler<WorkerStateEvent>() {
+                @Override
+                public void handle(WorkerStateEvent t) {
+                    ArrayList<String> list = selectorTask.getValue();
+                    destFileList.addAll(list);
+                    cbToFile.setItems(destFileList);
+                    cbToFile.disableProperty().set(false);
+                    stage.getScene().setCursor(Cursor.DEFAULT);
+                }
+            });
+            stage.getScene().setCursor(Cursor.WAIT);
+            Thread t = new Thread(selectorTask);
+            t.setDaemon(true);
+            t.start();
+        }
     }
 
     private void getFileItems(String fileName) {
         ArrayList<String> list = new ArrayList<>();
-        SelectorTask selectorTask = new SelectorTask(client, "SELECT " + fileName);
+        String path = "/uvcode/" + fileName;
+        String filter = "*.uv*";
+        if (fileName.equals("DM.BP") || fileName.equals("DM.SR")) {
+            path = "/uvfs/ma.accounts/dmc/" + fileName;
+            filter = "*";
+        }
+        if (client.getSourceProfile().getServerName().equalsIgnoreCase("mustang")) {
+            path = "/usr/local/madev/"  + fileName;
+        }
+        SelectorTask selectorTask = new SelectorTask(client.getSourceProfile(), path, filter);
         selectorTask.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED,
                 new EventHandler<WorkerStateEvent>() {
             @Override

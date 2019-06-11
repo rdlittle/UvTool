@@ -5,15 +5,11 @@
  */
 package com.webfront.uvtool.util;
 
-import asjava.uniobjects.UniCommand;
-import asjava.uniobjects.UniCommandException;
-import asjava.uniobjects.UniSelectList;
-import asjava.uniobjects.UniSelectListException;
-import com.webfront.u2.client.UvClient;
+import com.webfront.u2.model.Profile;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.concurrent.Task;
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
 
 /**
  *
@@ -21,36 +17,62 @@ import javafx.concurrent.Task;
  */
 public class SelectorTask extends Task<ArrayList<String>> {
 
-    private UvClient client;
-    private String stmt;
-    private ArrayList<String> list;
+    //private final UvClient client;
+    private final Profile client;
+    private final String path;
+    private final String filter;
+    private final ArrayList<String> list;
 
-    public SelectorTask(UvClient client, String stmt) {
+    public SelectorTask(Profile client, String remotePath, String filter) {
         this.client = client;
-        this.stmt = stmt;
+        this.path = remotePath;
+        this.filter = filter;
         this.list = new ArrayList<>();
     }
 
     @Override
     protected ArrayList<String> call() throws Exception {
-        client.doSingleConnect("source");
-        try {
-            UniCommand cmd = client.getSourceSession().getSession().command(stmt);
-            cmd.exec();
-            UniSelectList selectList = client.getSourceSession().getSession().selectList(0);
-            while (!selectList.isLastRecordRead()) {
-                String rec = selectList.next().toString();
-                if (rec.isEmpty()) {
-                    continue;
-                }
-                list.add(rec);
-            }
-        } catch (UniCommandException ex) {
-            Logger.getLogger(SelectorTask.class.getName()).log(Level.SEVERE, ex.getMessage());
-        } catch (UniSelectListException ex) {
-            Logger.getLogger(SelectorTask.class.getName()).log(Level.SEVERE, null, ex);
+        FTPClient ftp = new FTPClient();
+
+        ftp.connect(client.getServer().getHost());
+        ftp.login(client.getUserName(),
+                client.getUserPassword());
+
+        ftp.changeWorkingDirectory(this.path);
+
+        ftp.enterLocalPassiveMode();
+        FTPFile[] itemList;
+
+        boolean isUvcode = this.path.startsWith("/usr/local/madev") ||
+                !(this.path.endsWith("DM.SR") || this.path.endsWith("DM.BP"));
+
+        if (filter.isEmpty()) {
+            itemList = ftp.listDirectories();
+        } else {
+            itemList = ftp.listFiles(this.filter);
         }
-        client.doSingleDisconnect("source");
+
+        for (FTPFile file : itemList) {
+            String name = file.getName().trim();
+            if (name.startsWith("&")) {
+                continue;
+            }
+            if (name.startsWith("D_")) {
+                continue;
+            }
+            if (name.matches(".+\\.uv[f,i,s,p,t]\\.O")) {
+                continue;
+            }
+            
+            if (isUvcode && !name.matches(".+\\.uv[f,i,s,p,t]")) {
+                continue;
+            }
+            list.add(name);
+        }
+        if (this.filter.isEmpty()) {
+            list.add("DM.BP");
+            list.add("DM.SR");
+        }
         return list;
     }
 

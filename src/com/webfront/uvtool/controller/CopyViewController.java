@@ -122,6 +122,8 @@ public class CopyViewController implements Controller, Initializable, Progress {
     RadioButton rbSelectFromSource;
     @FXML
     RadioButton rbSelectFromDest;
+    @FXML
+    RadioButton rbSelectSpecific;
 
     @FXML
     ToggleGroup tgDestExisting;
@@ -201,6 +203,7 @@ public class CopyViewController implements Controller, Initializable, Progress {
         rbReplace = new RadioButton();
         rbSelectFromDest = new RadioButton();
         rbSelectFromSource = new RadioButton();
+        rbSelectSpecific = new RadioButton();
 
         alert.setTitle("File name mismatch");
         alert.contentTextProperty().set("Destination file does not match source file!");
@@ -229,8 +232,10 @@ public class CopyViewController implements Controller, Initializable, Progress {
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
                 if (((RadioButton) newValue).getId().equals("rbFromSavedList")) {
                     lblCriteria.setText("List name");
-                } else {
+                } else if (((RadioButton) newValue).getId().equals("rbFromQuery")) {
                     lblCriteria.setText("Selection criteria");
+                } else {
+                    lblCriteria.setText("Enter items below, one per line");
                 }
             }
         });
@@ -311,10 +316,19 @@ public class CopyViewController implements Controller, Initializable, Progress {
             client.setDestProfile(destProfileProperty.get());
             client.setSourceData(source);
             client.setDestData(destination);
+            
             if (rbFromQuery.isSelected()) {
                 client.setSelectType(Uv.SelectType.QUERY);
-            } else {
+            } else if(rbFromSavedList.isSelected()) {
                 client.setSelectType(Uv.SelectType.LIST);
+            } else {
+                client.setSelectType(Uv.SelectType.ITEMS);
+                ArrayList<String> list = new ArrayList<>();
+                String stuff[] = txtCriteria.getText().split("\n");
+                for (String s : stuff) {
+                    list.add(s);
+                }
+                client.setItemList(list);
             }
             if (rbReplace.isSelected()) {
                 client.setExistingPolicy(Uv.Existing.OVERWRITE);

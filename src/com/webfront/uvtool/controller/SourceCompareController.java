@@ -45,6 +45,8 @@ import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
 
 /**
  *
@@ -100,7 +102,7 @@ public class SourceCompareController implements Controller, Initializable, Progr
     RadialGradient ledOn;
     List<Stop> stopsOn;
     List<Stop> stopsOff;
-    
+
     public SourceCompareController() {
         config = Config.getInstance();
         stopsOn = new ArrayList<>();
@@ -160,11 +162,38 @@ public class SourceCompareController implements Controller, Initializable, Progr
 
     @FXML
     public void onSourceProfileChange() {
-        Platform.runLater(() ->txtMessages.setText("Collecting file names"));
+        Platform.runLater(() -> txtMessages.setText("Collecting file names"));
         client.setSourceProfile(cbSourceProfile.getValue());
         sourceFileList.clear();
         cbFiles.disableProperty().set(true);
-        SelectorTask selectorTask = new SelectorTask(client, stmt);
+//            FTPClient ftp = new FTPClient();
+//            ftp.connect(client.getSourceProfile().getServer().getHost());
+//            ftp.login(client.getSourceProfile().getUserName(),
+//                    client.getSourceProfile().getUserPassword());
+//            ftp.changeWorkingDirectory("/uvcode");
+//            ftp.enterLocalPassiveMode();
+//            FTPFile[] dirNames = ftp.listDirectories();
+//            for (FTPFile dir : dirNames) {
+//                String dname = dir.getName().trim();
+//
+//                if (dname.startsWith("&")) {
+//                    continue;
+//                }
+//
+//                if (dname.matches(".+\\.uv[f,i,s,p,t]\\.O")) {
+//                    continue;
+//                }
+//
+//                if (dname.matches(".+\\.uv[f,i,s,p,t]")) {
+//                    sourceFileList.add(dir.getName());
+//                }
+//            }
+//            
+        String path = "/uvcode";
+        if (client.getSourceProfile().getServerName().equalsIgnoreCase("mustang")) {
+            path = "/usr/local/madev";
+        }
+        SelectorTask selectorTask = new SelectorTask(client.getSourceProfile(), path, "");
         selectorTask.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED,
                 new EventHandler<WorkerStateEvent>() {
             @Override
@@ -174,7 +203,7 @@ public class SourceCompareController implements Controller, Initializable, Progr
                 cbFiles.setItems(sourceFileList);
                 cbFiles.disableProperty().set(false);
                 stage.getScene().setCursor(Cursor.DEFAULT);
-                Platform.runLater(() ->txtMessages.setText(""));
+                Platform.runLater(() -> txtMessages.setText(""));
             }
         });
         stage.getScene().setCursor(Cursor.WAIT);
@@ -185,9 +214,18 @@ public class SourceCompareController implements Controller, Initializable, Progr
     }
 
     private void getFileItems(String fileName) {
-        Platform.runLater(() ->txtMessages.setText("Reading "+fileName));
+        Platform.runLater(() -> txtMessages.setText("Reading " + fileName));
         ArrayList<String> list = new ArrayList<>();
-        SelectorTask selectorTask = new SelectorTask(client, "SELECT " + fileName);
+        String path = "/uvcode/" + fileName;
+        String filter = "*.uv*";
+        if (fileName.equals("DM.BP") || fileName.equals("DM.SR")) {
+            path = "/uvfs/ma.accounts/dmc/" + fileName;
+            filter = "*";
+        }
+        if (client.getSourceProfile().getServerName().equalsIgnoreCase("mustang")) {
+            path = "/usr/local/madev/"  + fileName;
+        }
+        SelectorTask selectorTask = new SelectorTask(client.getSourceProfile(), path, filter);
         selectorTask.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED,
                 new EventHandler<WorkerStateEvent>() {
             @Override
@@ -197,7 +235,7 @@ public class SourceCompareController implements Controller, Initializable, Progr
                 fileItems.setAll(list);
                 lvItems.setItems(fileItems.sorted());
                 stage.getScene().setCursor(Cursor.DEFAULT);
-                Platform.runLater(() ->txtMessages.setText(""));
+                Platform.runLater(() -> txtMessages.setText(""));
             }
         });
         stage.getScene().setCursor(Cursor.WAIT);
@@ -245,21 +283,22 @@ public class SourceCompareController implements Controller, Initializable, Progr
                 Runtime.getRuntime().exec(cmd).waitFor();
             }
         } catch (IOException ex) {
-            Platform.runLater(() ->txtMessages.setText(ex.getMessage()));
-            Logger.getLogger(SourceCompareController.class.getName()).log(Level.SEVERE, null, ex.getMessage());
+            Platform.runLater(() -> txtMessages.setText(ex.getMessage()));
+            Logger.getLogger(SourceCompareController.class
+                    .getName()).log(Level.SEVERE, null, ex.getMessage());
             client.doDisconnect();
         } catch (UniSessionException ex) {
-            Platform.runLater(() ->txtMessages.setText(ex.getMessage()));
+            Platform.runLater(() -> txtMessages.setText(ex.getMessage()));
             client.doDisconnect();
         } catch (UniFileException ex) {
-            Platform.runLater(() ->txtMessages.setText(ex.getMessage()));
+            Platform.runLater(() -> txtMessages.setText(ex.getMessage()));
         } catch (InterruptedException ex) {
             client.doDisconnect();
         }
     }
-    
+
     private boolean checkDestFile(String fileName, String itemId) {
-        if(cbDestProfile.getValue() == null) {
+        if (cbDestProfile.getValue() == null) {
             return false;
         }
         try {
@@ -272,7 +311,8 @@ public class SourceCompareController implements Controller, Initializable, Progr
                 client.doSingleDisconnect("dest");
                 return false;
             } catch (UniSessionException ex1) {
-                Logger.getLogger(SourceCompareController.class.getName()).log(Level.SEVERE, null, ex1);
+                Logger.getLogger(SourceCompareController.class
+                        .getName()).log(Level.SEVERE, null, ex1);
                 return false;
             }
         } catch (UniFileException ex) {
@@ -280,25 +320,27 @@ public class SourceCompareController implements Controller, Initializable, Progr
                 client.doSingleDisconnect("dest");
                 return false;
             } catch (UniSessionException ex1) {
-                Logger.getLogger(SourceCompareController.class.getName()).log(Level.SEVERE, null, ex1);
+                Logger.getLogger(SourceCompareController.class
+                        .getName()).log(Level.SEVERE, null, ex1);
                 return false;
             }
         }
         return true;
     }
-    
+
     @FXML
     public void lvItemsOnMouseRelease() {
         txtMessages.setText("");
         String fileName = cbFiles.getValue();
         String itemId = lvItems.getSelectionModel().getSelectedItem();
-        if(!checkDestFile(fileName, itemId)) {
-            txtMessages.setText("Cannot read "+fileName+" "+itemId+" on "+client.getDestProfile().getServerName());
+        if (!checkDestFile(fileName, itemId)) {
+            txtMessages.setText("Cannot read " + fileName + " " + itemId + " on " + client.getDestProfile().getServerName());
             lvItems.getSelectionModel().clearSelection();
         } else {
             txtMessages.setText("");
         }
     }
+
     @FXML
     public void onDestProfileChanged() {
         client.setDestProfile(cbDestProfile.getValue());
@@ -313,8 +355,7 @@ public class SourceCompareController implements Controller, Initializable, Progr
     public void setStage(Stage s) {
         this.stage = s;
     }
-    
-    
+
     @Override
     public Button getCancelButton() {
         return this.btnCancel;
