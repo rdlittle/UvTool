@@ -43,6 +43,12 @@ public class PreferencesController implements Controller, Initializable, Progres
 
     @FXML
     private Button btnDiffProgram;
+    
+    @FXML
+    private TextField txtEditor;
+    
+    @FXML
+    private Button btnEditor;
 
     @FXML
     private Button btnOk;
@@ -55,8 +61,10 @@ public class PreferencesController implements Controller, Initializable, Progres
         btnDiffProgram = new Button();
         btnOk = new Button();
         btnCancel = new Button();
+        btnEditor = new Button();
         txtTempLocation = new TextField();
         txtDiffProgram = new TextField();
+        txtEditor = new TextField();
     }
 
     /**
@@ -67,15 +75,18 @@ public class PreferencesController implements Controller, Initializable, Progres
         res = rb;
         txtTempLocation.setText(config.getPreferences().get("tempDir"));
         txtDiffProgram.setText(config.getPreferences().get("diffProgram"));
+        txtEditor.setText(config.getPreferences().get("editor"));
     }
 
     @FXML
     public void btnOkOnClick() {
         config.getPreferences().put("tmpDir", txtTempLocation.getText());
         config.getPreferences().put("diffProgram", txtDiffProgram.getText());
+        config.getPreferences().put("editor", txtEditor.getText());
         try {
             config.updatePreferences("tmpDir", txtTempLocation.getText());
             config.updatePreferences("diffProgram", txtDiffProgram.getText());
+            config.updatePreferences("editor", txtEditor.getText());
             stage.close();
         } catch (SQLException ex) {
             Logger.getLogger(PreferencesController.class.getName()).log(Level.SEVERE, null, ex);
@@ -99,6 +110,15 @@ public class PreferencesController implements Controller, Initializable, Progres
         }
         txtDiffProgram.setText(result);
     }
+    
+    @FXML
+    public void btnEditorOnClick() {
+        String result = browse(false, "Select preferred text editor");
+        if (result == null) {
+            return;
+        }
+        txtEditor.setText(result);
+    }    
 
     @Override
     public void setStage(Stage s) {
