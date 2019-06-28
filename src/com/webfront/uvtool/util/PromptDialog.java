@@ -32,6 +32,8 @@ public class PromptDialog extends Dialog<HashMap<Integer,String>> {
         setTitle(program.getName());
         int gridRows = program.getPromptList().size();
         GridPane grid = new GridPane();
+        grid.setHgap(10.0);
+        grid.setVgap(10.0);
         for (int p = 1; p <= gridRows; p++) {
             Prompt prp = program.getPrompts().get(p);
             String msg = prp.getMessage();
@@ -39,7 +41,9 @@ public class PromptDialog extends Dialog<HashMap<Integer,String>> {
             grid.add(new TextField(), 2, p);
         }
         getDialogPane().setContent(grid);
-        ButtonType buttonTypeOk = new ButtonType("Okay", ButtonData.OK_DONE);
+        ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+        ButtonType buttonTypeOk = new ButtonType("Run", ButtonData.OK_DONE);
+        getDialogPane().getButtonTypes().add(buttonTypeCancel);
         getDialogPane().getButtonTypes().add(buttonTypeOk);
         
         setResultConverter(new Callback<ButtonType,HashMap<Integer,String>>() {

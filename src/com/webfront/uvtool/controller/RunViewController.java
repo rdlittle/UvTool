@@ -187,6 +187,8 @@ public class RunViewController implements Controller, Progress, Initializable {
             String[] criteria = txtCriteria.getText().split("\n");
             if (p.getPromptList().size() > 0) {
                 dialog.showAndWait();
+                HashMap<Integer, String> h = dialog.getResult();
+                if(h == null) return;
             }
             if (iList.getIlist() != null) {
                 for (int i : iList.iList.keySet()) {

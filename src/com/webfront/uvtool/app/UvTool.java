@@ -90,8 +90,8 @@ public class UvTool extends Application {
                 Platform.runLater(() -> stage.hide());
             } else {
                 Platform.runLater(() -> {
-                    stage.toFront();
                     stage.show();
+                    stage.toFront();
                 });
             }
         }
@@ -140,7 +140,7 @@ public class UvTool extends Application {
 
             java.awt.PopupMenu popup = new java.awt.PopupMenu();
             Font defaultFont = Font.decode(null);
-            Font boldFont = defaultFont.deriveFont(Font.BOLD, 14);
+            Font boldFont = defaultFont.deriveFont(Font.BOLD, 16);
             exitItem.setFont(boldFont);
             popup.add(exitItem);
             trayIcon.setPopupMenu(popup);
