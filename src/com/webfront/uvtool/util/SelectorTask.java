@@ -44,7 +44,9 @@ public class SelectorTask extends Task<ArrayList<String>> {
         FTPFile[] itemList;
 
         boolean isUvcode = this.path.startsWith("/usr/local/madev") ||
-                !(this.path.endsWith("DM.SR") || this.path.endsWith("DM.BP"));
+                !(this.path.endsWith("DM.SR") || this.path.endsWith("DM.BP")
+                || (this.path.contains("PADS"))
+                || (this.path.contains("pads2.0")));
 
         if (filter.isEmpty()) {
             itemList = ftp.listDirectories();
@@ -72,6 +74,8 @@ public class SelectorTask extends Task<ArrayList<String>> {
         if (this.filter.isEmpty()) {
             list.add("DM.BP");
             list.add("DM.SR");
+            list.add("PADS.HOOK/SEGMENT");
+            list.add("PADS.BP");
         }
         return list;
     }

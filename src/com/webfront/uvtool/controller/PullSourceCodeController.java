@@ -14,6 +14,7 @@ import com.webfront.u2.util.Config;
 import com.webfront.u2.model.Profile;
 import com.webfront.u2.util.Progress;
 import com.webfront.u2.client.UvClient;
+import com.webfront.uvtool.util.Path;
 import com.webfront.uvtool.util.SelectorTask;
 import java.net.URL;
 import java.util.ArrayList;
@@ -252,6 +253,7 @@ public class PullSourceCodeController implements Controller, Initializable, Prog
 
             txtStatus.clear();
             String fileName = cbFromFile.getValue();
+            fileName = fileName.replace('/', ',');
             if (client.doConnect()) {
                 UniFile sourceFile = client.getSourceSession().getSession().openFile(fileName);
                 UniFile destFile = client.getDestSession().getSession().openFile(fileName);
@@ -330,16 +332,22 @@ public class PullSourceCodeController implements Controller, Initializable, Prog
 
     private void getFileItems(String fileName) {
         ArrayList<String> list = new ArrayList<>();
-        String path = "/uvcode/" + fileName;
-        String filter = "*.uv*";
-        if (fileName.equals("DM.BP") || fileName.equals("DM.SR")) {
-            path = "/uvfs/ma.accounts/dmc/" + fileName;
+                String filter = null;
+        String fileType = fileName;
+        if (fileName.endsWith("LIB")) {
+            fileType = "webde";
+        }
+        String path = new Path().getPath(client.getSourceProfile().getServerName(), fileType);
+        if (fileType.equals("DM.BP") || fileType.equals("DM.SR")) {
             filter = "*";
+        } else if(fileType.contains("PADS")) {
+            filter = "*";
+        } else if(fileType.endsWith("LIB")) {
+            filter = ".rbm";
+        } else {
+            filter = "*.uv*";
         }
-        if (client.getSourceProfile().getServerName().equalsIgnoreCase("mustang")) {
-            path = "/usr/local/madev/"  + fileName;
-        }
-        SelectorTask selectorTask = new SelectorTask(client.getSourceProfile(), path, filter);
+        SelectorTask selectorTask = new SelectorTask(client.getSourceProfile(), path+fileName, filter);
         selectorTask.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED,
                 new EventHandler<WorkerStateEvent>() {
             @Override

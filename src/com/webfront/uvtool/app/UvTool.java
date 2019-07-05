@@ -92,6 +92,8 @@ public class UvTool extends Application {
                 Platform.runLater(() -> {
                     stage.show();
                     stage.toFront();
+                    stage.toFront();
+                    stage.show();
                 });
             }
         }

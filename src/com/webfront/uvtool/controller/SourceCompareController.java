@@ -14,6 +14,7 @@ import com.webfront.u2.model.Profile;
 import com.webfront.u2.util.Progress;
 import com.webfront.u2.util.Config;
 import com.webfront.util.SysUtils;
+import com.webfront.uvtool.util.Path;
 import com.webfront.uvtool.util.SelectorTask;
 import java.io.File;
 import java.io.FileWriter;
@@ -166,33 +167,13 @@ public class SourceCompareController implements Controller, Initializable, Progr
         client.setSourceProfile(cbSourceProfile.getValue());
         sourceFileList.clear();
         cbFiles.disableProperty().set(true);
-//            FTPClient ftp = new FTPClient();
-//            ftp.connect(client.getSourceProfile().getServer().getHost());
-//            ftp.login(client.getSourceProfile().getUserName(),
-//                    client.getSourceProfile().getUserPassword());
-//            ftp.changeWorkingDirectory("/uvcode");
-//            ftp.enterLocalPassiveMode();
-//            FTPFile[] dirNames = ftp.listDirectories();
-//            for (FTPFile dir : dirNames) {
-//                String dname = dir.getName().trim();
-//
-//                if (dname.startsWith("&")) {
-//                    continue;
-//                }
-//
-//                if (dname.matches(".+\\.uv[f,i,s,p,t]\\.O")) {
-//                    continue;
-//                }
-//
-//                if (dname.matches(".+\\.uv[f,i,s,p,t]")) {
-//                    sourceFileList.add(dir.getName());
-//                }
-//            }
-//            
+
         String path = "/uvcode";
-        if (client.getSourceProfile().getServerName().equalsIgnoreCase("mustang")) {
+        boolean isLocal = client.getSourceProfile().getServerName().equalsIgnoreCase("mustang");
+        if (isLocal) {
             path = "/usr/local/madev";
         }
+        
         SelectorTask selectorTask = new SelectorTask(client.getSourceProfile(), path, "");
         selectorTask.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED,
                 new EventHandler<WorkerStateEvent>() {
@@ -216,16 +197,24 @@ public class SourceCompareController implements Controller, Initializable, Progr
     private void getFileItems(String fileName) {
         Platform.runLater(() -> txtMessages.setText("Reading " + fileName));
         ArrayList<String> list = new ArrayList<>();
-        String path = "/uvcode/" + fileName;
-        String filter = "*.uv*";
-        if (fileName.equals("DM.BP") || fileName.equals("DM.SR")) {
-            path = "/uvfs/ma.accounts/dmc/" + fileName;
+        String filter = null;
+        String fileType = fileName;
+        if (fileName.endsWith("LIB")) {
+            fileType = "webde";
+        }
+        String path = new Path().getPath(client.getSourceProfile().getServerName(), fileType);
+        if (fileType.equals("DM.BP") || fileType.equals("DM.SR")) {
             filter = "*";
+        } else if(fileType.contains("PADS")) {
+            filter = "*";
+        } else if(fileType.endsWith("LIB")) {
+            filter = ".rbm";
+        } else {
+            filter = "*.uv*";
         }
-        if (client.getSourceProfile().getServerName().equalsIgnoreCase("mustang")) {
-            path = "/usr/local/madev/"  + fileName;
-        }
-        SelectorTask selectorTask = new SelectorTask(client.getSourceProfile(), path, filter);
+        
+        String p = path + fileName;
+        SelectorTask selectorTask = new SelectorTask(client.getSourceProfile(), path+fileName, filter);
         selectorTask.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED,
                 new EventHandler<WorkerStateEvent>() {
             @Override
@@ -253,6 +242,7 @@ public class SourceCompareController implements Controller, Initializable, Progr
             String tempDir = config.getPreferences().get("tempDir");
             String fileName = cbFiles.getValue();
             String itemName = lvItems.getSelectionModel().getSelectedItem();
+            fileName = fileName.replace('/', ',');
             String sourceFileName = tempDir + "/" + sourceHost + "." + itemName;
             String destFileName = tempDir + "/" + destHost + "." + itemName;
             FileWriter sourceOut = new FileWriter(new File(sourceFileName));
@@ -298,6 +288,7 @@ public class SourceCompareController implements Controller, Initializable, Progr
     }
 
     private boolean checkDestFile(String fileName, String itemId) {
+        fileName = fileName.replace('/', ',');
         if (cbDestProfile.getValue() == null) {
             return false;
         }
