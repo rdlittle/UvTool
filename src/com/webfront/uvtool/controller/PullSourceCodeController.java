@@ -257,6 +257,7 @@ public class PullSourceCodeController implements Controller, Initializable, Prog
             if (client.doConnect()) {
                 UniFile sourceFile = client.getSourceSession().getSession().openFile(fileName);
                 UniFile destFile = client.getDestSession().getSession().openFile(fileName);
+                String dhost = client.getDestSession().getHostName();
                 ObservableList<String> items = FXCollections.<String>observableArrayList();
                 items.setAll(lvDestItems.getItems());
                 for (String itemId : items) {
@@ -336,6 +337,8 @@ public class PullSourceCodeController implements Controller, Initializable, Prog
         String fileType = fileName;
         if (fileName.endsWith("LIB")) {
             fileType = "webde";
+        } else if(fileName.matches(".+\\.uv[fistp]")) {
+            fileType = "uvcode";
         }
         String path = new Path().getPath(client.getSourceProfile().getServerName(), fileType);
         if (fileType.equals("DM.BP") || fileType.equals("DM.SR")) {
