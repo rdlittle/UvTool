@@ -201,6 +201,8 @@ public class SourceCompareController implements Controller, Initializable, Progr
         String fileType = fileName;
         if (fileName.endsWith("LIB")) {
             fileType = "webde";
+        } else if(fileName.matches(".+\\.uv[fistp]")) {
+            fileType = "uvcode";
         }
         String path = new Path().getPath(client.getSourceProfile().getServerName(), fileType);
         if (fileType.equals("DM.BP") || fileType.equals("DM.SR")) {
@@ -213,7 +215,6 @@ public class SourceCompareController implements Controller, Initializable, Progr
             filter = "*.uv*";
         }
         
-        String p = path + fileName;
         SelectorTask selectorTask = new SelectorTask(client.getSourceProfile(), path+fileName, filter);
         selectorTask.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED,
                 new EventHandler<WorkerStateEvent>() {
