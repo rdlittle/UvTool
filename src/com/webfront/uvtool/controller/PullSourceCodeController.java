@@ -271,8 +271,11 @@ public class PullSourceCodeController implements Controller, Initializable, Prog
             }
         } catch (UniSessionException ex) {
             Logger.getLogger(PullSourceCodeController.class.getName()).log(Level.SEVERE, null, ex);
+            
+            client.doDisconnect();
         } catch (UniFileException ex) {
             Logger.getLogger(PullSourceCodeController.class.getName()).log(Level.SEVERE, null, ex);
+            client.doDisconnect();
         }
     }
 

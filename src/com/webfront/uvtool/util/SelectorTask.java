@@ -5,11 +5,17 @@
  */
 package com.webfront.uvtool.util;
 
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelSftp;
 import com.webfront.u2.model.Profile;
 import java.util.ArrayList;
 import javafx.concurrent.Task;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import java.util.Vector;
 
 /**
  *
@@ -31,6 +37,8 @@ public class SelectorTask extends Task<ArrayList<String>> {
         this.list = new ArrayList<>();
         this.exclude = new ArrayList<>();
         this.exclude.add("AE_SCRATCH");
+        this.exclude.add("AE_COMS");
+        this.exclude.add("AE.TEMP");
         this.exclude.add("LC_ASSOC");
         this.exclude.add("LC_COLUMNS");
         this.exclude.add("LC_FKEY");
@@ -38,10 +46,17 @@ public class SelectorTask extends Task<ArrayList<String>> {
         this.exclude.add("U2XfrNLS");
         this.exclude.add("New folder");
         this.exclude.add("TJD.BP");
+        this.exclude.add("VOCLIB");
+        this.exclude.add("VOC");
+        this.exclude.add("TRAININGLIB");
+        this.exclude.add("PARAMS");
     }
 
     @Override
     protected ArrayList<String> call() throws Exception {
+        if (client.getServer().getHost().equalsIgnoreCase("dmcdev")) {
+            return scall();
+        }
         FTPClient ftp = new FTPClient();
 
         ftp.connect(client.getServer().getHost());
@@ -55,7 +70,7 @@ public class SelectorTask extends Task<ArrayList<String>> {
 
         String pathSpec[] = this.path.split("/");
         String lastChild = pathSpec[pathSpec.length - 1];
-        
+
         boolean isUvcode = lastChild.matches(".+\\.uv[fistp]");
         boolean isLocal = lastChild.matches("madev");
 
@@ -79,7 +94,10 @@ public class SelectorTask extends Task<ArrayList<String>> {
             if (name.matches(".+\\.\\..+")) {
                 continue;
             }
-            if (name.startsWith(".") || name.endsWith("."))  {
+            if (name.startsWith(".") || name.endsWith(".")) {
+                continue;
+            }
+            if (name.contains("junk")) {
                 continue;
             }
             if (this.exclude.contains(name)) {
@@ -101,6 +119,80 @@ public class SelectorTask extends Task<ArrayList<String>> {
             list.add("PADS.HOOK/SEGMENT");
             list.add("PADS.BP");
         }
+        return list;
+    }
+
+    protected ArrayList<String> scall() throws Exception {
+        // 
+        JSch jsch = new JSch();
+        Session session = jsch.getSession("release", "dmcdev");
+        java.util.Properties config = new java.util.Properties(); 
+        config.put("StrictHostKeyChecking", "no");
+        session.setConfig(config);
+        session.setPassword("R31ea$E_@)!(");
+        try {
+            session.connect(1000);
+        } catch (JSchException e) {
+            System.out.println(e.getMessage());
+        }
+        Channel channel = session.openChannel("sftp");
+        channel.connect();
+        ChannelSftp sftp = (ChannelSftp) channel;
+
+        String pathSpec[] = this.path.split("/");
+        String lastChild = pathSpec[pathSpec.length - 1];
+
+        boolean isUvcode = lastChild.matches(".+\\.uv[fistp]");
+        boolean isLocal = lastChild.matches("madev");
+        Vector<ChannelSftp.LsEntry> itemList = new Vector<>();
+        sftp.cd(this.path);
+        boolean isDirList = filter.isEmpty();
+        if (isDirList) {
+            itemList = sftp.ls(".");
+        } else {
+            itemList = sftp.ls(this.filter);
+        }
+
+        for (ChannelSftp.LsEntry item : itemList) {
+            String name = item.getFilename();
+            if (name.startsWith("&")) {
+                continue;
+            }
+            if (name.startsWith("D_")) {
+                continue;
+            }
+            if (name.matches(".+\\.uv[fispt]\\.O")) {
+                continue;
+            }
+            if (name.matches(".+\\.\\..+")) {
+                continue;
+            }
+            if (name.startsWith(".") || name.endsWith(".")) {
+                continue;
+            }
+            if (this.exclude.contains(name)) {
+                continue;
+            }
+            if(name.contains("junk")) {
+                continue;
+            }
+            if (this.filter.isEmpty() && isLocal) {
+                if (!name.matches(".+\\.uv[fispt]")) {
+                    continue;
+                }
+            }
+            if (isUvcode && !name.matches(".+\\.uv[fispt]")) {
+                continue;
+            }
+            list.add(name);
+        }
+        if (isDirList) {
+            list.add("DM.BP");
+            list.add("DM.SR");
+            list.add("PADS.HOOK/SEGMENT");
+            list.add("PADS.BP");
+        }
+
         return list;
     }
 
