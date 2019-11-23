@@ -13,6 +13,7 @@ import com.webfront.uvtool.app.UvTool;
 import com.webfront.uvtool.util.CBClient;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -102,10 +103,12 @@ public class DeployBackupController implements Controller, Initializable {
     private SimpleStringProperty findTarget;
     private SimpleStringProperty itemName;
     private ItemType itemType;
+    private HashMap<String, String> resultsMap;
 
     public DeployBackupController() {
 
-        itemList = FXCollections.emptyObservableList();
+        itemList = FXCollections.<String>observableArrayList();
+        resultsMap = new HashMap<>();
 
         btnGetBackups = new Button();
         btnNewSearch = new Button();
@@ -223,17 +226,22 @@ public class DeployBackupController implements Controller, Initializable {
 
     @FXML
     public void getBackups() {
-        System.out.println(txtItemName.textProperty().getValue());
+        Logger.getLogger(DeployBackupController.class.getName()).log(Level.INFO,
+                txtItemName.textProperty().getValue());
         String query = "SELECT name, program FROM deployBackup where name like ";
         query += "\"" + txtItemName.textProperty().get() + "%\" ORDER BY name";
+        Logger.getLogger(DeployBackupController.class.getName()).log(Level.INFO, query);
         CBClient cb = new CBClient();
         Bucket bucket = cb.connect("deployBackup");
         N1qlQueryResult result = cb.doQuery(bucket, query);
         itemList.clear();
+        resultsMap.clear();
         for (N1qlQueryRow row : result) {
             JsonObject doc = row.value();
+            resultsMap.put(doc.getString("name"), doc.getString("program"));
             itemList.add(doc.getString("name"));
         }
+        listItems.itemsProperty().set(itemList);
     }
 
     @FXML
@@ -257,6 +265,6 @@ public class DeployBackupController implements Controller, Initializable {
     }
 
     private void setPreview(String item) {
-
+        txtPreview.textProperty().set(resultsMap.get(item));
     }
 }

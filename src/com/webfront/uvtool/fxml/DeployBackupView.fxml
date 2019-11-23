@@ -13,6 +13,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <AnchorPane id="AnchorPane" prefHeight="693.0" prefWidth="1042.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.webfront.uvtool.controller.DeployBackupController">
    <children>
@@ -65,7 +66,10 @@
                   <Label text="Preview" />
                   <ScrollPane prefHeight="542.0" prefWidth="688.0">
                      <content>
-                        <TextArea fx:id="txtPreview" prefHeight="549.0" prefWidth="673.0" />
+                        <TextArea fx:id="txtPreview" editable="false" prefHeight="549.0" prefWidth="673.0">
+                           <font>
+                              <Font name="Liberation Mono" size="13.0" />
+                           </font></TextArea>
                      </content>
                   </ScrollPane>
                   <TitledPane collapsible="false" prefHeight="90.0" prefWidth="688.0" text="Find">
