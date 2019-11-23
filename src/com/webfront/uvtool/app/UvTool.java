@@ -7,6 +7,7 @@ package com.webfront.uvtool.app;
 
 import com.webfront.u2.util.Config;
 import com.webfront.uvtool.controller.UvToolController;
+import com.webfront.uvtool.util.CBClient;
 import java.awt.AWTException;
 import java.awt.Font;
 import java.awt.Image;
