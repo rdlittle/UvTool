@@ -32,6 +32,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
@@ -98,6 +99,9 @@ public class DeployBackupController implements Controller, Initializable {
 
     @FXML
     TextField txtFind;
+    
+    @FXML
+    ScrollPane scroller;
 
     private ObservableList<String> itemList;
     private SimpleStringProperty findTarget;
@@ -135,6 +139,7 @@ public class DeployBackupController implements Controller, Initializable {
         itemName = new SimpleStringProperty();
         itemType = ItemType.CODE;
         findTarget = new SimpleStringProperty();
+        scroller = new ScrollPane(txtPreview);
 
     }
 
@@ -180,6 +185,7 @@ public class DeployBackupController implements Controller, Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         res = resources;
+        txtPreview.setPrefColumnCount(80);
         tgItemType.selectedToggleProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {

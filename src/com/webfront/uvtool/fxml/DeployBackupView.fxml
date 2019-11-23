@@ -16,82 +16,80 @@
 <?import javafx.scene.text.Font?>
 
 <AnchorPane id="AnchorPane" prefHeight="693.0" prefWidth="1042.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.webfront.uvtool.controller.DeployBackupController">
-   <children>
-      <HBox prefHeight="698.0" prefWidth="1042.0">
-         <children>
-            <VBox prefHeight="698.0" prefWidth="335.0" spacing="10.0">
-               <children>
-                  <Label text="Item name" />
-                  <TextField fx:id="txtItemName" />
-                  <TitledPane animated="false" collapsible="false" prefHeight="76.0" prefWidth="314.0" text="Item type">
-                     <content>
-                        <HBox alignment="CENTER" prefHeight="51.0" prefWidth="312.0" spacing="60.0">
-                           <children>
-                              <RadioButton fx:id="rbItemTypeCode" mnemonicParsing="false" selected="true" text="Code">
-                                 <toggleGroup>
-                                    <ToggleGroup fx:id="tgItemType" />
-                                 </toggleGroup></RadioButton>
-                              <RadioButton fx:id="rbItemTypeData" mnemonicParsing="false" text="Data" toggleGroup="$tgItemType" />
-                              <RadioButton fx:id="rbItemTypeDict" mnemonicParsing="false" text="Dict" toggleGroup="$tgItemType" />
-                           </children>
-                        </HBox>
-                     </content>
-                  </TitledPane>
-                  <Button fx:id="btnGetBackups" mnemonicParsing="false" onAction="#getBackups" text="Get Backups" />
-                  <ScrollPane prefHeight="349.0" prefWidth="314.0">
-                     <content>
-                        <ListView fx:id="listItems" prefHeight="349.0" prefWidth="312.0" />
-                     </content>
-                  </ScrollPane>
-                  <Button fx:id="btnNewSearch" mnemonicParsing="false" onAction="#newSearch" text="New Search" />
-                  <TitledPane collapsible="false" prefHeight="91.0" prefWidth="314.0" text="Compare to">
-                     <content>
-                        <HBox alignment="CENTER" prefHeight="81.0" prefWidth="312.0" spacing="10.0">
-                           <children>
-                              <Button fx:id="btnCompareDev" mnemonicParsing="false" onAction="#compareDev" prefHeight="26.0" prefWidth="57.0" text="Dev" />
-                              <Button fx:id="btnCompareStaging" mnemonicParsing="false" onAction="#compareStaging" prefHeight="26.0" prefWidth="76.0" text="Staging" />
-                              <Button fx:id="btnCompareLive" mnemonicParsing="false" onAction="#compareLive" prefHeight="26.0" prefWidth="60.0" text="Live" />
-                              <Button fx:id="btnCompareApproved" mnemonicParsing="false" onAction="#compareApproved" prefHeight="26.0" prefWidth="85.0" text="Approved" />
-                           </children>
-                        </HBox>
-                     </content>
-                  </TitledPane>
-               </children>
-               <padding>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </padding>
-            </VBox>
-            <VBox prefHeight="698.0" prefWidth="709.0" spacing="10.0">
-               <children>
-                  <Label text="Preview" />
-                  <ScrollPane prefHeight="542.0" prefWidth="688.0">
-                     <content>
+    <children>
+        <HBox prefHeight="698.0" prefWidth="1042.0">
+            <children>
+                <VBox prefHeight="698.0" prefWidth="335.0" spacing="10.0">
+                    <children>
+                        <Label text="Item name" />
+                        <TextField fx:id="txtItemName" />
+                        <TitledPane animated="false" collapsible="false" prefHeight="76.0" prefWidth="314.0" text="Item type">
+                            <content>
+                                <HBox alignment="CENTER" prefHeight="51.0" prefWidth="312.0" spacing="60.0">
+                                    <children>
+                                        <RadioButton fx:id="rbItemTypeCode" mnemonicParsing="false" selected="true" text="Code">
+                                            <toggleGroup>
+                                                <ToggleGroup fx:id="tgItemType" />
+                                            </toggleGroup>
+                                        </RadioButton>
+                                        <RadioButton fx:id="rbItemTypeData" mnemonicParsing="false" text="Data" toggleGroup="$tgItemType" />
+                                        <RadioButton fx:id="rbItemTypeDict" mnemonicParsing="false" text="Dict" toggleGroup="$tgItemType" />
+                                    </children>
+                                </HBox>
+                            </content>
+                        </TitledPane>
+                        <Button fx:id="btnGetBackups" mnemonicParsing="false" onAction="#getBackups" text="Get Backups" />
+                        <ScrollPane prefHeight="349.0" prefWidth="314.0">
+                            <content>
+                                <ListView fx:id="listItems" prefHeight="349.0" prefWidth="312.0" />
+                            </content>
+                        </ScrollPane>
+                        <Button fx:id="btnNewSearch" mnemonicParsing="false" onAction="#newSearch" text="New Search" />
+                        <TitledPane collapsible="false" prefHeight="91.0" prefWidth="314.0" text="Compare to">
+                            <content>
+                                <HBox alignment="CENTER" prefHeight="81.0" prefWidth="312.0" spacing="10.0">
+                                    <children>
+                                        <Button fx:id="btnCompareDev" mnemonicParsing="false" onAction="#compareDev" prefHeight="26.0" prefWidth="57.0" text="Dev" />
+                                        <Button fx:id="btnCompareStaging" mnemonicParsing="false" onAction="#compareStaging" prefHeight="26.0" prefWidth="76.0" text="Staging" />
+                                        <Button fx:id="btnCompareLive" mnemonicParsing="false" onAction="#compareLive" prefHeight="26.0" prefWidth="60.0" text="Live" />
+                                        <Button fx:id="btnCompareApproved" mnemonicParsing="false" onAction="#compareApproved" prefHeight="26.0" prefWidth="85.0" text="Approved" />
+                                    </children>
+                                </HBox>
+                            </content>
+                        </TitledPane>
+                    </children>
+                    <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </padding>
+                </VBox>
+                <VBox prefHeight="698.0" prefWidth="709.0" spacing="10.0">
+                    <children>
+                        <Label text="Preview" />
                         <TextArea fx:id="txtPreview" editable="false" prefHeight="549.0" prefWidth="673.0">
-                           <font>
-                              <Font name="Liberation Mono" size="13.0" />
-                           </font></TextArea>
-                     </content>
-                  </ScrollPane>
-                  <TitledPane collapsible="false" prefHeight="90.0" prefWidth="688.0" text="Find">
-                     <content>
-                        <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
-                           <children>
-                              <TextField fx:id="txtFind" prefHeight="26.0" prefWidth="500.0" />
-                              <Button fx:id="btnPrevious" mnemonicParsing="false" onAction="#findPrevious" text="Previous" />
-                              <Button fx:id="btnNext" mnemonicParsing="false" onAction="#findNext" prefHeight="26.0" prefWidth="70.0" text="Next" />
-                           </children>
-                           <padding>
-                              <Insets left="10.0" top="20.0" />
-                           </padding>
-                        </HBox>
-                     </content>
-                  </TitledPane>
-               </children>
-               <padding>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </padding>
-            </VBox>
-         </children>
-      </HBox>
-   </children>
+                            <font>
+                                <Font name="Liberation Mono" size="13.0" />
+                            </font>
+                        </TextArea>
+                        <TitledPane collapsible="false" prefHeight="90.0" prefWidth="688.0" text="Find">
+                            <content>
+                                <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                                    <children>
+                                        <TextField fx:id="txtFind" prefHeight="26.0" prefWidth="500.0" />
+                                        <Button fx:id="btnPrevious" mnemonicParsing="false" onAction="#findPrevious" text="Previous" />
+                                        <Button fx:id="btnNext" mnemonicParsing="false" onAction="#findNext" prefHeight="26.0" prefWidth="70.0" text="Next" />
+                                    </children>
+                                    <padding>
+                                        <Insets left="10.0" top="20.0" />
+                                    </padding>
+                                </HBox>
+                            </content>
+                        </TitledPane>
+                    </children>
+                    <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </padding>
+                </VBox>
+            </children>
+        </HBox>
+    </children>
 </AnchorPane>
