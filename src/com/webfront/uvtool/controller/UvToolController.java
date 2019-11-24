@@ -5,6 +5,7 @@
  */
 package com.webfront.uvtool.controller;
 
+import com.couchbase.client.java.Bucket;
 import com.webfront.u2.model.Account;
 import com.webfront.u2.model.Profile;
 import com.webfront.u2.model.Server;
@@ -12,6 +13,7 @@ import com.webfront.u2.model.User;
 import com.webfront.u2.util.Config;
 import com.webfront.u2.util.ServerConverter;
 import com.webfront.uvtool.app.UvTool;
+import com.webfront.uvtool.util.CBClient;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -70,6 +72,8 @@ public class UvToolController implements Initializable {
     Button btnPull;
     @FXML
     Button btnCopy;
+    @FXML
+    Button btnBackups;
 
     @FXML
     MenuItem fileExit;
@@ -104,6 +108,7 @@ public class UvToolController implements Initializable {
         btnCompare = new Button();
         btnPull = new Button();
         btnCopy = new Button();
+        btnBackups = new Button();
         mnuFileNewAccount = new MenuItem();
         mnuFileNewServer = new MenuItem();
         mnuFileNewProfile = new MenuItem();
@@ -146,6 +151,10 @@ public class UvToolController implements Initializable {
         btnPull.setOnAction(event -> launch("viewPullSource", "titlePullSource"));
         btnPull.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
         btnPull.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());
+        
+        btnBackups.setOnAction(event -> launch("viewBackups", "titleBackups"));
+        btnBackups.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
+        btnBackups.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());
 
     }
 
@@ -260,6 +269,13 @@ public class UvToolController implements Initializable {
     @FXML
     public void onMnuHelpAbout() {
         launch("viewHelpAbout", "titleHelpAbout");
+    }
+    
+    @FXML void testDb() {
+        CBClient cb = new CBClient();
+        Bucket bucket = cb.connect("deployBackup");
+        cb.testQuery(bucket);
+        cb.disconnect(bucket);
     }
 
 }

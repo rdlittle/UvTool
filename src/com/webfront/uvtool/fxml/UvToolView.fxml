@@ -10,9 +10,9 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 
-<AnchorPane id="AnchorPane" prefHeight="176.0" prefWidth="378.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.webfront.uvtool.controller.UvToolController">
+<AnchorPane id="AnchorPane" prefHeight="176.0" prefWidth="491.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.webfront.uvtool.controller.UvToolController">
     <children>
-      <MenuBar layoutX="14.0" layoutY="14.0" prefHeight="29.0" prefWidth="356.0">
+      <MenuBar layoutX="14.0" layoutY="14.0" prefHeight="29.0" prefWidth="463.0">
         <menus>
           <Menu fx:id="mnuFile" mnemonicParsing="false" text="File">
             <items>
@@ -41,14 +41,16 @@
           <Menu fx:id="mnuHelp" mnemonicParsing="false" text="Help">
             <items>
               <MenuItem fx:id="mnuHelpAbout" mnemonicParsing="false" onAction="#onMnuHelpAbout" text="Help" />
+                  <MenuItem mnemonicParsing="false" onAction="#testDb" text="Test" />
             </items>
           </Menu>
         </menus>
       </MenuBar>
-      <HBox layoutX="15.0" layoutY="89.0" prefHeight="29.0" prefWidth="380.0" spacing="10.0">
+      <HBox alignment="CENTER" layoutX="15.0" layoutY="89.0" prefHeight="29.0" prefWidth="463.0" spacing="10.0">
          <children>
             <Button fx:id="btnRun" mnemonicParsing="false" prefHeight="26.0" prefWidth="74.0" text="Run" />
             <Button fx:id="btnCompare" mnemonicParsing="false" prefHeight="26.0" prefWidth="87.0" text="Compare" />
+            <Button fx:id="btnBackups" mnemonicParsing="false" prefHeight="26.0" prefWidth="86.0" text="Backups" />
             <Button fx:id="btnPull" mnemonicParsing="false" prefHeight="26.0" prefWidth="86.0" text="Pull/Push" />
             <Button fx:id="btnCopy" mnemonicParsing="false" prefHeight="26.0" prefWidth="82.0" text="Copy" />
          </children>
