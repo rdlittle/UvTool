@@ -12,6 +12,8 @@ import com.couchbase.client.java.query.N1qlQueryRow;
 import com.webfront.uvtool.app.UvTool;
 import com.webfront.uvtool.util.CBClient;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.ResourceBundle;
@@ -39,6 +41,8 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 /**
  *
@@ -99,7 +103,7 @@ public class DeployBackupController implements Controller, Initializable {
 
     @FXML
     TextField txtFind;
-    
+
     @FXML
     ScrollPane scroller;
 
@@ -108,6 +112,10 @@ public class DeployBackupController implements Controller, Initializable {
     private SimpleStringProperty itemName;
     private ItemType itemType;
     private HashMap<String, String> resultsMap;
+    private JSONObject config;
+    private JSONParser jparser;
+
+    private final String CONFIG_PATH = "/com/webfront/uvtool/util/config.json";
 
     public DeployBackupController() {
 
@@ -272,5 +280,22 @@ public class DeployBackupController implements Controller, Initializable {
 
     private void setPreview(String item) {
         txtPreview.textProperty().set(resultsMap.get(item));
+        InputStream istream = this.getClass().getResourceAsStream(CONFIG_PATH);
+        InputStreamReader reader = new InputStreamReader(istream);
+        StringBuilder builder = new StringBuilder();
+        try {
+            int r = istream.available();
+            String msg = "Config size: " + Integer.toString(r);
+            Logger.getLogger(DeployBackupController.class.getName()).log(Level.INFO, msg);
+            for(;;) {
+                int c = reader.read();
+                if (c == -1) {
+                    break;
+                }
+                builder.append((char) c);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
