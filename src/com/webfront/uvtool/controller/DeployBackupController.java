@@ -6,16 +6,20 @@
 package com.webfront.uvtool.controller;
 
 import com.couchbase.client.java.Bucket;
-import com.couchbase.client.java.document.json.JsonObject;
+//import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
+import com.github.cliftonlabs.json_simple.JsonKey;
+import com.github.cliftonlabs.json_simple.Jsoner;
+import com.github.cliftonlabs.json_simple.JsonObject;
+import com.webfront.uvtool.model.Server;
 import com.webfront.uvtool.app.UvTool;
 import com.webfront.uvtool.util.CBClient;
+import com.webfront.uvtool.util.Network;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,6 +28,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -41,8 +46,6 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 
 /**
  *
@@ -112,10 +115,6 @@ public class DeployBackupController implements Controller, Initializable {
     private SimpleStringProperty itemName;
     private ItemType itemType;
     private HashMap<String, String> resultsMap;
-    private JSONObject config;
-    private JSONParser jparser;
-
-    private final String CONFIG_PATH = "/com/webfront/uvtool/util/config.json";
 
     public DeployBackupController() {
 
@@ -215,12 +214,18 @@ public class DeployBackupController implements Controller, Initializable {
         });
 
         txtFind.textProperty().bind(findTarget);
-//        txtItemName.textProperty().bind(itemName);
+        txtItemName.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                getBackups();
+            }
+        });
     }
 
     @FXML
     public void compareDev() {
-
+        Network net = new Network();
+        Server s = new Server(net.getPlatforms(), "dmc");
     }
 
     @FXML
@@ -251,7 +256,7 @@ public class DeployBackupController implements Controller, Initializable {
         itemList.clear();
         resultsMap.clear();
         for (N1qlQueryRow row : result) {
-            JsonObject doc = row.value();
+            com.couchbase.client.java.document.json.JsonObject doc = row.value();
             resultsMap.put(doc.getString("name"), doc.getString("program"));
             itemList.add(doc.getString("name"));
         }
@@ -280,22 +285,5 @@ public class DeployBackupController implements Controller, Initializable {
 
     private void setPreview(String item) {
         txtPreview.textProperty().set(resultsMap.get(item));
-        InputStream istream = this.getClass().getResourceAsStream(CONFIG_PATH);
-        InputStreamReader reader = new InputStreamReader(istream);
-        StringBuilder builder = new StringBuilder();
-        try {
-            int r = istream.available();
-            String msg = "Config size: " + Integer.toString(r);
-            Logger.getLogger(DeployBackupController.class.getName()).log(Level.INFO, msg);
-            for(;;) {
-                int c = reader.read();
-                if (c == -1) {
-                    break;
-                }
-                builder.append((char) c);
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 }
