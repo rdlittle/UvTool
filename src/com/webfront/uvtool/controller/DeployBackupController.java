@@ -6,12 +6,8 @@
 package com.webfront.uvtool.controller;
 
 import com.couchbase.client.java.Bucket;
-//import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
-import com.github.cliftonlabs.json_simple.JsonKey;
-import com.github.cliftonlabs.json_simple.Jsoner;
-import com.github.cliftonlabs.json_simple.JsonObject;
 import com.webfront.uvtool.model.Server;
 import com.webfront.uvtool.app.UvTool;
 import com.webfront.uvtool.util.CBClient;
@@ -19,7 +15,6 @@ import com.webfront.uvtool.util.Network;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -224,8 +219,24 @@ public class DeployBackupController implements Controller, Initializable {
 
     @FXML
     public void compareDev() {
+        String backupFile = txtPreview.getText();
+        // TODO: Write backupFile to local directory using the backup id as the
+        // file name
         Network net = new Network();
         Server s = new Server(net.getPlatforms(), "dmc");
+        String path = s.getPath("main");
+        String host = s.getHost("dev");
+        String result = net.sshExec(host, path, "getDir postAopIbvVendorInfo.uvs");
+        // TODO: Execute "getDir" remote command in the dmc account
+        // i.e. /uvfs/ma.accounts/dmc/getDir postAopCreate.uvs
+        
+        // TODO: Get the remote path for the library 
+        // i.e. /uvcode/aop.uvs
+        
+        // TODO: Retrieve the remote item and save it locally with host name
+        // appended.  i.e. postAopCreate.uvs.dev
+        // NOTE: Access to dmcdev is sftp instead of standard ftp
+        
     }
 
     @FXML
