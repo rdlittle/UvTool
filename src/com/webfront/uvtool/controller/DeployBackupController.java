@@ -6,11 +6,12 @@
 package com.webfront.uvtool.controller;
 
 import com.couchbase.client.java.Bucket;
-import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
+import com.webfront.uvtool.model.Server;
 import com.webfront.uvtool.app.UvTool;
 import com.webfront.uvtool.util.CBClient;
+import com.webfront.uvtool.util.Network;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -99,7 +101,7 @@ public class DeployBackupController implements Controller, Initializable {
 
     @FXML
     TextField txtFind;
-    
+
     @FXML
     ScrollPane scroller;
 
@@ -207,12 +209,34 @@ public class DeployBackupController implements Controller, Initializable {
         });
 
         txtFind.textProperty().bind(findTarget);
-//        txtItemName.textProperty().bind(itemName);
+        txtItemName.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                getBackups();
+            }
+        });
     }
 
     @FXML
     public void compareDev() {
-
+        String backupFile = txtPreview.getText();
+        // TODO: Write backupFile to local directory using the backup id as the
+        // file name
+        Network net = new Network();
+        Server s = new Server(net.getPlatforms(), "dmc");
+        String path = s.getPath("main");
+        String host = s.getHost("dev");
+        String result = net.sshExec(host, path, "getDir postAopIbvVendorInfo.uvs");
+        // TODO: Execute "getDir" remote command in the dmc account
+        // i.e. /uvfs/ma.accounts/dmc/getDir postAopCreate.uvs
+        
+        // TODO: Get the remote path for the library 
+        // i.e. /uvcode/aop.uvs
+        
+        // TODO: Retrieve the remote item and save it locally with host name
+        // appended.  i.e. postAopCreate.uvs.dev
+        // NOTE: Access to dmcdev is sftp instead of standard ftp
+        
     }
 
     @FXML
@@ -243,7 +267,7 @@ public class DeployBackupController implements Controller, Initializable {
         itemList.clear();
         resultsMap.clear();
         for (N1qlQueryRow row : result) {
-            JsonObject doc = row.value();
+            com.couchbase.client.java.document.json.JsonObject doc = row.value();
             resultsMap.put(doc.getString("name"), doc.getString("program"));
             itemList.add(doc.getString("name"));
         }

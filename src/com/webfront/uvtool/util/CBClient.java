@@ -6,7 +6,6 @@
 package com.webfront.uvtool.util;
 
 import com.couchbase.client.java.*;
-import com.couchbase.client.java.document.json.*;
 import com.couchbase.client.java.query.*;
 
 /**
