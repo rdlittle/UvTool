@@ -8,6 +8,7 @@ package com.webfront.uvtool.controller;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
+import com.webfront.u2.util.Config;
 import com.webfront.uvtool.model.Server;
 import com.webfront.uvtool.app.UvTool;
 import com.webfront.uvtool.util.CBClient;
@@ -230,7 +231,7 @@ public class DeployBackupController implements Controller, Initializable {
         String downloadPath = "/home/rlittle/sob/download/";
         String backupFile = txtPreview.getText();
         String progName = txtItemName.getText();
-        
+
         try {
             FileWriter file = new FileWriter(downloadPath + selectedItem);
             file.write(backupFile);
@@ -243,18 +244,19 @@ public class DeployBackupController implements Controller, Initializable {
         Server s = new Server(net.getPlatforms(), "dmc");
         String path = s.getPath("main");
         String host = s.getHost("dev");
-        ByteArrayOutputStream output = net.sshExec(host, path, 
-                "getDir "+ progName);
+        ByteArrayOutputStream output = net.sshExec(host, path,
+                "getDir " + progName);
         String[] result = (output.toString()).split("\n");
-        
+
         String libName = result[result.length - 1];
         String remotePath = s.getPath(getPathType(libName)) + "/" + libName;
 
-        net.doSftp("dmcdev", remotePath, progName, downloadPath, 
-                progName + "."+ host);
+        net.doSftp("dmcdev", remotePath, progName, downloadPath,
+                progName + "." + host);
         // TODO: make system call to diff program
         String leftFile = downloadPath + selectedItem;
-        String rightFile = downloadPath + progName + "."+ host;
+        String rightFile = downloadPath + progName + "." + host;
+        doCompare(leftFile, rightFile);
     }
 
     @FXML
@@ -271,9 +273,21 @@ public class DeployBackupController implements Controller, Initializable {
     public void compareApproved() {
 
     }
-    
+
     private void doCompare(String left, String right) {
-        
+        Config config = Config.getInstance();
+        String diff = config.getPreferences().get("diffProgram");
+        String cmd = diff + " " + left + " " + right;
+        Runnable task = () -> {
+            try {
+                Runtime.getRuntime().exec(cmd);
+            } catch (IOException ex) {
+                Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        };
+        Thread backgroundThread = new Thread(task);
+        backgroundThread.setDaemon(true);
+        backgroundThread.start();
     }
 
     @FXML
