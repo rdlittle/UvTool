@@ -12,12 +12,16 @@ import com.webfront.uvtool.model.Server;
 import com.webfront.uvtool.app.UvTool;
 import com.webfront.uvtool.util.CBClient;
 import com.webfront.uvtool.util.Network;
+import java.io.ByteArrayOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -110,6 +114,7 @@ public class DeployBackupController implements Controller, Initializable {
     private SimpleStringProperty itemName;
     private ItemType itemType;
     private HashMap<String, String> resultsMap;
+    private String selectedItem;
 
     public DeployBackupController() {
 
@@ -142,6 +147,8 @@ public class DeployBackupController implements Controller, Initializable {
         itemType = ItemType.CODE;
         findTarget = new SimpleStringProperty();
         scroller = new ScrollPane(txtPreview);
+
+        selectedItem = new String();
 
     }
 
@@ -204,6 +211,7 @@ public class DeployBackupController implements Controller, Initializable {
         listItems.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                selectedItem = newValue;
                 setPreview(newValue);
             }
         });
@@ -219,24 +227,34 @@ public class DeployBackupController implements Controller, Initializable {
 
     @FXML
     public void compareDev() {
+        String downloadPath = "/home/rlittle/sob/download/";
         String backupFile = txtPreview.getText();
-        // TODO: Write backupFile to local directory using the backup id as the
-        // file name
+        String progName = txtItemName.getText();
+        
+        try {
+            FileWriter file = new FileWriter(downloadPath + selectedItem);
+            file.write(backupFile);
+            file.close();
+        } catch (IOException ex) {
+            Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         Network net = new Network();
         Server s = new Server(net.getPlatforms(), "dmc");
         String path = s.getPath("main");
         String host = s.getHost("dev");
-        String result = net.sshExec(host, path, "getDir postAopIbvVendorInfo.uvs");
-        // TODO: Execute "getDir" remote command in the dmc account
-        // i.e. /uvfs/ma.accounts/dmc/getDir postAopCreate.uvs
+        ByteArrayOutputStream output = net.sshExec(host, path, 
+                "getDir "+ progName);
+        String[] result = (output.toString()).split("\n");
         
-        // TODO: Get the remote path for the library 
-        // i.e. /uvcode/aop.uvs
-        
-        // TODO: Retrieve the remote item and save it locally with host name
-        // appended.  i.e. postAopCreate.uvs.dev
-        // NOTE: Access to dmcdev is sftp instead of standard ftp
-        
+        String libName = result[result.length - 1];
+        String remotePath = s.getPath(getPathType(libName)) + "/" + libName;
+
+        net.doSftp("dmcdev", remotePath, progName, downloadPath, 
+                progName + "."+ host);
+        // TODO: make system call to diff program
+        String leftFile = downloadPath + selectedItem;
+        String rightFile = downloadPath + progName + "."+ host;
     }
 
     @FXML
@@ -252,6 +270,10 @@ public class DeployBackupController implements Controller, Initializable {
     @FXML
     public void compareApproved() {
 
+    }
+    
+    private void doCompare(String left, String right) {
+        
     }
 
     @FXML
@@ -296,5 +318,20 @@ public class DeployBackupController implements Controller, Initializable {
 
     private void setPreview(String item) {
         txtPreview.textProperty().set(resultsMap.get(item));
+    }
+
+    private String getPathType(String library) {
+        Pattern pattern = Pattern.compile(".+\\.uv[f, i, p, s]");
+        Matcher matcher = pattern.matcher(library);
+        if (library.equals("DM.SR") || library.equals("DM.BP")) {
+            return "main";
+        }
+        if (matcher.matches()) {
+            return "uvcode";
+        }
+        if (library.endsWith("LIB")) {
+            return "rbo";
+        }
+        return null;
     }
 }
