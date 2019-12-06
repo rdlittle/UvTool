@@ -55,7 +55,8 @@ public class DeployBackupController implements Controller, Initializable {
 
     ResourceBundle res;
     private final Config config = Config.getInstance();
-    private final String downloadPath = config.getPreferences().get("downloads");
+    private final String downloadPath;
+    private final Network net = new Network();
 
     private static enum ItemType {
         CODE, DICT, DATA;
@@ -120,7 +121,11 @@ public class DeployBackupController implements Controller, Initializable {
     private String selectedItem;
 
     public DeployBackupController() {
-
+        String path = config.getPreferences().get("downloads");
+        if (!path.endsWith("/")) {
+            path += "/";
+        }
+        downloadPath = path;
         itemList = FXCollections.<String>observableArrayList();
         resultsMap = new HashMap<>();
 
@@ -234,25 +239,19 @@ public class DeployBackupController implements Controller, Initializable {
 
     @FXML
     public void compareDev() {
-
+        Server s = new Server(net.getPlatforms(), "dmc");
+        String host = getHostName("dmc", "dev");
         String progName = txtItemName.getText();
+        
         try {
             saveBackup(downloadPath + progName);
         } catch (IOException ex) {
             Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        Network net = new Network();
-        Server s = new Server(net.getPlatforms(), "dmc");
-        String path = s.getPath("main");
-        String host = s.getHost("dev");
-        ByteArrayOutputStream output = net.sshExec(host, path,
-                "getDir " + progName);
-        String[] result = (output.toString()).split("\n");
-
-        String libName = result[result.length - 1];
+        String libName = getLibName(progName);
         String remotePath = s.getPath(getPathType(libName)) + "/" + libName;
 
-        net.doSftp("dmcdev", remotePath, progName, downloadPath,
+        net.doSftp(host, remotePath, progName, downloadPath,
                 progName + "." + host);
         // TODO: make system call to diff program
         String leftFile = downloadPath + selectedItem;
@@ -262,12 +261,46 @@ public class DeployBackupController implements Controller, Initializable {
 
     @FXML
     public void compareStaging() {
+        Server s = new Server(net.getPlatforms(), "dmc");
+        String host = getHostName("dmc", "staging");
+        String progName = txtItemName.getText();
+        
+        try {
+            saveBackup(downloadPath + progName);
+        } catch (IOException ex) {
+            Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        String libName = getLibName(progName);
+        String remotePath = s.getPath(getPathType(libName)) + "/" + libName;
 
+        net.doSftp(host, remotePath, progName, downloadPath,
+                progName + "." + host);
+        // TODO: make system call to diff program
+        String leftFile = downloadPath + selectedItem;
+        String rightFile = downloadPath + progName + "." + host;
+        doCompare(leftFile, rightFile);
     }
 
     @FXML
     public void compareLive() {
+        Server s = new Server(net.getPlatforms(), "dmc");
+        String host = getHostName("dmc", "live");
+        String progName = txtItemName.getText();
+        
+        try {
+            saveBackup(downloadPath + progName);
+        } catch (IOException ex) {
+            Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        String libName = getLibName(progName);
+        String remotePath = s.getPath(getPathType(libName)) + "/" + libName;
 
+        net.doSftp(host, remotePath, progName, downloadPath,
+                progName + "." + host);
+        // TODO: make system call to diff program
+        String leftFile = downloadPath + selectedItem;
+        String rightFile = downloadPath + progName + "." + host;
+        doCompare(leftFile, rightFile);
     }
 
     @FXML
@@ -276,7 +309,6 @@ public class DeployBackupController implements Controller, Initializable {
     }
 
     private void doCompare(String left, String right) {
-
         String diff = config.getPreferences().get("diffProgram");
         String cmd = diff + " " + left + " " + right;
         Runnable task = () -> {
@@ -309,6 +341,24 @@ public class DeployBackupController implements Controller, Initializable {
             itemList.add(doc.getString("name"));
         }
         listItems.itemsProperty().set(itemList);
+    }
+
+    private String getHostName(String platform, String server) {
+        Server s = new Server(net.getPlatforms(), platform);
+        return s.getHost(server);
+    }
+    
+    private String getLibName(String progName) {
+        Network net = new Network();
+        Server s = new Server(net.getPlatforms(), "dmc");
+        String path = s.getPath("main");
+        String host = s.getHost("dev");
+        ByteArrayOutputStream output = net.sshExec(host, path,
+                "getDir " + progName);
+        String[] result = (output.toString()).split("\n");
+
+        String libName = result[result.length - 1];
+        return libName;
     }
 
     @FXML
