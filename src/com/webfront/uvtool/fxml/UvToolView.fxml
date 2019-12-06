@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 
-<AnchorPane id="AnchorPane" prefHeight="176.0" prefWidth="491.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.webfront.uvtool.controller.UvToolController">
+<AnchorPane id="AnchorPane" prefHeight="176.0" prefWidth="501.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.webfront.uvtool.controller.UvToolController">
     <children>
       <MenuBar layoutX="14.0" layoutY="14.0" prefHeight="29.0" prefWidth="463.0">
         <menus>

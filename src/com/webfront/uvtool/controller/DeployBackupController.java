@@ -54,6 +54,8 @@ import javafx.stage.Stage;
 public class DeployBackupController implements Controller, Initializable {
 
     ResourceBundle res;
+    private final Config config = Config.getInstance();
+    private final String downloadPath = config.getPreferences().get("downloads");
 
     private static enum ItemType {
         CODE, DICT, DATA;
@@ -110,11 +112,11 @@ public class DeployBackupController implements Controller, Initializable {
     @FXML
     ScrollPane scroller;
 
-    private ObservableList<String> itemList;
-    private SimpleStringProperty findTarget;
-    private SimpleStringProperty itemName;
+    private final ObservableList<String> itemList;
+    private final SimpleStringProperty findTarget;
+    private final SimpleStringProperty itemName;
     private ItemType itemType;
-    private HashMap<String, String> resultsMap;
+    private final HashMap<String, String> resultsMap;
     private String selectedItem;
 
     public DeployBackupController() {
@@ -199,12 +201,16 @@ public class DeployBackupController implements Controller, Initializable {
         tgItemType.selectedToggleProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                if (((RadioButton) newValue).getId().equals("rbItemTypeDict")) {
-                    itemType = ItemType.DICT;
-                } else if (((RadioButton) newValue).getId().equals("rbItemTypeData")) {
-                    itemType = ItemType.DATA;
-                } else {
-                    itemType = ItemType.CODE;
+                switch (((RadioButton) newValue).getId()) {
+                    case "rbItemTypeDict":
+                        itemType = ItemType.DICT;
+                        break;
+                    case "rbItemTypeData":
+                        itemType = ItemType.DATA;
+                        break;
+                    default:
+                        itemType = ItemType.CODE;
+                        break;
                 }
             }
         });
@@ -228,18 +234,13 @@ public class DeployBackupController implements Controller, Initializable {
 
     @FXML
     public void compareDev() {
-        String downloadPath = "/home/rlittle/sob/download/";
-        String backupFile = txtPreview.getText();
-        String progName = txtItemName.getText();
 
+        String progName = txtItemName.getText();
         try {
-            FileWriter file = new FileWriter(downloadPath + selectedItem);
-            file.write(backupFile);
-            file.close();
+            saveBackup(downloadPath + progName);
         } catch (IOException ex) {
             Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
         }
-
         Network net = new Network();
         Server s = new Server(net.getPlatforms(), "dmc");
         String path = s.getPath("main");
@@ -275,7 +276,7 @@ public class DeployBackupController implements Controller, Initializable {
     }
 
     private void doCompare(String left, String right) {
-        Config config = Config.getInstance();
+
         String diff = config.getPreferences().get("diffProgram");
         String cmd = diff + " " + left + " " + right;
         Runnable task = () -> {
@@ -328,6 +329,13 @@ public class DeployBackupController implements Controller, Initializable {
     @FXML
     public void newSearch() {
 
+    }
+
+    private void saveBackup(String progName) throws IOException {
+        String backupFile = txtPreview.getText();
+        FileWriter file = new FileWriter(progName);
+        file.write(backupFile);
+        file.close();
     }
 
     private void setPreview(String item) {

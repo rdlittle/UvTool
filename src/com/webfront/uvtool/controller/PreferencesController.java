@@ -33,6 +33,12 @@ public class PreferencesController implements Controller, Initializable, Progres
     private Stage stage;
 
     @FXML
+    private Button btnDownloads;
+    
+    @FXML
+    private TextField txtDownloads;
+    
+    @FXML
     private TextField txtTempLocation;
 
     @FXML
@@ -57,6 +63,7 @@ public class PreferencesController implements Controller, Initializable, Progres
     private Button btnCancel;
 
     public PreferencesController() {
+        btnDownloads = new Button();
         btnTempLocation = new Button();
         btnDiffProgram = new Button();
         btnOk = new Button();
@@ -65,10 +72,13 @@ public class PreferencesController implements Controller, Initializable, Progres
         txtTempLocation = new TextField();
         txtDiffProgram = new TextField();
         txtEditor = new TextField();
+        txtDownloads = new TextField();
     }
 
     /**
      * Initializes the controller class.
+     * @param url
+     * @param rb
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -76,6 +86,7 @@ public class PreferencesController implements Controller, Initializable, Progres
         txtTempLocation.setText(config.getPreferences().get("tempDir"));
         txtDiffProgram.setText(config.getPreferences().get("diffProgram"));
         txtEditor.setText(config.getPreferences().get("editor"));
+        txtDownloads.setText(config.getPreferences().get("downloads"));
     }
 
     @FXML
@@ -87,6 +98,7 @@ public class PreferencesController implements Controller, Initializable, Progres
             config.updatePreferences("tmpDir", txtTempLocation.getText());
             config.updatePreferences("diffProgram", txtDiffProgram.getText());
             config.updatePreferences("editor", txtEditor.getText());
+            config.updatePreferences("downloads", txtDownloads.getText());
             stage.close();
         } catch (SQLException ex) {
             Logger.getLogger(PreferencesController.class.getName()).log(Level.SEVERE, null, ex);
@@ -109,6 +121,14 @@ public class PreferencesController implements Controller, Initializable, Progres
             return;
         }
         txtDiffProgram.setText(result);
+    }
+    
+    @FXML void btnDownloadsOnClick() {
+        String result = browse(false, "Select location for downloads");
+        if (result == null) {
+            return;
+        }
+        txtDownloads.setText(result);
     }
     
     @FXML
