@@ -124,7 +124,7 @@ public class Network {
             java.util.Properties config = new java.util.Properties();
             config.put("StrictHostKeyChecking", "no");
             session.setConfig(config);
-//            session.setPassword("R31ea$E_@)!(");
+            session.setPassword("R31ea$E_@)!(");
             try {
                 session.connect(1000);
             } catch (JSchException e) {
@@ -132,7 +132,6 @@ public class Network {
             }
             Channel channel = session.openChannel("exec");
             ((ChannelExec) channel).setCommand(cmd);
-//            ((ChannelExec) channel).setCommand(cmd);
             channel.setInputStream(null);
             ((ChannelExec) channel).setErrStream(System.err);
             InputStream in = channel.getInputStream();

@@ -13,7 +13,11 @@ import com.webfront.uvtool.model.Server;
 import com.webfront.uvtool.app.UvTool;
 import com.webfront.uvtool.util.CBClient;
 import com.webfront.uvtool.util.Network;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
@@ -36,6 +40,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
@@ -46,6 +51,7 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.w3c.dom.events.EventException;
 
 /**
  *
@@ -242,7 +248,7 @@ public class DeployBackupController implements Controller, Initializable {
         Server s = new Server(net.getPlatforms(), "dmc");
         String host = getHostName("dmc", "dev");
         String progName = txtItemName.getText();
-        
+
         try {
             saveBackup(downloadPath + progName);
         } catch (IOException ex) {
@@ -264,7 +270,7 @@ public class DeployBackupController implements Controller, Initializable {
         Server s = new Server(net.getPlatforms(), "dmc");
         String host = getHostName("dmc", "staging");
         String progName = txtItemName.getText();
-        
+
         try {
             saveBackup(downloadPath + progName);
         } catch (IOException ex) {
@@ -286,7 +292,7 @@ public class DeployBackupController implements Controller, Initializable {
         Server s = new Server(net.getPlatforms(), "dmc");
         String host = getHostName("dmc", "live");
         String progName = txtItemName.getText();
-        
+
         try {
             saveBackup(downloadPath + progName);
         } catch (IOException ex) {
@@ -297,7 +303,6 @@ public class DeployBackupController implements Controller, Initializable {
 
         net.doSftp(host, remotePath, progName, downloadPath,
                 progName + "." + host);
-        // TODO: make system call to diff program
         String leftFile = downloadPath + selectedItem;
         String rightFile = downloadPath + progName + "." + host;
         doCompare(leftFile, rightFile);
@@ -305,7 +310,27 @@ public class DeployBackupController implements Controller, Initializable {
 
     @FXML
     public void compareApproved() {
+        Server s = new Server(net.getPlatforms(), "dmc");
+        String host = getHostName("dmc", "live");
+        String progName = txtItemName.getText();
 
+        try {
+            saveBackup(downloadPath + selectedItem);
+        } catch (IOException ex) {
+            Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        String libName = getLibName(progName);
+        String pt = getPathType(progName);
+        String prefix = pt.equals("rbo") ? "RBO" : "DMC";
+        String approvedId = prefix + "~" + libName + "~" + progName;
+        try {
+            getApproved(approvedId);
+            String leftFile = downloadPath + selectedItem;
+            String rightFile = downloadPath + progName + ".approved";
+            doCompare(leftFile, rightFile);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private void doCompare(String left, String right) {
@@ -347,9 +372,8 @@ public class DeployBackupController implements Controller, Initializable {
         Server s = new Server(net.getPlatforms(), platform);
         return s.getHost(server);
     }
-    
+
     private String getLibName(String progName) {
-        Network net = new Network();
         Server s = new Server(net.getPlatforms(), "dmc");
         String path = s.getPath("main");
         String host = s.getHost("dev");
@@ -359,6 +383,44 @@ public class DeployBackupController implements Controller, Initializable {
 
         String libName = result[result.length - 1];
         return libName;
+    }
+
+    private void getApproved(String approvedId) throws
+            FileNotFoundException, EventException {
+        Server s = new Server(net.getPlatforms(), "dmc");
+        String path = s.getPath("main");
+        String host = s.getHost("approved");
+        ByteArrayOutputStream output = net.sshExec(host, path,
+                "getApproved CODE " + approvedId);
+        if (output.size() > 0) {
+            throw new EventException((short) -1, "sshExec error");
+        }
+        String remotePath = s.getPath("deploy") + "/APPROVED.PROGRAMS";
+        String item = (approvedId.split("~")[2]) + ".approved";
+        net.doSftp(host, remotePath, approvedId, downloadPath, item);
+        BufferedReader f = new BufferedReader(new FileReader(downloadPath + item));
+        StringBuilder fileOutput = new StringBuilder();
+        try {
+            while (true) {
+                String line = f.readLine();
+                if (line == null) {
+                    break;
+                }
+                fileOutput.append(line);
+            }
+            f.close();
+            if (fileOutput.indexOf("no APPROVED.PROGRAMS code found!") > 0) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.showAndWait();
+                File aFile = new File(downloadPath + item);
+                if(aFile.exists()) {
+                    aFile.delete();
+                }
+                throw new FileNotFoundException("No approved version found");
+            }
+        } catch (IOException ex) {
+
+        }
     }
 
     @FXML
