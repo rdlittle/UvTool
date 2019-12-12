@@ -21,16 +21,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -51,6 +47,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.Pane;
@@ -139,7 +136,10 @@ public class DeployBackupController implements Controller, Initializable {
     VBox rightVbox;
 
     @FXML
-    Tab editPane;
+    Tab previewTab;
+    
+    @FXML
+    TabPane tabPane;
 
     private CodeArea codeArea;
 
@@ -161,8 +161,8 @@ public class DeployBackupController implements Controller, Initializable {
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
         area = new InlineCssTextArea();
         rightVbox = new VBox();
-        editPane = new Tab();
-//        editPane.getChildren().add(new VirtualizedScrollPane<>(codeArea));
+        previewTab = new Tab();
+//        previewTab.getChildren().add(new VirtualizedScrollPane<>(codeArea));
 
         itemList = FXCollections.<String>observableArrayList();
         resultsMap = new HashMap<>();
@@ -231,7 +231,7 @@ public class DeployBackupController implements Controller, Initializable {
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setScene(new Scene(root));
-            editPane.setContent(new VirtualizedScrollPane<>(codeArea));
+            previewTab.setContent(new VirtualizedScrollPane<>(codeArea));
             stage.setTitle(t);
             Controller ctrl = viewLoader.getController();
             ctrl.getCancelButton().setOnAction(new EventHandler() {
@@ -542,8 +542,8 @@ public class DeployBackupController implements Controller, Initializable {
         codeArea.clear();
         itemList.clear();
         txtItemName.textProperty().set("");
-        editPane.setText("");
-        txtFind.requestFocus();
+        previewTab.setText("");
+        txtItemName.requestFocus();
     }
 
     private void saveBackup(String progName) throws IOException {
@@ -561,8 +561,8 @@ public class DeployBackupController implements Controller, Initializable {
         }
         codeArea.clear();
         codeArea.replaceText(0, 0, sb);
-        editPane.setText(item);
-        editPane.setContent(new VirtualizedScrollPane<>(codeArea));
+        previewTab.setText(item);
+        previewTab.setContent(new VirtualizedScrollPane<>(codeArea));
     }
 
     private String getPathType(String library) {

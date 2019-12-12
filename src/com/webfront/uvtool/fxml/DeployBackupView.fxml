@@ -23,7 +23,7 @@
                 <VBox prefHeight="698.0" prefWidth="335.0" spacing="10.0">
                     <children>
                         <Label text="Item name" />
-                        <TextField fx:id="txtItemName" text="getAopIbvVendorInfo.uvs" />
+                        <TextField fx:id="txtItemName" />
                         <TitledPane animated="false" collapsible="false" prefHeight="76.0" prefWidth="314.0" text="Item type">
                             <content>
                                 <HBox alignment="CENTER" prefHeight="51.0" prefWidth="312.0" spacing="60.0">
@@ -66,9 +66,9 @@
                 <VBox fx:id="rightVbox" prefHeight="698.0" prefWidth="709.0" spacing="10.0">
                     <children>
                         <Label text="Preview" />
-                  <TabPane prefHeight="542.0" prefWidth="688.0" tabClosingPolicy="UNAVAILABLE">
+                  <TabPane fx:id="tabPane" prefHeight="542.0" prefWidth="688.0" tabClosingPolicy="UNAVAILABLE">
                     <tabs>
-                      <Tab fx:id="editPane" closable="false" />
+                      <Tab fx:id="previewTab" closable="false" />
                     </tabs>
                   </TabPane>
                         <TitledPane collapsible="false" prefHeight="90.0" prefWidth="688.0" text="Find">
