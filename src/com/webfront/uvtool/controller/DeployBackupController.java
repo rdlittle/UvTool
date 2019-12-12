@@ -52,15 +52,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.web.HTMLEditor;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import org.w3c.dom.events.EventException;
 
 import org.fxmisc.flowless.VirtualizedScrollPane;
-import org.fxmisc.richtext.CaretNode;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.InlineCssTextArea;
 import org.fxmisc.richtext.LineNumberFactory;
@@ -78,7 +74,6 @@ public class DeployBackupController implements Controller, Initializable {
     private final Network net = new Network();
 
     public static final int TEXT_WIDTH = 214;
-    private HTMLEditor result;
 
     private static enum ItemType {
         CODE, DICT, DATA;
@@ -162,7 +157,6 @@ public class DeployBackupController implements Controller, Initializable {
         area = new InlineCssTextArea();
         rightVbox = new VBox();
         previewTab = new Tab();
-//        previewTab.getChildren().add(new VirtualizedScrollPane<>(codeArea));
 
         itemList = FXCollections.<String>observableArrayList();
         resultsMap = new HashMap<>();
@@ -192,25 +186,6 @@ public class DeployBackupController implements Controller, Initializable {
         findTarget = new SimpleStringProperty();
 
         selectedItem = new String();
-
-        result = new HTMLEditor();
-        result.setStyle("-fx-font: 12 FreeMono;");
-    }
-
-    private void addExtraCaret() {
-        CaretNode extraCaret = new CaretNode("another caret", area);
-        if (!area.addCaret(extraCaret)) {
-            throw new IllegalStateException("caret was not added to area");
-        }
-        extraCaret.moveTo(100, 8);
-
-        // since the CSS properties are re-set when it applies the CSS from files
-        // remove the style class so that properties set below are not overridden by CSS
-        extraCaret.getStyleClass().remove("caret");
-
-        extraCaret.setStrokeWidth(10.0);
-        extraCaret.setStroke(Color.BROWN);
-        extraCaret.setBlinkRate(Duration.millis(200));
     }
 
     @Override
@@ -256,7 +231,6 @@ public class DeployBackupController implements Controller, Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         res = resources;
-//        txtPreview.setPrefColumnCount(80);
         tgItemType.selectedToggleProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
@@ -282,7 +256,6 @@ public class DeployBackupController implements Controller, Initializable {
             }
         });
 
-//        txtFind.textProperty().bind(findTarget);
         txtItemName.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -307,7 +280,6 @@ public class DeployBackupController implements Controller, Initializable {
 
         net.doSftp(host, remotePath, progName, downloadPath,
                 progName + "." + host);
-        // TODO: make system call to diff program
         String leftFile = downloadPath + selectedItem;
         String rightFile = downloadPath + progName + "." + host;
         doCompare(leftFile, rightFile);
@@ -472,12 +444,6 @@ public class DeployBackupController implements Controller, Initializable {
     }
 
     @FXML
-    public void find() {
-//        matchRegExp();
-        findNext();
-    }
-
-    @FXML
     public void findNext() {
         String s = codeArea.getText();
         String t = txtFind.getText();
@@ -486,7 +452,7 @@ public class DeployBackupController implements Controller, Initializable {
             pos = s.indexOf(t);
         }
         if (pos < 0) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.contentTextProperty().set(txtFind.getText() + " not found");
             alert.showAndWait();
         }
@@ -515,7 +481,7 @@ public class DeployBackupController implements Controller, Initializable {
         }
         int previousIndex = text.lastIndexOf(searchText, codeArea.getSelection().getStart() - 1);
         if (previousIndex < 0) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.contentTextProperty().set("No previous match found");
             alert.showAndWait();
             return;
@@ -554,7 +520,6 @@ public class DeployBackupController implements Controller, Initializable {
     }
 
     private void setPreview(String item) {
-        System.out.println(item);
         String sb = resultsMap.get(item);
         if (sb == null) {
             return;
