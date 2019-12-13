@@ -29,6 +29,7 @@ import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -163,17 +164,19 @@ public class UvToolController implements Initializable {
     }
 
     private void launch(String view, String title) {
-        FXMLLoader viewLoader = new FXMLLoader();
+        final FXMLLoader viewLoader = new FXMLLoader();
         String v = res.getString(view);
         String t = res.getString(title);
         URL url = UvTool.class.getResource(v);
         viewLoader.setLocation(url);
         viewLoader.setResources(res);
         try {
-            Pane root = viewLoader.<Pane>load();
-            Stage stage = new Stage();
+            final Pane root = viewLoader.<Pane>load();
+            final Stage stage = new Stage();
+            final Scene scene = new Scene(root);
             stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setScene(new Scene(root));
+            stage.setScene(scene);
+            
             stage.setTitle(t);
             Controller ctrl = viewLoader.getController();
             ctrl.getCancelButton().setOnAction(new EventHandler() {

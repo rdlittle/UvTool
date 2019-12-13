@@ -27,6 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -39,10 +40,12 @@ import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.IndexRange;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ScrollPane;
@@ -74,10 +77,14 @@ public class DeployBackupController implements Controller, Initializable {
     private final Network net = new Network();
 
     public static final int TEXT_WIDTH = 214;
+    private boolean isWait;
 
     private static enum ItemType {
         CODE, DICT, DATA;
     }
+
+    @FXML
+    Label lblStatus;
 
     @FXML
     Button btnGetBackups;
@@ -132,7 +139,7 @@ public class DeployBackupController implements Controller, Initializable {
 
     @FXML
     Tab previewTab;
-    
+
     @FXML
     TabPane tabPane;
 
@@ -145,12 +152,16 @@ public class DeployBackupController implements Controller, Initializable {
     private final HashMap<String, String> resultsMap;
     private String selectedItem;
     private InlineCssTextArea area;
+    private Stage stage;
+    private final boolean ON = true;
+    private final boolean OFF = false;
 
     public DeployBackupController() {
         String path = config.getPreferences().get("downloads");
         if (!path.endsWith("/")) {
             path += "/";
         }
+        isWait = false;
         downloadPath = path;
         codeArea = new CodeArea();
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
@@ -203,11 +214,11 @@ public class DeployBackupController implements Controller, Initializable {
         viewLoader.setResources(res);
         try {
             Pane root = viewLoader.<Pane>load();
-            Stage stage = new Stage();
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setScene(new Scene(root));
+            setStage(new Stage());
+            getStage().initModality(Modality.APPLICATION_MODAL);
+            getStage().setScene(new Scene(root));
             previewTab.setContent(new VirtualizedScrollPane<>(codeArea));
-            stage.setTitle(t);
+            getStage().setTitle(t);
             Controller ctrl = viewLoader.getController();
             ctrl.getCancelButton().setOnAction(new EventHandler() {
                 @Override
@@ -217,7 +228,7 @@ public class DeployBackupController implements Controller, Initializable {
                 }
             });
 
-            stage.showAndWait();
+            getStage().showAndWait();
         } catch (IOException ex) {
             Logger.getLogger(UvToolController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -225,7 +236,11 @@ public class DeployBackupController implements Controller, Initializable {
 
     @Override
     public void setStage(Stage s) {
+        this.stage = s;
+    }
 
+    private Stage getStage() {
+        return this.stage;
     }
 
     @Override
@@ -370,22 +385,33 @@ public class DeployBackupController implements Controller, Initializable {
 
     @FXML
     public void getBackups() {
-        Logger.getLogger(DeployBackupController.class.getName()).log(Level.INFO,
-                txtItemName.textProperty().getValue());
-        String query = "SELECT name, program FROM deployBackup where name like ";
-        query += "\"" + txtItemName.textProperty().get() + "%\" ORDER BY name";
-        Logger.getLogger(DeployBackupController.class.getName()).log(Level.INFO, query);
-        CBClient cb = new CBClient();
-        Bucket bucket = cb.connect("deployBackup");
-        N1qlQueryResult result = cb.doQuery(bucket, query);
-        itemList.clear();
-        resultsMap.clear();
-        for (N1qlQueryRow row : result) {
-            com.couchbase.client.java.document.json.JsonObject doc = row.value();
-            resultsMap.put(doc.getString("name"), doc.getString("program"));
-            itemList.add(doc.getString("name"));
-        }
-        listItems.itemsProperty().set(itemList);
+        toggleCursor(ON);
+        Thread t = new Thread(() -> {
+            String query = "SELECT name, program FROM deployBackup where name like ";
+            query += "\"" + txtItemName.textProperty().get() + "%\" ORDER BY name";
+            CBClient cb = new CBClient();
+            Bucket bucket = cb.connect("deployBackup");
+            N1qlQueryResult result = cb.doQuery(bucket, query);
+            itemList.clear();
+            resultsMap.clear();
+
+            if (result.allRows().isEmpty()) {
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.contentTextProperty().set(txtItemName.getText() + " not found");
+                    alert.showAndWait();
+                });
+            } else {
+                for (N1qlQueryRow row : result) {
+                    com.couchbase.client.java.document.json.JsonObject doc = row.value();
+                    resultsMap.put(doc.getString("name"), doc.getString("program"));
+                    itemList.add(doc.getString("name"));
+                }
+                listItems.itemsProperty().set(itemList);
+            }
+            toggleCursor(OFF);
+        });
+        t.start();
     }
 
     private String getHostName(String platform, String server) {
@@ -544,5 +570,13 @@ public class DeployBackupController implements Controller, Initializable {
         }
         return null;
     }
-    
+
+    private void toggleCursor(boolean turnItOn) {
+        if (turnItOn) {
+            Platform.runLater(() -> getStage().getScene().getRoot().setCursor(Cursor.WAIT));
+        } else {
+            Platform.runLater(() -> getStage().getScene().getRoot().setCursor(Cursor.DEFAULT));
+        }
+    }
+
 }

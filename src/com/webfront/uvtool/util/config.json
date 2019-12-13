@@ -1,4 +1,5 @@
 {
+    "cb_host": "http://releasetest1",
     "platforms": {
         "dmc": {
             "codebase": "DMC",

@@ -14,7 +14,6 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +29,7 @@ import java.util.logging.Logger;
 public class Network {
 
     private final String cbHost = "http://corvette";
+//    private final String cbHost = "http://releasetest1";
     private final String cbUser = "release";
     private final String cbPassword = "R31ea$E_@)!(";
 
