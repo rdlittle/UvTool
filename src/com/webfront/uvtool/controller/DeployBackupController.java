@@ -62,7 +62,6 @@ import org.w3c.dom.events.EventException;
 
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
-import org.fxmisc.richtext.InlineCssTextArea;
 import org.fxmisc.richtext.LineNumberFactory;
 import org.fxmisc.richtext.NavigationActions.SelectionPolicy;
 
@@ -79,7 +78,6 @@ public class DeployBackupController implements Controller, Initializable {
     private final Network net = new Network();
 
     public static final int TEXT_WIDTH = 214;
-    private boolean isWait;
 
     private static enum ItemType {
         CODE, DICT, DATA;
@@ -145,7 +143,7 @@ public class DeployBackupController implements Controller, Initializable {
     @FXML
     TabPane tabPane;
 
-    private CodeArea codeArea;
+    private final CodeArea codeArea;
 
     private final ObservableList<String> itemList;
     private final SimpleStringProperty findTarget;
@@ -153,7 +151,6 @@ public class DeployBackupController implements Controller, Initializable {
     private ItemType itemType;
     private final HashMap<String, String> resultsMap;
     private String selectedItem;
-    private InlineCssTextArea area;
     private Stage stage;
     private final boolean ON = true;
     private final boolean OFF = false;
@@ -163,11 +160,9 @@ public class DeployBackupController implements Controller, Initializable {
         if (!path.endsWith("/")) {
             path += "/";
         }
-        isWait = false;
         downloadPath = path;
         codeArea = new CodeArea();
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
-        area = new InlineCssTextArea();
         rightVbox = new VBox();
         previewTab = new Tab();
 
@@ -281,68 +276,29 @@ public class DeployBackupController implements Controller, Initializable {
         });
     }
 
+    private void compare(String host) {
+        String hostName = getHostName("dmc", host);
+        String progName = txtItemName.getText();
+        doDownload(hostName, progName);
+        
+        String leftFile = downloadPath + selectedItem;
+        String rightFile = downloadPath + progName + "." + hostName;
+        doCompare(leftFile, rightFile);
+    }
+    
     @FXML
     public void compareDev() {
-        Server s = new Server(platforms.getPlatforms(), "dmc");
-        String host = getHostName("dmc", "dev");
-        String progName = txtItemName.getText();
-
-        try {
-            saveBackup(downloadPath + progName);
-        } catch (IOException ex) {
-            Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        String libName = getLibName(progName);
-        String remotePath = s.getPath(getPathType(libName)) + "/" + libName;
-
-        net.doSftp(host, remotePath, progName, downloadPath,
-                progName + "." + host);
-        String leftFile = downloadPath + selectedItem;
-        String rightFile = downloadPath + progName + "." + host;
-        doCompare(leftFile, rightFile);
+        compare("dev");
     }
 
     @FXML
     public void compareStaging() {
-        Server s = new Server(platforms.getPlatforms(), "dmc");
-        String host = getHostName("dmc", "staging");
-        String progName = txtItemName.getText();
-
-        try {
-            saveBackup(downloadPath + progName);
-        } catch (IOException ex) {
-            Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        String libName = getLibName(progName);
-        String remotePath = s.getPath(getPathType(libName)) + "/" + libName;
-
-        net.doSftp(host, remotePath, progName, downloadPath,
-                progName + "." + host);
-        // TODO: make system call to diff program
-        String leftFile = downloadPath + selectedItem;
-        String rightFile = downloadPath + progName + "." + host;
-        doCompare(leftFile, rightFile);
+        compare("staging");
     }
 
     @FXML
     public void compareLive() {
-        Server s = new Server(platforms.getPlatforms(), "dmc");
-        String host = getHostName("dmc", "live");
-        String progName = txtItemName.getText();
-
-        try {
-            saveBackup(downloadPath + progName);
-        } catch (IOException ex) {
-            Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        String libName = getLibName(progName);
-        String remotePath = s.getPath(getPathType(libName)) + "/" + libName;
-
-        net.doSftp(host, remotePath, progName, downloadPath,
-                progName + "." + host);
-        String leftFile = downloadPath + selectedItem;
-        String rightFile = downloadPath + progName + "." + host;
-        doCompare(leftFile, rightFile);
+        compare("live");
     }
 
     @FXML
@@ -383,6 +339,25 @@ public class DeployBackupController implements Controller, Initializable {
         Thread backgroundThread = new Thread(task);
         backgroundThread.setDaemon(true);
         backgroundThread.start();
+    }
+
+    private void doDownload(String host, String progName) {
+        Server s = new Server(platforms.getPlatforms(), "dmc");
+        Thread t = new Thread(() -> {
+            try {
+                saveBackup(downloadPath + selectedItem);
+            } catch (IOException ex) {
+                Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            String libName = getLibName(progName);
+            String remotePath = s.getPath(getPathType(libName)) + "/" + libName;
+            net.doSftp(host, remotePath, progName, downloadPath,
+                    progName + "." + host);
+
+        });
+        t.start();
+        while (t.isAlive()) {
+        };
     }
 
     @FXML
@@ -427,6 +402,9 @@ public class DeployBackupController implements Controller, Initializable {
         String host = s.getHost("dev");
         ByteArrayOutputStream output = net.sshExec(host, path,
                 "getDir " + progName);
+        if (output.toString() == "") {
+            return "";
+        }
         String[] result = (output.toString()).split("\n");
 
         String libName = result[result.length - 1];
@@ -542,9 +520,12 @@ public class DeployBackupController implements Controller, Initializable {
 
     private void saveBackup(String progName) throws IOException {
         String backupFile = resultsMap.get(selectedItem);
-        FileWriter file = new FileWriter(progName);
-        file.write(backupFile);
-        file.close();
+        backupFile = backupFile.replaceAll("\\|", "\n");
+        try (FileWriter file = new FileWriter(progName)) {
+            file.write(backupFile);
+            file.flush();
+            file.close();
+        }
     }
 
     private void setPreview(String item) {
