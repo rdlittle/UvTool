@@ -28,13 +28,12 @@ import java.util.logging.Logger;
  */
 public class Network {
 
-    private final String cbHost = "http://corvette";
-//    private final String cbHost = "http://releasetest1";
+    private final ConfigProperties platforms = ConfigProperties.getInstance();
+    private final String cbHost = platforms.getCbHost();
     private final String cbUser = "release";
     private final String cbPassword = "R31ea$E_@)!(";
 
-    private final String CONFIG_PATH = "/com/webfront/uvtool/util/config.json";
-    private JsonObject platforms;
+    
     private final HashMap<String, String> sshCommands;
 
     public Network() {
@@ -48,27 +47,6 @@ public class Network {
         sshCommands.put("remove", "rm");
         sshCommands.put("cat", "cat");
         sshCommands.put("compile", "barfyCompile");
-
-        platforms = new JsonObject();
-        InputStream istream = this.getClass().getResourceAsStream(CONFIG_PATH);
-        InputStreamReader reader = new InputStreamReader(istream);
-        StringBuilder builder = new StringBuilder();
-        try {
-            int r = istream.available();
-//            String msg = "Config size: " + Integer.toString(r);
-//            Logger.getLogger(DeployBackupController.class.getName()).log(Level.INFO, msg);
-            for (;;) {
-                int c = reader.read();
-                if (c == -1) {
-                    break;
-                }
-                builder.append((char) c);
-            }
-            platforms = Jsoner.deserialize(builder.toString(), new JsonObject());
-//            System.out.println(platforms.toString());
-        } catch (IOException ex) {
-            Logger.getLogger(Network.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 
     public void doSftp(String remoteHost, String remotePath, String remoteItem,
@@ -107,10 +85,6 @@ public class Network {
         } catch (IOException ex) {
             Logger.getLogger(Network.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    public JsonObject getPlatforms() {
-        return platforms;
     }
 
     public ByteArrayOutputStream sshExec(String host, String path, String cmd) {

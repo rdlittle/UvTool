@@ -12,6 +12,7 @@ import com.webfront.u2.util.Config;
 import com.webfront.uvtool.model.Server;
 import com.webfront.uvtool.app.UvTool;
 import com.webfront.uvtool.util.CBClient;
+import com.webfront.uvtool.util.ConfigProperties;
 import com.webfront.uvtool.util.Network;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -73,6 +74,7 @@ public class DeployBackupController implements Controller, Initializable {
 
     ResourceBundle res;
     private final Config config = Config.getInstance();
+    private final ConfigProperties platforms = ConfigProperties.getInstance();
     private final String downloadPath;
     private final Network net = new Network();
 
@@ -281,7 +283,7 @@ public class DeployBackupController implements Controller, Initializable {
 
     @FXML
     public void compareDev() {
-        Server s = new Server(net.getPlatforms(), "dmc");
+        Server s = new Server(platforms.getPlatforms(), "dmc");
         String host = getHostName("dmc", "dev");
         String progName = txtItemName.getText();
 
@@ -302,7 +304,7 @@ public class DeployBackupController implements Controller, Initializable {
 
     @FXML
     public void compareStaging() {
-        Server s = new Server(net.getPlatforms(), "dmc");
+        Server s = new Server(platforms.getPlatforms(), "dmc");
         String host = getHostName("dmc", "staging");
         String progName = txtItemName.getText();
 
@@ -324,7 +326,7 @@ public class DeployBackupController implements Controller, Initializable {
 
     @FXML
     public void compareLive() {
-        Server s = new Server(net.getPlatforms(), "dmc");
+        Server s = new Server(platforms.getPlatforms(), "dmc");
         String host = getHostName("dmc", "live");
         String progName = txtItemName.getText();
 
@@ -345,7 +347,7 @@ public class DeployBackupController implements Controller, Initializable {
 
     @FXML
     public void compareApproved() {
-        Server s = new Server(net.getPlatforms(), "dmc");
+        Server s = new Server(platforms.getPlatforms(), "dmc");
         String host = getHostName("dmc", "live");
         String progName = txtItemName.getText();
 
@@ -415,12 +417,12 @@ public class DeployBackupController implements Controller, Initializable {
     }
 
     private String getHostName(String platform, String server) {
-        Server s = new Server(net.getPlatforms(), platform);
+        Server s = new Server(platforms.getPlatforms(), platform);
         return s.getHost(server);
     }
 
     private String getLibName(String progName) {
-        Server s = new Server(net.getPlatforms(), "dmc");
+        Server s = new Server(platforms.getPlatforms(), "dmc");
         String path = s.getPath("main");
         String host = s.getHost("dev");
         ByteArrayOutputStream output = net.sshExec(host, path,
@@ -433,7 +435,7 @@ public class DeployBackupController implements Controller, Initializable {
 
     private void getApproved(String approvedId) throws
             FileNotFoundException, EventException {
-        Server s = new Server(net.getPlatforms(), "dmc");
+        Server s = new Server(platforms.getPlatforms(), "dmc");
         String path = s.getPath("main");
         String host = s.getHost("approved");
         ByteArrayOutputStream output = net.sshExec(host, path,
@@ -550,6 +552,7 @@ public class DeployBackupController implements Controller, Initializable {
         if (sb == null) {
             return;
         }
+        sb = sb.replaceAll("\\|", "\n");
         codeArea.clear();
         codeArea.replaceText(0, 0, sb);
         previewTab.setText(item);
