@@ -75,6 +75,8 @@ public class UvToolController implements Initializable {
     Button btnCopy;
     @FXML
     Button btnBackups;
+    @FXML
+    Button btnPeerReview;
 
     @FXML
     MenuItem fileExit;
@@ -110,6 +112,7 @@ public class UvToolController implements Initializable {
         btnPull = new Button();
         btnCopy = new Button();
         btnBackups = new Button();
+        btnPeerReview = new Button();
         mnuFileNewAccount = new MenuItem();
         mnuFileNewServer = new MenuItem();
         mnuFileNewProfile = new MenuItem();
@@ -137,7 +140,7 @@ public class UvToolController implements Initializable {
         btnCopy.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
         btnCopy.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());
 
-        btnCompare.setOnAction(event ->launch("viewCompareSource","titleCompareSource"));
+        btnCompare.setOnAction(event -> launch("viewCompareSource", "titleCompareSource"));
         btnCompare.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
         btnCompare.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());
 
@@ -152,10 +155,14 @@ public class UvToolController implements Initializable {
         btnPull.setOnAction(event -> launch("viewPullSource", "titlePullSource"));
         btnPull.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
         btnPull.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());
-        
+
         btnBackups.setOnAction(event -> launch("viewBackups", "titleBackups"));
         btnBackups.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
         btnBackups.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());
+
+        btnPeerReview.setOnAction(event -> launch("viewPeer", "titlePeer"));
+        btnPeerReview.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
+        btnPeerReview.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());
 
     }
 
@@ -176,16 +183,18 @@ public class UvToolController implements Initializable {
             final Scene scene = new Scene(root);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setScene(scene);
-            
+
             stage.setTitle(t);
             Controller ctrl = viewLoader.getController();
-            ctrl.getCancelButton().setOnAction(new EventHandler() {
-                @Override
-                public void handle(Event event) {
-                    ctrl.getCancelButton().removeEventHandler(EventType.ROOT, this);
-                    stage.close();
-                }
-            });
+            if (ctrl.getCancelButton() != null) {
+                ctrl.getCancelButton().setOnAction(new EventHandler() {
+                    @Override
+                    public void handle(Event event) {
+                        ctrl.getCancelButton().removeEventHandler(EventType.ROOT, this);
+                        stage.close();
+                    }
+                });
+            }
             ctrl.setStage(stage);
 
             stage.showAndWait();
@@ -263,18 +272,19 @@ public class UvToolController implements Initializable {
     public void onEditApp() {
         launch("viewAppEdit", "titleAppEdit");
     }
-    
+
     @FXML
     public void onEditPreferences() {
         launch("viewPreferences", "titleEditPreferences");
     }
-    
+
     @FXML
     public void onMnuHelpAbout() {
         launch("viewHelpAbout", "titleHelpAbout");
     }
-    
-    @FXML void testDb() {
+
+    @FXML
+    void testDb() {
         CBClient cb = new CBClient();
         Bucket bucket = cb.connect("deployBackup");
         cb.testQuery(bucket);

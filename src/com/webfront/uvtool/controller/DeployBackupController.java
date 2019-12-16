@@ -8,6 +8,8 @@ package com.webfront.uvtool.controller;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.SftpException;
 import com.webfront.u2.util.Config;
 import com.webfront.uvtool.model.Server;
 import com.webfront.uvtool.app.UvTool;
@@ -351,8 +353,16 @@ public class DeployBackupController implements Controller, Initializable {
             }
             String libName = getLibName(progName);
             String remotePath = s.getPath(getPathType(libName)) + "/" + libName;
-            net.doSftp(host, remotePath, progName, downloadPath,
-                    progName + "." + host);
+            try {
+                net.doSftp(host, remotePath, progName, downloadPath,
+                        progName + "." + host);
+            } catch (JSchException ex) {
+                Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SftpException ex) {
+                Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
+            }
 
         });
         t.start();
@@ -423,7 +433,15 @@ public class DeployBackupController implements Controller, Initializable {
         }
         String remotePath = s.getPath("deploy") + "/APPROVED.PROGRAMS";
         String item = (approvedId.split("~")[2]) + ".approved";
-        net.doSftp(host, remotePath, approvedId, downloadPath, item);
+        try {
+            net.doSftp(host, remotePath, approvedId, downloadPath, item);
+        } catch (JSchException ex) {
+            Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SftpException ex) {
+            Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
+        }
         BufferedReader f = new BufferedReader(new FileReader(downloadPath + item));
         StringBuilder fileOutput = new StringBuilder();
         try {

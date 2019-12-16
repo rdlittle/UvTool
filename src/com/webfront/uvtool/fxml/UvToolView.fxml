@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
@@ -9,56 +10,65 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="AnchorPane" prefHeight="176.0" prefWidth="501.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.webfront.uvtool.controller.UvToolController">
+<AnchorPane id="AnchorPane" prefHeight="126.0" prefWidth="605.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.webfront.uvtool.controller.UvToolController">
     <children>
-      <MenuBar layoutX="14.0" layoutY="14.0" prefHeight="29.0" prefWidth="463.0">
-        <menus>
-          <Menu fx:id="mnuFile" mnemonicParsing="false" text="File">
-            <items>
-                  <Menu fx:id="mnuFileNew" mnemonicParsing="false" text="New">
-                    <items>
-                      <MenuItem fx:id="mnuFileNewServer" mnemonicParsing="false" onAction="#onFileNewServer" text="Server" />
-                        <MenuItem fx:id="mnuFileNewAccount" mnemonicParsing="false" onAction="#onFileNewAccount" text="Account" />
-                        <MenuItem fx:id="mnuFileNewProfile" mnemonicParsing="false" onAction="#onFileNewProfile" text="Profile" />
-                        <MenuItem fx:id="mnuFileNewProgram" mnemonicParsing="false" onAction="#onFileNewProgram" text="Application" />
-                    </items>
-                  </Menu>
-                  <SeparatorMenuItem mnemonicParsing="false" />
-              <MenuItem id="fileExit" fx:id="fileExit" mnemonicParsing="false" text="Exit" />
-            </items>
-          </Menu>
-          <Menu fx:id="mnuEdit" mnemonicParsing="false" text="Edit">
-            <items>
-                  <MenuItem fx:id="mnuEditServer" mnemonicParsing="false" onAction="#onEditServer" text="Server" />
-                  <MenuItem fx:id="mnuEditAccount" mnemonicParsing="false" onAction="#onEditAccount" text="Account" />
-                  <MenuItem fx:id="mnuEditProfile" mnemonicParsing="false" onAction="#onEditProfile" text="Profile" />
-                  <MenuItem fx:id="mnuEditApp" mnemonicParsing="false" onAction="#onEditApp" text="Applications" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-              <MenuItem fx:id="mnuEditPreferences" mnemonicParsing="false" onAction="#onEditPreferences" text="Preferences" />
-            </items>
-          </Menu>
-          <Menu fx:id="mnuHelp" mnemonicParsing="false" text="Help">
-            <items>
-              <MenuItem fx:id="mnuHelpAbout" mnemonicParsing="false" onAction="#onMnuHelpAbout" text="Help" />
-                  <MenuItem mnemonicParsing="false" onAction="#testDb" text="Test" />
-            </items>
-          </Menu>
-        </menus>
-      </MenuBar>
-      <HBox alignment="CENTER" layoutX="15.0" layoutY="89.0" prefHeight="29.0" prefWidth="463.0" spacing="10.0">
+      <VBox prefHeight="127.0" prefWidth="605.0" spacing="10.0">
          <children>
-            <Button fx:id="btnRun" mnemonicParsing="false" prefHeight="26.0" prefWidth="74.0" text="Run" />
-            <Button fx:id="btnCompare" mnemonicParsing="false" prefHeight="26.0" prefWidth="87.0" text="Compare" />
-            <Button fx:id="btnBackups" mnemonicParsing="false" prefHeight="26.0" prefWidth="86.0" text="Backups" />
-            <Button fx:id="btnPull" mnemonicParsing="false" prefHeight="26.0" prefWidth="86.0" text="Pull/Push" />
-            <Button fx:id="btnCopy" mnemonicParsing="false" prefHeight="26.0" prefWidth="82.0" text="Copy" />
+            <MenuBar prefHeight="29.0" prefWidth="463.0">
+              <menus>
+                <Menu fx:id="mnuFile" mnemonicParsing="false" text="File">
+                  <items>
+                        <Menu fx:id="mnuFileNew" mnemonicParsing="false" text="New">
+                          <items>
+                            <MenuItem fx:id="mnuFileNewServer" mnemonicParsing="false" onAction="#onFileNewServer" text="Server" />
+                              <MenuItem fx:id="mnuFileNewAccount" mnemonicParsing="false" onAction="#onFileNewAccount" text="Account" />
+                              <MenuItem fx:id="mnuFileNewProfile" mnemonicParsing="false" onAction="#onFileNewProfile" text="Profile" />
+                              <MenuItem fx:id="mnuFileNewProgram" mnemonicParsing="false" onAction="#onFileNewProgram" text="Application" />
+                          </items>
+                        </Menu>
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                    <MenuItem id="fileExit" fx:id="fileExit" mnemonicParsing="false" text="Exit" />
+                  </items>
+                </Menu>
+                <Menu fx:id="mnuEdit" mnemonicParsing="false" text="Edit">
+                  <items>
+                        <MenuItem fx:id="mnuEditServer" mnemonicParsing="false" onAction="#onEditServer" text="Server" />
+                        <MenuItem fx:id="mnuEditAccount" mnemonicParsing="false" onAction="#onEditAccount" text="Account" />
+                        <MenuItem fx:id="mnuEditProfile" mnemonicParsing="false" onAction="#onEditProfile" text="Profile" />
+                        <MenuItem fx:id="mnuEditApp" mnemonicParsing="false" onAction="#onEditApp" text="Applications" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                    <MenuItem fx:id="mnuEditPreferences" mnemonicParsing="false" onAction="#onEditPreferences" text="Preferences" />
+                  </items>
+                </Menu>
+                <Menu fx:id="mnuHelp" mnemonicParsing="false" text="Help">
+                  <items>
+                    <MenuItem fx:id="mnuHelpAbout" mnemonicParsing="false" onAction="#onMnuHelpAbout" text="Help" />
+                        <MenuItem mnemonicParsing="false" onAction="#testDb" text="Test" />
+                  </items>
+                </Menu>
+              </menus>
+            </MenuBar>
+            <HBox alignment="CENTER" prefHeight="29.0" prefWidth="578.0" spacing="10.0">
+               <children>
+                  <Button fx:id="btnRun" mnemonicParsing="false" prefHeight="26.0" prefWidth="74.0" text="Run" />
+                  <Button fx:id="btnCompare" mnemonicParsing="false" prefHeight="26.0" prefWidth="87.0" text="Compare" />
+                  <Button fx:id="btnPeerReview" mnemonicParsing="false" text="Peer Review" />
+                  <Button fx:id="btnBackups" mnemonicParsing="false" prefHeight="26.0" prefWidth="86.0" text="Backups" />
+                  <Button fx:id="btnPull" mnemonicParsing="false" prefHeight="26.0" prefWidth="86.0" text="Pull/Push" />
+                  <Button fx:id="btnCopy" mnemonicParsing="false" prefHeight="26.0" prefWidth="82.0" text="Copy" />
+               </children>
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+            </HBox>
+            <Pane prefHeight="26.0" prefWidth="284.0">
+               <children>
+                  <Label fx:id="statusMessage" layoutX="19.0" layoutY="4.0" prefHeight="16.0" prefWidth="284.0" />
+               </children>
+            </Pane>
          </children>
-      </HBox>
-      <Pane layoutX="12.0" layoutY="150.0" prefHeight="26.0" prefWidth="284.0">
-         <children>
-            <Label fx:id="statusMessage" layoutY="5.0" prefHeight="16.0" prefWidth="284.0" />
-         </children>
-      </Pane>
+      </VBox>
     </children>
 </AnchorPane>

@@ -5,7 +5,6 @@
  */
 package com.webfront.uvtool.util;
 
-import com.github.cliftonlabs.json_simple.*;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
@@ -17,7 +16,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,7 +31,6 @@ public class Network {
     private final String cbUser = "release";
     private final String cbPassword = "R31ea$E_@)!(";
 
-    
     private final HashMap<String, String> sshCommands;
 
     public Network() {
@@ -49,42 +46,32 @@ public class Network {
         sshCommands.put("compile", "barfyCompile");
     }
 
-    public void doSftp(String remoteHost, String remotePath, String remoteItem,
-            String localPath, String localItem) {
+    public int doSftp(String remoteHost, String remotePath, String remoteItem,
+            String localPath, String localItem) throws JSchException,
+            SftpException, IOException {
         String keyPath = "/home/rlittle/sob/nlstest.id_rsa";
         String outPath = localPath + localItem;
         JSch jsch = new JSch();
         FileOutputStream output = null;
-        java.util.Vector cmds=new java.util.Vector();
-        try {
-            output = new FileOutputStream(outPath);
-            jsch.addIdentity(keyPath);
-            Session session = jsch.getSession("release", remoteHost, 22);
-            java.util.Properties config = new java.util.Properties();
-            config.put("StrictHostKeyChecking", "no");
-            session.setConfig(config);
-            session.setPassword("R31ea$E_@)!(");
-            try {
-                session.connect(1000);
-            } catch (JSchException e) {
-                System.out.println(e.getMessage());
-            }
-            Channel channel = session.openChannel("sftp");
-            channel.connect();
-            ChannelSftp c = (ChannelSftp) channel;
-            c.cd(remotePath);
-            int mode=ChannelSftp.OVERWRITE;
-            c.get(remoteItem, output);
-            output.close();
-            session.disconnect();
-        } catch (JSchException ex) {
-            Logger.getLogger(Network.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SftpException ex) {
-            Logger.getLogger(Network.class.getName()).log(Level.SEVERE, null, ex);
-            System.out.println(ex.toString());
-        } catch (IOException ex) {
-            Logger.getLogger(Network.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        java.util.Vector cmds = new java.util.Vector();
+        output = new FileOutputStream(outPath);
+        jsch.addIdentity(keyPath);
+        Session session = jsch.getSession("release", remoteHost, 22);
+        java.util.Properties config = new java.util.Properties();
+        config.put("StrictHostKeyChecking", "no");
+        session.setConfig(config);
+        session.setPassword("R31ea$E_@)!(");
+        session.connect(1000);
+        Channel channel = session.openChannel("sftp");
+        channel.connect();
+        ChannelSftp c = (ChannelSftp) channel;
+        c.cd(remotePath);
+        int mode = ChannelSftp.OVERWRITE;
+        c.get(remoteItem, output);
+        int mtime = c.lstat(remoteItem).getMTime();
+        output.close();
+        session.disconnect();
+        return mtime;
     }
 
     public ByteArrayOutputStream sshExec(String host, String path, String cmd) {
