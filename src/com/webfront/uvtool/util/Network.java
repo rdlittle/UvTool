@@ -12,13 +12,22 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
+import com.webfront.uvtool.model.Server;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javafx.scene.control.Alert;
+import org.w3c.dom.events.EventException;
 
 /**
  *
@@ -129,6 +138,60 @@ public class Network {
             Logger.getLogger(Network.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(Network.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+//    private void getApproved(String approvedId) throws
+//            FileNotFoundException, EventException {
+//        Server s = new Server(platforms.getPlatforms(), "dmc");
+//        String path = s.getPath("main");
+//        String host = s.getHost("approved");
+//        ByteArrayOutputStream output = sshExec(host, path,
+//                "getApproved CODE " + approvedId);
+//        if (output.size() > 0) {
+//            throw new EventException((short) -1, "sshExec error");
+//        }
+//        String remotePath = s.getPath("deploy") + "/APPROVED.PROGRAMS";
+//        String item = (approvedId.split("~")[2]) + ".approved";
+//        doSftp(host, remotePath, approvedId, downloadPath, item);
+//        BufferedReader f = new BufferedReader(new FileReader(downloadPath + item));
+//        StringBuilder fileOutput = new StringBuilder();
+//        try {
+//            while (true) {
+//                String line = f.readLine();
+//                if (line == null) {
+//                    break;
+//                }
+//                fileOutput.append(line);
+//            }
+//            f.close();
+//            if (fileOutput.indexOf("no APPROVED.PROGRAMS code found!") > 0) {
+//                Alert alert = new Alert(Alert.AlertType.ERROR);
+//                alert.showAndWait();
+//                File aFile = new File(downloadPath + item);
+//                if (aFile.exists()) {
+//                    aFile.delete();
+//                }
+//                throw new FileNotFoundException("No approved version found");
+//            }
+//        } catch (IOException ex) {
+//
+//        }
+//
+//    }    
+    
+    public String getPathType(String library) {
+        Pattern pattern = Pattern.compile(".+\\.uv[f, i, p, s]");
+        Matcher matcher = pattern.matcher(library);
+        if (library.equals("DM.SR") || library.equals("DM.BP")) {
+            return "main";
+        }
+        if (matcher.matches()) {
+            return "uvcode";
+        }
+        if (library.endsWith("LIB")) {
+            return "rbo";
         }
         return null;
     }

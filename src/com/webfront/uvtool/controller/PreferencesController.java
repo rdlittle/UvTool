@@ -61,6 +61,20 @@ public class PreferencesController implements Controller, Initializable, Progres
 
     @FXML
     private Button btnCancel;
+    
+    @FXML
+    private Button btnProjectHome;
+    @FXML
+    private Button btnCodeHome;
+    @FXML
+    private Button btnDataHome;
+    
+    @FXML
+    private TextField txtProjectHome;
+    @FXML
+    private TextField txtCodeHome;
+    @FXML
+    private TextField txtDataHome;
 
     public PreferencesController() {
         btnDownloads = new Button();
@@ -69,10 +83,16 @@ public class PreferencesController implements Controller, Initializable, Progres
         btnOk = new Button();
         btnCancel = new Button();
         btnEditor = new Button();
+        btnProjectHome = new Button();
+        btnCodeHome = new Button();
+        btnDataHome = new Button();
         txtTempLocation = new TextField();
         txtDiffProgram = new TextField();
         txtEditor = new TextField();
         txtDownloads = new TextField();
+        txtProjectHome = new TextField();
+        txtCodeHome = new TextField();
+        txtDataHome = new TextField();
     }
 
     /**
@@ -87,6 +107,9 @@ public class PreferencesController implements Controller, Initializable, Progres
         txtDiffProgram.setText(config.getPreferences().get("diffProgram"));
         txtEditor.setText(config.getPreferences().get("editor"));
         txtDownloads.setText(config.getPreferences().get("downloads"));
+        txtProjectHome.setText(config.getPreferences().get("projectHome"));
+        txtCodeHome.setText(config.getPreferences().get("codeHome"));
+        txtDataHome.setText(config.getPreferences().get("dataHome"));
     }
 
     @FXML
@@ -94,17 +117,41 @@ public class PreferencesController implements Controller, Initializable, Progres
         config.getPreferences().put("tmpDir", txtTempLocation.getText());
         config.getPreferences().put("diffProgram", txtDiffProgram.getText());
         config.getPreferences().put("editor", txtEditor.getText());
+        config.getPreferences().put("projectHome", txtProjectHome.getText());
+        config.getPreferences().put("codeHome", txtCodeHome.getText());
+        config.getPreferences().put("dataHome", txtDataHome.getText());
         try {
             config.updatePreferences("tmpDir", txtTempLocation.getText());
             config.updatePreferences("diffProgram", txtDiffProgram.getText());
             config.updatePreferences("editor", txtEditor.getText());
             config.updatePreferences("downloads", txtDownloads.getText());
+            config.updatePreferences("projectHome", txtProjectHome.getText());
+            config.updatePreferences("codeHome", txtCodeHome.getText());
+            config.updatePreferences("dataHome", txtDataHome.getText());
             stage.close();
         } catch (SQLException ex) {
             Logger.getLogger(PreferencesController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
+    @FXML
+    public void btnCodeHomeOnClick() {
+        String result = browse(true, "Select location for code downloads");
+        if (result == null) {
+            return;
+        }
+        txtCodeHome.setText(result);
+    }
+    
+    @FXML
+    public void btnDataHomeOnClick() {
+        String result = browse(true, "Select location for data downloads");
+        if (result == null) {
+            return;
+        }
+        txtDataHome.setText(result);        
+    }    
+    
     @FXML
     public void btnTempLocationOnClick() {
         String result = browse(true, "Select location for temporary files");
@@ -121,6 +168,15 @@ public class PreferencesController implements Controller, Initializable, Progres
             return;
         }
         txtDiffProgram.setText(result);
+    }
+    
+    @FXML
+    public void btnProjectHomeOnClick() {
+        String result = browse(true, "Select location for projects");
+        if (result == null) {
+            return;
+        }
+        txtProjectHome.setText(result);        
     }
     
     @FXML void btnDownloadsOnClick() {

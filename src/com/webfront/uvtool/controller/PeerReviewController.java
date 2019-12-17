@@ -9,9 +9,13 @@ import com.github.cliftonlabs.json_simple.Jsoner;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 import com.webfront.uvtool.model.PeerReviewModel;
+import com.webfront.uvtool.model.Server;
+import com.webfront.uvtool.util.ConfigProperties;
 import com.webfront.uvtool.util.Network;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -24,11 +28,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.w3c.dom.events.EventException;
 
 /**
  *
@@ -86,13 +92,14 @@ public class PeerReviewController implements Controller, Initializable {
 
     ResourceBundle res;
     private final Network net = new Network();
+    private final ConfigProperties platforms = ConfigProperties.getInstance();
     private final String remotePath = "/uvfs/ma.accounts/deploy/DM.PEER";
     private final String localPath = "/home/rlittle/sob/projects/";
-    
+
     private PeerReviewModel model;
 
     public PeerReviewController() {
-        
+
         reviewId = new SimpleStringProperty();
         totalItems = new SimpleStringProperty();
         totalPending = new SimpleStringProperty();
@@ -107,13 +114,30 @@ public class PeerReviewController implements Controller, Initializable {
         dictDataList = FXCollections.observableArrayList();
 
         txtReviewId = new TextField();
-        
         this.model = null;
     }
 
     @Override
     public Button getCancelButton() {
         return null;
+    }
+
+    private void getArtifact(String item) {
+        String[] segs = item.split("`");
+        String platform = segs[0];
+        String library = segs[1];
+        String program = segs[2];
+        Server s = new Server(platforms.getPlatforms(), platform);
+        String pathType = net.getPathType(library);
+        String remotePath = s.getPath(pathType);
+    }
+
+
+
+    private void getProjectArtifacts() {
+        for (String item : this.model.getItemList()) {
+
+        }
     }
 
     @Override
@@ -138,23 +162,25 @@ public class PeerReviewController implements Controller, Initializable {
         String vm = new Character((char) 253).toString();
         try {
             int mtime = net.doSftp("nlstest", remotePath, item, localPath, item);
-            BufferedReader f = new BufferedReader(new FileReader(localPath + item));
-            while(true) {
-                String line = f.readLine();
-                if (line==null) {
-                    break;
-                }
-                if (line.isEmpty()) {
-                    sb.append("\n");
-                } else {
-                    sb.append(line);
+            try (BufferedReader f = new BufferedReader(new FileReader(localPath + item))) {
+                while (true) {
+                    String line = f.readLine();
+                    if (line == null) {
+                        break;
+                    }
+                    if (line.isEmpty()) {
+                        sb.append("\n");
+                    } else {
+                        sb.append(line);
+                    }
                 }
             }
-            f.close();
             this.model = new PeerReviewModel(sb.toString());
-            FileWriter out = new FileWriter(new File(localPath + item + ".json"));
-            out.write(Jsoner.prettyPrint(Jsoner.serialize(this.model.toJson())));
-            out.close();
+            try (FileWriter out = new FileWriter(new File(localPath + item + ".json"))) {
+                out.write(Jsoner.prettyPrint(Jsoner.serialize(this.model.toJson())));
+            }
+            File f2 = new File(localPath + item);
+            f2.delete();
         } catch (JSchException ex) {
             Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SftpException ex) {
@@ -162,7 +188,7 @@ public class PeerReviewController implements Controller, Initializable {
         } catch (IOException ex) {
             Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
 
     @FXML
