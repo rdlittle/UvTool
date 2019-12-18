@@ -13,6 +13,7 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 import com.webfront.uvtool.model.Server;
+import com.webfront.u2.util.Config;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -35,6 +36,7 @@ import org.w3c.dom.events.EventException;
  */
 public class Network {
 
+    private final Config systemConfig = Config.getInstance();
     private final ConfigProperties platforms = ConfigProperties.getInstance();
     private final String cbHost = platforms.getCbHost();
     private final String cbUser = "release";
@@ -100,8 +102,10 @@ public class Network {
             } catch (JSchException e) {
                 System.out.println(e.getMessage());
             }
+            String multiCmd = "cd "+path+" && ./"+cmd;
             Channel channel = session.openChannel("exec");
-            ((ChannelExec) channel).setCommand(cmd);
+//            ((ChannelExec) channel).setCommand(cmd);
+            ((ChannelExec) channel).setCommand(multiCmd);
             channel.setInputStream(null);
             ((ChannelExec) channel).setErrStream(System.err);
             InputStream in = channel.getInputStream();
@@ -142,45 +146,53 @@ public class Network {
         return null;
     }
 
-//    private void getApproved(String approvedId) throws
-//            FileNotFoundException, EventException {
-//        Server s = new Server(platforms.getPlatforms(), "dmc");
-//        String path = s.getPath("main");
-//        String host = s.getHost("approved");
-//        ByteArrayOutputStream output = sshExec(host, path,
-//                "getApproved CODE " + approvedId);
-//        if (output.size() > 0) {
-//            throw new EventException((short) -1, "sshExec error");
-//        }
-//        String remotePath = s.getPath("deploy") + "/APPROVED.PROGRAMS";
-//        String item = (approvedId.split("~")[2]) + ".approved";
-//        doSftp(host, remotePath, approvedId, downloadPath, item);
-//        BufferedReader f = new BufferedReader(new FileReader(downloadPath + item));
-//        StringBuilder fileOutput = new StringBuilder();
-//        try {
-//            while (true) {
-//                String line = f.readLine();
-//                if (line == null) {
-//                    break;
-//                }
-//                fileOutput.append(line);
-//            }
-//            f.close();
-//            if (fileOutput.indexOf("no APPROVED.PROGRAMS code found!") > 0) {
-//                Alert alert = new Alert(Alert.AlertType.ERROR);
-//                alert.showAndWait();
-//                File aFile = new File(downloadPath + item);
-//                if (aFile.exists()) {
-//                    aFile.delete();
-//                }
-//                throw new FileNotFoundException("No approved version found");
-//            }
-//        } catch (IOException ex) {
-//
-//        }
-//
-//    }    
-    
+    public void getApproved(String itemType, String approvedId) throws
+            FileNotFoundException, EventException, JSchException, SftpException,
+            IOException {
+        Server s = new Server(platforms.getPlatforms(), "dmc");
+        String path = s.getPath("deploy");
+
+        String host = s.getHost("approved");
+        String cmd = sshCommands.get("getApproved");
+        ByteArrayOutputStream output = sshExec(host, path,
+                cmd + " "+ itemType + " " + approvedId);
+        if (output.size() == 0) {
+            throw new EventException((short) -1, "sshExec error");
+        }
+        String downloadPath = systemConfig.getPreferences().get("downloads");
+        if ("CODE".equals(itemType)) {
+            downloadPath = systemConfig.getPreferences().get("codeHome");
+        } else if ("DATA".equals(itemType)) {
+            downloadPath = systemConfig.getPreferences().get("dataHome");
+        }
+        if (!downloadPath.endsWith("/")) {
+            downloadPath = downloadPath + "/";
+        }
+        String remotePath = s.getPath("deploy") + "/APPROVED.PROGRAMS";
+        String item = (approvedId.split("~")[2]) + ".approved";
+        doSftp(host, remotePath, approvedId, downloadPath, approvedId);
+        StringBuilder fileOutput;
+        try (BufferedReader f = new BufferedReader(new FileReader(downloadPath + approvedId))) {
+            fileOutput = new StringBuilder();
+            while (true) {
+                String line = f.readLine();
+                if (line == null) {
+                    break;
+                }
+                fileOutput.append(line);
+            }
+        }
+        if (fileOutput.indexOf("no APPROVED.PROGRAMS code found!") > 0) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.showAndWait();
+            File aFile = new File(downloadPath + item);
+            if (aFile.exists()) {
+                aFile.delete();
+            }
+            throw new FileNotFoundException("No approved version found");
+        }
+    }
+
     public String getPathType(String library) {
         Pattern pattern = Pattern.compile(".+\\.uv[f, i, p, s]");
         Matcher matcher = pattern.matcher(library);

@@ -8,6 +8,7 @@ package com.webfront.uvtool.controller;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
+import com.webfront.u2.util.Config;
 import com.webfront.uvtool.model.PeerReviewModel;
 import com.webfront.uvtool.model.Server;
 import com.webfront.uvtool.util.ConfigProperties;
@@ -95,6 +96,7 @@ public class PeerReviewController implements Controller, Initializable {
     private final ConfigProperties platforms = ConfigProperties.getInstance();
     private final String remotePath = "/uvfs/ma.accounts/deploy/DM.PEER";
     private final String localPath = "/home/rlittle/sob/projects/";
+    private final Config systemConfig = Config.getInstance();
 
     private PeerReviewModel model;
 
@@ -123,20 +125,50 @@ public class PeerReviewController implements Controller, Initializable {
     }
 
     private void getArtifact(String item) {
-        String[] segs = item.split("`");
-        String platform = segs[0];
-        String library = segs[1];
-        String program = segs[2];
-        Server s = new Server(platforms.getPlatforms(), platform);
-        String pathType = net.getPathType(library);
-        String remotePath = s.getPath(pathType);
+        try {
+            String[] segs = item.split("~");
+            String platform = segs[0];
+            String library = segs[1];
+            String program = segs[2];
+            String codebase = platform;
+            Server s = new Server(platforms.getPlatforms(), platform.toLowerCase());
+            String pathType = net.getPathType(library);
+            String remotePath = s.getPath(pathType);
+            String localPath = systemConfig.getPreferences().get("codeHome");
+            if (!remotePath.endsWith("/")) {
+                remotePath = remotePath + "/";
+            }
+            if (!localPath.endsWith("/")) {
+                localPath = localPath + "/";
+            }
+            String host = s.getHost("dev");
+            net.doSftp(host, remotePath + library, program, localPath, program);
+        } catch (JSchException ex) {
+            Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SftpException ex) {
+            Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
-
-
 
     private void getProjectArtifacts() {
         for (String item : this.model.getItemList()) {
-
+            getArtifact(item);
+            try {
+                net.getApproved("CODE", item);
+            } catch (EventException ex) {
+                Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (JSchException ex) {
+                Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SftpException ex) {
+                Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                if("No approved version found".equals(ex.getMessage())) {
+                    
+                }
+                Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 
@@ -181,6 +213,7 @@ public class PeerReviewController implements Controller, Initializable {
             }
             File f2 = new File(localPath + item);
             f2.delete();
+            getProjectArtifacts();
         } catch (JSchException ex) {
             Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SftpException ex) {
