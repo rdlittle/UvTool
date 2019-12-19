@@ -14,7 +14,6 @@ import com.webfront.uvtool.model.Server;
 import com.webfront.uvtool.util.ConfigProperties;
 import com.webfront.uvtool.util.Network;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -29,7 +28,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -74,7 +72,7 @@ public class PeerReviewController implements Controller, Initializable {
     @FXML
     ListView listDictData;
     @FXML
-    ListView listPassed;
+    ListView<String> listPassed;
     @FXML
     TextField txtReviewId;
 
@@ -97,17 +95,19 @@ public class PeerReviewController implements Controller, Initializable {
     private final String remotePath = "/uvfs/ma.accounts/deploy/DM.PEER";
     private final String localPath = "/home/rlittle/sob/projects/";
     private final Config systemConfig = Config.getInstance();
+    private final String pathSep = System.getProperty("file.separator");
+    private final String VM = new Character((char) 253).toString();
 
     private PeerReviewModel model;
 
     public PeerReviewController() {
 
         reviewId = new SimpleStringProperty();
-        totalItems = new SimpleStringProperty();
-        totalPending = new SimpleStringProperty();
-        totalPassed = new SimpleStringProperty();
-        totalFailed = new SimpleStringProperty();
-        totalDictData = new SimpleStringProperty();
+        totalItems = new SimpleStringProperty("0");
+        totalPending = new SimpleStringProperty("0");
+        totalPassed = new SimpleStringProperty("0");
+        totalFailed = new SimpleStringProperty("0");
+        totalDictData = new SimpleStringProperty("0");
 
         itemList = FXCollections.observableArrayList();
         passedList = FXCollections.observableArrayList();
@@ -117,6 +117,37 @@ public class PeerReviewController implements Controller, Initializable {
 
         txtReviewId = new TextField();
         this.model = null;
+    }
+
+    private boolean doCompare(String oldItem, String newItem) {
+        StringBuilder newContent = new StringBuilder();
+        StringBuilder oldContent = new StringBuilder();
+        try {
+            BufferedReader newFile = new BufferedReader(new FileReader(newItem));
+            BufferedReader oldFile = new BufferedReader(new FileReader(oldItem));
+
+            for (;;) {
+                String line = newFile.readLine();
+                if (line == null) {
+                    newFile.close();
+                    break;
+                }
+                newContent.append(line.replaceAll(" ", ""));
+            }
+            for (;;) {
+                String line = oldFile.readLine();
+                if (line == null) {
+                    oldFile.close();
+                    break;
+                }
+                oldContent.append(line.replaceAll(" ", ""));
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return newContent.toString().equals(oldContent.toString());
     }
 
     @Override
@@ -138,8 +169,8 @@ public class PeerReviewController implements Controller, Initializable {
             if (!remotePath.endsWith("/")) {
                 remotePath = remotePath + "/";
             }
-            if (!localPath.endsWith("/")) {
-                localPath = localPath + "/";
+            if (!localPath.endsWith(pathSep)) {
+                localPath = localPath + pathSep;
             }
             String host = s.getHost("dev");
             net.doSftp(host, remotePath + library, program, localPath, program);
@@ -157,6 +188,24 @@ public class PeerReviewController implements Controller, Initializable {
             getArtifact(item);
             try {
                 net.getApproved("CODE", item);
+                String path = systemConfig.getPreferences().get("codeHome");
+
+                if (!path.endsWith(pathSep)) {
+                    path = path + pathSep;
+                }
+                String[] specs = item.split("~");
+                String newItem = path + specs[2];
+                String oldItem = path + specs[2] + ".approved";
+                boolean isMatch = doCompare(oldItem, newItem);
+                if (!isMatch) {
+                    pendingList.add(item);
+                    incrementCounter("pending");
+                } else {
+                    passedList.add(item);
+                    incrementCounter("passed");
+                }
+                File f = new File(oldItem);
+                f.delete();
             } catch (EventException ex) {
                 Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
             } catch (JSchException ex) {
@@ -164,12 +213,27 @@ public class PeerReviewController implements Controller, Initializable {
             } catch (SftpException ex) {
                 Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {
-                if("No approved version found".equals(ex.getMessage())) {
-                    
+                if ("No approved version found".equals(ex.getMessage())) {
+                    pendingList.add(item);
                 }
                 Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+    }
+
+    private void incrementCounter(String counter) {
+        if (counter.equals("pending")) {
+            Integer i = Integer.parseInt(totalPending.get()) + 1;
+            totalPending.set(i.toString());
+        } else if (counter.equals("passed")) {
+            Integer i = Integer.parseInt(totalPassed.get()) + 1;
+            totalPassed.set(i.toString());
+        } else if (counter.equals("failed")) {
+            Integer i = Integer.parseInt(totalFailed.get()) + 1;
+            totalFailed.set(i.toString());
+        }
+        Integer t = Integer.parseInt(totalItems.get()) + 1;
+        totalItems.set(t.toString());
     }
 
     @Override
@@ -185,13 +249,19 @@ public class PeerReviewController implements Controller, Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         this.res = resources;
+        listPassed.setItems(passedList);
+        listPending.setItems(pendingList);
+        listFailed.setItems(failedList);
+        lblPassedCount.textProperty().bind(totalPassed);
+        lblPendingCount.textProperty().bind(totalPending);
+        lblFailedCount.textProperty().bind(totalFailed);
     }
 
     @FXML
     public void onLoadReview() {
         String item = txtReviewId.getText();
         StringBuilder sb = new StringBuilder();
-        String vm = new Character((char) 253).toString();
+
         try {
             int mtime = net.doSftp("nlstest", remotePath, item, localPath, item);
             try (BufferedReader f = new BufferedReader(new FileReader(localPath + item))) {

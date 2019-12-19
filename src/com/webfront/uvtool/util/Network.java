@@ -89,8 +89,8 @@ public class Network {
         try {
             String user = "release";
             String keyPath = "/home/rlittle/sob/nlstest.id_rsa";
+            String multiCmd = String.format("cd %s && ./%s", path, cmd);
             JSch jsch = new JSch();
-            String fullCmdPath = path + "/" + cmd;
             jsch.addIdentity(keyPath);
             Session session = jsch.getSession(user, host);
             java.util.Properties config = new java.util.Properties();
@@ -102,9 +102,7 @@ public class Network {
             } catch (JSchException e) {
                 System.out.println(e.getMessage());
             }
-            String multiCmd = "cd "+path+" && ./"+cmd;
             Channel channel = session.openChannel("exec");
-//            ((ChannelExec) channel).setCommand(cmd);
             ((ChannelExec) channel).setCommand(multiCmd);
             channel.setInputStream(null);
             ((ChannelExec) channel).setErrStream(System.err);
@@ -127,7 +125,6 @@ public class Network {
                     if (in.available() > 0) {
                         continue;
                     }
-//                    System.out.println("exit-status: " + channel.getExitStatus());
                     break;
                 }
                 try {
@@ -170,9 +167,9 @@ public class Network {
         }
         String remotePath = s.getPath("deploy") + "/APPROVED.PROGRAMS";
         String item = (approvedId.split("~")[2]) + ".approved";
-        doSftp(host, remotePath, approvedId, downloadPath, approvedId);
+        doSftp(host, remotePath, approvedId, downloadPath, item);
         StringBuilder fileOutput;
-        try (BufferedReader f = new BufferedReader(new FileReader(downloadPath + approvedId))) {
+        try (BufferedReader f = new BufferedReader(new FileReader(downloadPath + item))) {
             fileOutput = new StringBuilder();
             while (true) {
                 String line = f.readLine();
@@ -183,9 +180,7 @@ public class Network {
             }
         }
         if (fileOutput.indexOf("no APPROVED.PROGRAMS code found!") > 0) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.showAndWait();
-            File aFile = new File(downloadPath + item);
+            File aFile = new File(downloadPath + approvedId);
             if (aFile.exists()) {
                 aFile.delete();
             }
