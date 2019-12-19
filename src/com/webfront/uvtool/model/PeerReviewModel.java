@@ -44,6 +44,7 @@ public class PeerReviewModel {
     private final ArrayList<String> dictsList;
     private final ArrayList<String> dataList;
     private final ArrayList<String> missingList;
+    private final ArrayList<String> inProgressList;
     private final HashMap<String, Integer> timeStamps;
     
     private static PeerReviewModel instance = null;
@@ -70,6 +71,7 @@ public class PeerReviewModel {
         dictsList = new ArrayList<>();
         dataList = new ArrayList<>();
         missingList = new ArrayList<>();
+        inProgressList = new ArrayList<>();
         timeStamps = new HashMap<>();
     }
     
@@ -140,6 +142,13 @@ public class PeerReviewModel {
         return id;
     }
 
+    /**
+     * @return the timeStamps
+     */
+    public HashMap<String, Integer> getTimeStamps() {
+        return timeStamps;
+    }
+    
     /**
      * @return the totalItems
      */
@@ -222,10 +231,11 @@ public class PeerReviewModel {
         json.put("failed", new JsonArray(failedList.sorted()));
         json.put("passed", new JsonArray(passedList.sorted()));
         json.put("webde", new JsonArray(webDeList));
-        JsonObject jo = new JsonObject();
-        jo.putAll(timeStamps);
-        json.put("timestamps", jo);
-        json.put("missing", new JsonArray().addAll(missingList));
+        JsonObject ts = new JsonObject();
+        ts.putAll(getTimeStamps());
+        json.put("timestamps", ts);
+        json.put("in_progress", new JsonArray(inProgressList));
+        json.put("missing", new JsonArray(missingList));
         
         return json;
     }

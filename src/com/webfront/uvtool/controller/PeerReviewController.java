@@ -5,6 +5,7 @@
  */
 package com.webfront.uvtool.controller;
 
+import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
@@ -31,6 +32,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -137,14 +139,15 @@ public class PeerReviewController implements Controller, Initializable, Progress
         return null;
     }
 
-    private void getArtifact(String item) {
+    private int getArtifact(String item) {
+        int mtime = 0;
         try {
             String[] segs = item.split("~");
             String platform = segs[0];
             String library = segs[1];
             String program = segs[2];
-            String codebase = platform;
             Server s = new Server(platforms.getPlatforms(), platform.toLowerCase());
+            String codebase = s.getCodeBase();
             String pathType = net.getPathType(library);
             String remotePath = s.getPath(pathType);
             String localPath = systemConfig.getPreferences().get("codeHome");
@@ -155,7 +158,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
                 localPath = localPath + pathSep;
             }
             String host = s.getHost("dev");
-            net.doSftp(host, remotePath + library, program, localPath, program);
+            mtime = net.doSftp(host, remotePath + library, program, localPath, program);
         } catch (JSchException ex) {
             Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SftpException ex) {
@@ -163,15 +166,28 @@ public class PeerReviewController implements Controller, Initializable, Progress
         } catch (IOException ex) {
             Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return mtime;
     }
 
-    private void getProjectArtifacts() {
+    private void getProjectArtifacts() throws IOException {
+        int mtime = 0;
         Double recordsDone = 0D;
         updateProgressBar(recordsDone);
         Double totalRecords = Double.valueOf(this.model.getTotalItems().get());
+        stage.getScene().setCursor(Cursor.WAIT);
         for (String item : this.model.getItemList()) {
-            getArtifact(item);
+            mtime = getArtifact(item);
+            this.model.getTimeStamps().put(item, mtime);
             try {
+                String[] segs = item.split("~");
+                String platform = segs[0];
+                String library = segs[1];
+                String program = segs[2];
+                Server s = new Server(platforms.getPlatforms(), platform.toLowerCase());
+                String codebase = s.getCodeBase();
+                if(!platform.equalsIgnoreCase(codebase)) {
+                    item = String.format("%s~%s~%s", codebase, library, program);
+                }
                 net.getApproved("CODE", item);
                 String path = systemConfig.getPreferences().get("codeHome");
 
@@ -193,21 +209,33 @@ public class PeerReviewController implements Controller, Initializable, Progress
                 f.delete();
             } catch (EventException ex) {
                 Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+                stage.getScene().setCursor(Cursor.DEFAULT);
             } catch (JSchException ex) {
                 Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+                stage.getScene().setCursor(Cursor.DEFAULT);
             } catch (SftpException ex) {
                 Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+                display(item + ": " + ex.getMessage());
+                stage.getScene().setCursor(Cursor.DEFAULT);
             } catch (IOException ex) {
                 if ("No approved version found".equals(ex.getMessage())) {
                     this.model.getPendingList().add(item);
+                    continue;
                 }
                 Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+                stage.getScene().setCursor(Cursor.DEFAULT);
             }
             recordsDone += 1;
             Double pct = recordsDone / totalRecords;
             updateProgressBar(pct);
         }
         updateProgressBar(0D);
+        stage.getScene().setCursor(Cursor.DEFAULT);
+        File f = new File(localPath + txtReviewId.textProperty().getValue() + ".json");
+        try (FileWriter out = new FileWriter(f)) {
+            out.write(Jsoner.prettyPrint(Jsoner.serialize(this.model.toJson())));
+            out.close();
+        }
     }
 
     private void incrementCounter(String counter) {
@@ -267,7 +295,13 @@ public class PeerReviewController implements Controller, Initializable, Progress
             }
             File f2 = new File(localPath + item);
             f2.delete();
-            Runnable runner = () -> getProjectArtifacts();
+            Runnable runner = () -> {
+                try {
+                    getProjectArtifacts();
+                } catch (IOException ex) {
+                    Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            };
             Thread backgroundThread = new Thread(runner);
             backgroundThread.setDaemon(true);
             backgroundThread.start();
@@ -308,7 +342,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
 
     @Override
     public void display(String message) {
-        lblMessage.textProperty().set(message);
+        Platform.runLater(() -> lblMessage.textProperty().set(message));
         Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(5), new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {

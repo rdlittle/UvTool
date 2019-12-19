@@ -35,9 +35,23 @@ public class Server {
         this.paths = platform.getMap(pathKey);
     }
 
+    /**
+     * @return the codeBase
+     */
+    public String getCodeBase() {
+        return codeBase;
+    }
+    
     public String getHost(String h) {
         return hosts.get(h);
     }
+    
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }    
 
     public String getPath(String p) {
         return paths.get(p);
