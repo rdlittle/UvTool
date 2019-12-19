@@ -9,6 +9,7 @@ import com.github.cliftonlabs.json_simple.Jsoner;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 import com.webfront.u2.util.Config;
+import com.webfront.u2.util.Progress;
 import com.webfront.uvtool.model.PeerReviewModel;
 import com.webfront.uvtool.model.Server;
 import com.webfront.uvtool.util.ConfigProperties;
@@ -23,23 +24,27 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.w3c.dom.events.EventException;
 
 /**
  *
  * @author rlittle
  */
-public class PeerReviewController implements Controller, Initializable {
+public class PeerReviewController implements Controller, Initializable, Progress {
 
     private Stage stage;
 
@@ -64,6 +69,8 @@ public class PeerReviewController implements Controller, Initializable {
     @FXML
     Label lblTotalCount;
     @FXML
+    Label lblMessage;
+    @FXML
     ListView listItems;
     @FXML
     ListView listPending;
@@ -75,19 +82,8 @@ public class PeerReviewController implements Controller, Initializable {
     ListView<String> listPassed;
     @FXML
     TextField txtReviewId;
-
-    private final SimpleStringProperty reviewId;
-    private final SimpleStringProperty totalItems;
-    private final SimpleStringProperty totalPending;
-    private final SimpleStringProperty totalPassed;
-    private final SimpleStringProperty totalFailed;
-    private final SimpleStringProperty totalDictData;
-
-    private final ObservableList<String> itemList;
-    private final ObservableList<String> passedList;
-    private final ObservableList<String> failedList;
-    private final ObservableList<String> pendingList;
-    private final ObservableList<String> dictDataList;
+    @FXML
+    ProgressBar progressBar;
 
     ResourceBundle res;
     private final Network net = new Network();
@@ -101,22 +97,8 @@ public class PeerReviewController implements Controller, Initializable {
     private PeerReviewModel model;
 
     public PeerReviewController() {
-
-        reviewId = new SimpleStringProperty();
-        totalItems = new SimpleStringProperty("0");
-        totalPending = new SimpleStringProperty("0");
-        totalPassed = new SimpleStringProperty("0");
-        totalFailed = new SimpleStringProperty("0");
-        totalDictData = new SimpleStringProperty("0");
-
-        itemList = FXCollections.observableArrayList();
-        passedList = FXCollections.observableArrayList();
-        failedList = FXCollections.observableArrayList();
-        pendingList = FXCollections.observableArrayList();
-        dictDataList = FXCollections.observableArrayList();
-
         txtReviewId = new TextField();
-        this.model = null;
+        this.model = PeerReviewModel.getInstance();
     }
 
     private boolean doCompare(String oldItem, String newItem) {
@@ -184,6 +166,9 @@ public class PeerReviewController implements Controller, Initializable {
     }
 
     private void getProjectArtifacts() {
+        Double recordsDone = 0D;
+        updateProgressBar(recordsDone);
+        Double totalRecords = Double.valueOf(this.model.getTotalItems().get());
         for (String item : this.model.getItemList()) {
             getArtifact(item);
             try {
@@ -198,10 +183,10 @@ public class PeerReviewController implements Controller, Initializable {
                 String oldItem = path + specs[2] + ".approved";
                 boolean isMatch = doCompare(oldItem, newItem);
                 if (!isMatch) {
-                    pendingList.add(item);
+                    this.model.getPendingList().add(item);
                     incrementCounter("pending");
                 } else {
-                    passedList.add(item);
+                    this.model.getPassedList().add(item);
                     incrementCounter("passed");
                 }
                 File f = new File(oldItem);
@@ -214,47 +199,46 @@ public class PeerReviewController implements Controller, Initializable {
                 Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {
                 if ("No approved version found".equals(ex.getMessage())) {
-                    pendingList.add(item);
+                    this.model.getPendingList().add(item);
                 }
                 Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
             }
+            recordsDone += 1;
+            Double pct = recordsDone / totalRecords;
+            updateProgressBar(pct);
         }
+        updateProgressBar(0D);
     }
 
     private void incrementCounter(String counter) {
         if (counter.equals("pending")) {
-            Integer i = Integer.parseInt(totalPending.get()) + 1;
-            totalPending.set(i.toString());
+            Integer i = Integer.parseInt(this.model.getTotalPending().get()) + 1;
+            Platform.runLater(() -> this.model.getTotalPending().set(i.toString()));
         } else if (counter.equals("passed")) {
-            Integer i = Integer.parseInt(totalPassed.get()) + 1;
-            totalPassed.set(i.toString());
+            Integer i = Integer.parseInt(this.model.getTotalPassed().get()) + 1;
+            Platform.runLater(() -> this.model.getTotalPassed().set(i.toString()));
         } else if (counter.equals("failed")) {
-            Integer i = Integer.parseInt(totalFailed.get()) + 1;
-            totalFailed.set(i.toString());
+            Integer i = Integer.parseInt(this.model.getTotalFailed().get()) + 1;
+            Platform.runLater(() -> this.model.getTotalFailed().set(i.toString()));
         }
-        Integer t = Integer.parseInt(totalItems.get()) + 1;
-        totalItems.set(t.toString());
-    }
-
-    @Override
-    public void launch(String v, String t) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void setStage(Stage s) {
-        this.stage = s;
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         this.res = resources;
-        listPassed.setItems(passedList);
-        listPending.setItems(pendingList);
-        listFailed.setItems(failedList);
-        lblPassedCount.textProperty().bind(totalPassed);
-        lblPendingCount.textProperty().bind(totalPending);
-        lblFailedCount.textProperty().bind(totalFailed);
+        listPassed.setItems(this.model.getPassedList());
+        listPending.setItems(this.model.getPendingList());
+        listFailed.setItems(this.model.getFailedList());
+        lblPassedCount.textProperty().bind(this.model.getTotalPassed());
+        lblPendingCount.textProperty().bind(this.model.getTotalPending());
+        lblFailedCount.textProperty().bind(this.model.getTotalFailed());
+        lblMessage.setText("");
+        lblTotalCount.textProperty().bind(this.model.getTotalItems());
+    }
+
+    @Override
+    public void launch(String v, String t) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @FXML
@@ -277,13 +261,17 @@ public class PeerReviewController implements Controller, Initializable {
                     }
                 }
             }
-            this.model = new PeerReviewModel(sb.toString());
+            this.model.init(sb.toString());
             try (FileWriter out = new FileWriter(new File(localPath + item + ".json"))) {
                 out.write(Jsoner.prettyPrint(Jsoner.serialize(this.model.toJson())));
             }
             File f2 = new File(localPath + item);
             f2.delete();
-            getProjectArtifacts();
+            Runnable runner = () -> getProjectArtifacts();
+            Thread backgroundThread = new Thread(runner);
+            backgroundThread.setDaemon(true);
+            backgroundThread.start();
+
         } catch (JSchException ex) {
             Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SftpException ex) {
@@ -291,17 +279,16 @@ public class PeerReviewController implements Controller, Initializable {
         } catch (IOException ex) {
             Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
 
     @FXML
     public void onPassItem() {
-
+        display("Item passed");
     }
 
     @FXML
     public void onFailItem() {
-
+        display("Item failed");
     }
 
     @FXML
@@ -313,4 +300,38 @@ public class PeerReviewController implements Controller, Initializable {
     public void onFailReview() {
 
     }
+
+    @Override
+    public void setStage(Stage s) {
+        this.stage = s;
+    }
+
+    @Override
+    public void display(String message) {
+        lblMessage.textProperty().set(message);
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(5), new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                lblMessage.textProperty().set("");
+            }
+        }));
+        timeline.setCycleCount(3);
+        timeline.play();
+    }
+
+    @Override
+    public void state(String message) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void updateProgressBar(Double p) {
+        Platform.runLater(() -> progressBar.progressProperty().setValue(p));
+    }
+
+    @Override
+    public void updateLed(String host, boolean onOff) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 }

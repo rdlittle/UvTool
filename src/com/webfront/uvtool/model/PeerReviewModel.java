@@ -32,7 +32,7 @@ public class PeerReviewModel {
     private final ObservableList<String> pendingList;
     private final ObservableList<String> dictDataList;
 
-    private final String[] rawData;
+    private String[] rawData;
     private final String VM = new Character((char) 253).toString();
     private final String SVM = new Character((char) 252).toString();
     
@@ -45,15 +45,16 @@ public class PeerReviewModel {
     private final ArrayList<String> dataList;
     private final ArrayList<String> missingList;
     private final HashMap<String, Integer> timeStamps;
+    
+    private static PeerReviewModel instance = null;
 
-    public PeerReviewModel(String s) {
-        this.rawData = s.split("\\n");
+    protected PeerReviewModel() {
         id = new SimpleStringProperty();
-        totalItems = new SimpleStringProperty();
-        totalPending = new SimpleStringProperty();
-        totalPassed = new SimpleStringProperty();
-        totalFailed = new SimpleStringProperty();
-        totalDictData = new SimpleStringProperty();
+        totalItems = new SimpleStringProperty("0");
+        totalPending = new SimpleStringProperty("0");
+        totalPassed = new SimpleStringProperty("0");
+        totalFailed = new SimpleStringProperty("0");
+        totalDictData = new SimpleStringProperty("0");
 
         itemList = FXCollections.observableArrayList();
         passedList = FXCollections.observableArrayList();
@@ -70,7 +71,18 @@ public class PeerReviewModel {
         dataList = new ArrayList<>();
         missingList = new ArrayList<>();
         timeStamps = new HashMap<>();
+    }
+    
+    public void init(String s) {
+        this.rawData = s.split("\\n");
         decodeProject();
+    }
+    
+    public static PeerReviewModel getInstance() {
+        if (PeerReviewModel.instance == null) {
+            PeerReviewModel.instance = new PeerReviewModel();
+        }
+        return PeerReviewModel.instance;
     }
 
     private String decodeMv(String mvString) {

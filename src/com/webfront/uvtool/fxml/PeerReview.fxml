@@ -42,7 +42,7 @@
       </HBox>
       <Label layoutX="475.0" layoutY="237.0" text="Dict / Data" />
       <ListView fx:id="listDictData" layoutX="472.0" layoutY="255.0" prefHeight="200.0" prefWidth="496.0" />
-      <ProgressBar fx:id="pbProgress" layoutX="13.0" layoutY="612.0" prefHeight="20.0" prefWidth="957.0" progress="0.0" />
+      <ProgressBar fx:id="progressBar" layoutX="13.0" layoutY="612.0" prefHeight="20.0" prefWidth="957.0" progress="0.0" />
       <ListView fx:id="listItems" layoutX="13.0" layoutY="60.0" prefHeight="171.0" prefWidth="298.0" />
       <Label layoutX="13.0" layoutY="15.0" text="Project Id" />
       <Label fx:id="lblPendingCount" layoutX="438.0" layoutY="237.0" text="0" textAlignment="RIGHT" />
@@ -50,5 +50,6 @@
       <Label fx:id="lblFailedCount" layoutX="438.0" layoutY="458.0" text="0" textAlignment="RIGHT" />
       <Label fx:id="lblPassedCount" layoutX="951.0" layoutY="458.0" text="0" textAlignment="RIGHT" />
       <Button fx:id="btnLoad" layoutX="319.0" layoutY="32.0" mnemonicParsing="false" onAction="#onLoadReview" style="-fx-background-color: lightblue; -fx-background-radius: 10; -fx-border-color: black; -fx-border-radius: 10;" text="Load Review" />
+      <Label fx:id="lblMessage" layoutX="472.0" layoutY="188.0" text="Label" />
    </children>
 </AnchorPane>

@@ -202,4 +202,8 @@ public class Network {
         }
         return null;
     }
+    
+    public static String sayHi() {
+        return "Hi";
+    }
 }
