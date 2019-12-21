@@ -5,7 +5,6 @@
  */
 package com.webfront.uvtool.controller;
 
-import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
@@ -22,6 +21,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -146,11 +146,18 @@ public class PeerReviewController implements Controller, Initializable, Progress
             String platform = segs[0];
             String library = segs[1];
             String program = segs[2];
+            if(platform.equals("DMCRBO")) {
+                platform = "DMC";
+                program = segs[3];
+            }
             Server s = new Server(platforms.getPlatforms(), platform.toLowerCase());
             String codebase = s.getCodeBase();
             String pathType = net.getPathType(library);
             String remotePath = s.getPath(pathType);
             String localPath = systemConfig.getPreferences().get("codeHome");
+            if(pathType.equals("pads_hook_segment")) {
+                library = "";
+            }
             if (!remotePath.endsWith("/")) {
                 remotePath = remotePath + "/";
             }
@@ -175,59 +182,83 @@ public class PeerReviewController implements Controller, Initializable, Progress
         updateProgressBar(recordsDone);
         Double totalRecords = Double.valueOf(this.model.getTotalItems().get());
         stage.getScene().setCursor(Cursor.WAIT);
-        for (String item : this.model.getItemList()) {
-            mtime = getArtifact(item);
-            this.model.getTimeStamps().put(item, mtime);
-            try {
-                String[] segs = item.split("~");
-                String platform = segs[0];
-                String library = segs[1];
-                String program = segs[2];
-                Server s = new Server(platforms.getPlatforms(), platform.toLowerCase());
-                String codebase = s.getCodeBase();
-                if(!platform.equalsIgnoreCase(codebase)) {
-                    item = String.format("%s~%s~%s", codebase, library, program);
-                }
-                net.getApproved("CODE", item);
-                String path = systemConfig.getPreferences().get("codeHome");
 
-                if (!path.endsWith(pathSep)) {
-                    path = path + pathSep;
-                }
-                String[] specs = item.split("~");
-                String newItem = path + specs[2];
-                String oldItem = path + specs[2] + ".approved";
-                boolean isMatch = doCompare(oldItem, newItem);
-                if (!isMatch) {
-                    this.model.getPendingList().add(item);
-                    incrementCounter("pending");
-                } else {
-                    this.model.getPassedList().add(item);
-                    incrementCounter("passed");
-                }
-                File f = new File(oldItem);
-                f.delete();
-            } catch (EventException ex) {
-                Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
-                stage.getScene().setCursor(Cursor.DEFAULT);
-            } catch (JSchException ex) {
-                Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
-                stage.getScene().setCursor(Cursor.DEFAULT);
-            } catch (SftpException ex) {
-                Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
-                display(item + ": " + ex.getMessage());
-                stage.getScene().setCursor(Cursor.DEFAULT);
-            } catch (IOException ex) {
-                if ("No approved version found".equals(ex.getMessage())) {
-                    this.model.getPendingList().add(item);
+        for (ArrayList<String> list : this.model.getAllPrograms().values()) {
+            for (String item : list) {
+                if (item.isEmpty()) {
                     continue;
                 }
-                Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
-                stage.getScene().setCursor(Cursor.DEFAULT);
+                if(item.contains("SEGMENT")) {
+                    item = item.replaceAll("\\\\", "\\.");
+                }
+                mtime = getArtifact(item);
+                this.model.getTimeStamps().put(item, mtime);
+                try {
+                    String[] segs = item.split("~");
+                    String platform = segs[0];
+                    String library = segs[1];
+                    String program = segs[2];
+                    String codebase=null;
+                    if(platform.equals("DMCRBO")) {
+                        platform = "DMC";
+                        program = segs[3];
+                        codebase = "RBO";
+                    }
+                    Server s = new Server(platforms.getPlatforms(), platform.toLowerCase());
+                    if(codebase == null) {
+                        codebase = s.getCodeBase();
+                    }
+                    
+                    if (!platform.equalsIgnoreCase(codebase)) {
+                        item = String.format("%s~%s~%s", codebase, library, program);
+                    }
+                    if(item.contains("SEGMENT")) {
+                        System.out.println("Ready");
+                    }
+                    net.getApproved("CODE", item);
+                    String path = systemConfig.getPreferences().get("codeHome");
+
+                    if (!path.endsWith(pathSep)) {
+                        path = path + pathSep;
+                    }
+                    String[] specs = item.split("~");
+                    String newItem = path + specs[2];
+                    String oldItem = path + specs[2] + ".approved";
+                    boolean isMatch = doCompare(oldItem, newItem);
+                    if (!isMatch) {
+                        this.model.getPendingList().add(item);
+                        incrementCounter("pending");
+                    } else {
+                        this.model.getPassedList().add(item);
+                        incrementCounter("passed");
+                    }
+                    File f = new File(oldItem);
+                    f.delete();
+                } catch (EventException | JSchException ex) {
+                    Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+                    stage.getScene().setCursor(Cursor.DEFAULT);
+                } catch (SftpException ex) {
+                    Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+                    display(item + ": " + ex.getMessage());
+                    if(ex.getMessage().contains("No such file")) {
+                        this.model.getPendingList().add(item);
+                        incrementCounter("pending");
+                        continue;
+                    }
+                    stage.getScene().setCursor(Cursor.DEFAULT);
+                } catch (IOException ex) {
+                    if ("No approved version found".equals(ex.getMessage())) {
+                        this.model.getPendingList().add(item);
+                        incrementCounter("pending");
+                        continue;
+                    }
+                    Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+                    stage.getScene().setCursor(Cursor.DEFAULT);
+                }
+                recordsDone += 1;
+                Double pct = recordsDone / totalRecords;
+                updateProgressBar(pct);
             }
-            recordsDone += 1;
-            Double pct = recordsDone / totalRecords;
-            updateProgressBar(pct);
         }
         updateProgressBar(0D);
         stage.getScene().setCursor(Cursor.DEFAULT);
@@ -257,10 +288,12 @@ public class PeerReviewController implements Controller, Initializable, Progress
         listPassed.setItems(this.model.getPassedList());
         listPending.setItems(this.model.getPendingList());
         listFailed.setItems(this.model.getFailedList());
+        listDictData.setItems(this.model.getDictDataList());
         lblPassedCount.textProperty().bind(this.model.getTotalPassed());
         lblPendingCount.textProperty().bind(this.model.getTotalPending());
         lblFailedCount.textProperty().bind(this.model.getTotalFailed());
         lblMessage.setText("");
+        lblDictDataCount.textProperty().bind(this.model.getTotalDictData());
         lblTotalCount.textProperty().bind(this.model.getTotalItems());
     }
 
@@ -282,11 +315,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
                     if (line == null) {
                         break;
                     }
-                    if (line.isEmpty()) {
-                        sb.append("\n");
-                    } else {
-                        sb.append(line);
-                    }
+                    sb.append(line + "\n");
                 }
             }
             this.model.init(sb.toString());

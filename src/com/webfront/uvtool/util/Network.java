@@ -189,9 +189,9 @@ public class Network {
     }
 
     public String getPathType(String library) {
-        Pattern pattern = Pattern.compile(".+\\.uv[f, i, p, s]");
+        Pattern pattern = Pattern.compile(".+\\.uv[f, i, p, s, t]");
         Matcher matcher = pattern.matcher(library);
-        if (library.equals("DM.SR") || library.equals("DM.BP")) {
+        if (library.startsWith("DM.")) {
             return "main";
         }
         if (matcher.matches()) {
@@ -200,6 +200,19 @@ public class Network {
         if (library.endsWith("LIB")) {
             return "rbo";
         }
+        if(library.endsWith("SEGMENT")) {
+            return "pads_hook_segment";
+        }
+        if(library.equals("PADS.HOOK")) {
+            return "pads_hook";
+        }
+        if(library.equals("PADS.BP")) {
+            return "pads_bp";
+        }
+        if(library.equals("PADS.APP")) {
+            return "main";
+        }
+        
         return null;
     }
     

@@ -13,6 +13,7 @@ import javafx.collections.ObservableList;
 import com.github.cliftonlabs.json_simple.JsonObject;
 import java.util.ArrayList;
 import java.util.HashMap;
+
 /**
  *
  * @author rlittle
@@ -33,9 +34,10 @@ public class PeerReviewModel {
     private final ObservableList<String> dictDataList;
 
     private String[] rawData;
+    private final String AM = new Character((char) 254).toString();
     private final String VM = new Character((char) 253).toString();
     private final String SVM = new Character((char) 252).toString();
-    
+
     private final ArrayList<String> wrappersList;
     private final ArrayList<String> padsAppsList;
     private final ArrayList<String> padsProgramsList;
@@ -46,7 +48,9 @@ public class PeerReviewModel {
     private final ArrayList<String> missingList;
     private final ArrayList<String> inProgressList;
     private final HashMap<String, Integer> timeStamps;
-    
+    private final HashMap<String, ArrayList> allPrograms;
+    private final HashMap<String, ArrayList> allData;
+
     private static PeerReviewModel instance = null;
 
     protected PeerReviewModel() {
@@ -62,7 +66,7 @@ public class PeerReviewModel {
         failedList = FXCollections.observableArrayList();
         pendingList = FXCollections.observableArrayList();
         dictDataList = FXCollections.observableArrayList();
-        
+
         padsAppsList = new ArrayList<>();
         padsProgramsList = new ArrayList<>();
         webDeList = new ArrayList<>();
@@ -73,13 +77,17 @@ public class PeerReviewModel {
         missingList = new ArrayList<>();
         inProgressList = new ArrayList<>();
         timeStamps = new HashMap<>();
+        allPrograms = new HashMap<>();
+        allData = new HashMap<>();
     }
-    
+
     public void init(String s) {
-        this.rawData = s.split("\\n");
+        this.rawData = s.split("\n");
+        getAllPrograms().clear();
+        getAllData().clear();
         decodeProject();
     }
-    
+
     public static PeerReviewModel getInstance() {
         if (PeerReviewModel.instance == null) {
             PeerReviewModel.instance = new PeerReviewModel();
@@ -104,35 +112,61 @@ public class PeerReviewModel {
         String[] dicts = decodeMv(this.rawData[10]).split(VM);
         String[] data = decodeMv(this.rawData[11]).split(VM);
 
-        if (wrappers.length > 1) {
-            itemList.addAll(Arrays.asList(wrappers));
+        if (wrappers.length > 0) {
+            if (!wrappers[0].isEmpty()) {
+                itemList.addAll(Arrays.asList(wrappers));
+            }
             wrappersList.addAll(Arrays.asList(wrappers));
+            getAllPrograms().put("wrappers", wrappersList);
         }
-        if (padsPrograms.length > 1) {
-            itemList.addAll(Arrays.asList(padsPrograms));
+        if (padsPrograms.length > 0) {
+            if (!padsPrograms[0].isEmpty()) {
+                itemList.addAll(Arrays.asList(padsPrograms));
+            }
             padsProgramsList.addAll(Arrays.asList(padsPrograms));
+            getAllPrograms().put("pads", padsProgramsList);
         }
-        if (padsApps.length > 1) {
-            itemList.addAll(Arrays.asList(padsApps));
+        if (padsApps.length > 0) {
+            if (!padsApps[0].isEmpty()) {
+                itemList.addAll(Arrays.asList(padsApps));
+            }
             padsAppsList.addAll(Arrays.asList(padsApps));
+            getAllData().put("padsApps", padsAppsList);
+            dictDataList.addAll(padsAppsList);
         }
-        if(webDe.length > 1) {
-            itemList.addAll(Arrays.asList(webDe));
+        if (webDe.length > 0) {
+            if (!webDe[0].isEmpty()) {
+                itemList.addAll(Arrays.asList(webDe));
+            }
             webDeList.addAll(Arrays.asList(webDe));
+            getAllPrograms().put("webde", webDeList);
         }
-        if(programs.length > 1) {
-            itemList.addAll(Arrays.asList(programs));
+        if (programs.length > 0) {
+            if (!programs[0].isEmpty()) {
+                itemList.addAll(Arrays.asList(programs));
+            }
             programsList.addAll(Arrays.asList(programs));
+            getAllPrograms().put("programs", programsList);
         }
-        if(dicts.length > 1) {
-            itemList.addAll(Arrays.asList(dicts));
+        if (dicts.length > 0) {
+            if (!dicts[0].isEmpty()) {
+                itemList.addAll(Arrays.asList(dicts));
+            }
             dictsList.addAll(Arrays.asList(dicts));
+            getAllData().put("dicts", dictsList);
+            dictDataList.addAll(dictsList);
         }
-        if (data.length > 1) {
-            itemList.addAll(Arrays.asList(data));
+        if (data.length > 0) {
+            if (!data[0].isEmpty()) {
+                itemList.addAll(Arrays.asList(data));
+            }
             dataList.addAll(Arrays.asList(data));
+            getAllData().put("data", dataList);
+            dictDataList.addAll(dataList);
         }
+
         totalItems.set(Integer.toString(itemList.size()));
+        totalDictData.set(Integer.toString(dictDataList.size()));
     }
 
     /**
@@ -148,7 +182,7 @@ public class PeerReviewModel {
     public HashMap<String, Integer> getTimeStamps() {
         return timeStamps;
     }
-    
+
     /**
      * @return the totalItems
      */
@@ -218,16 +252,16 @@ public class PeerReviewModel {
     public ObservableList<String> getDictDataList() {
         return dictDataList;
     }
-    
+
     public JsonObject toJson() {
         JsonObject json = new JsonObject();
         json.put("id", id.getValue());
         json.put("item_count", totalItems.getValue());
         json.put("data", new JsonArray(dataList));
-        json.put("dicts", new JsonArray(dictsList));        
-        json.put("pads_programs", new JsonArray(padsProgramsList));                
+        json.put("dicts", new JsonArray(dictsList));
+        json.put("pads_programs", new JsonArray(padsProgramsList));
         json.put("pads_apps", new JsonArray(padsAppsList));
-        json.put("wrappers", new JsonArray(wrappersList));        
+        json.put("wrappers", new JsonArray(wrappersList));
         json.put("failed", new JsonArray(failedList.sorted()));
         json.put("passed", new JsonArray(passedList.sorted()));
         json.put("webde", new JsonArray(webDeList));
@@ -236,8 +270,22 @@ public class PeerReviewModel {
         json.put("timestamps", ts);
         json.put("in_progress", new JsonArray(inProgressList));
         json.put("missing", new JsonArray(missingList));
-        
+
         return json;
+    }
+
+    /**
+     * @return the allPrograms
+     */
+    public HashMap<String, ArrayList> getAllPrograms() {
+        return allPrograms;
+    }
+
+    /**
+     * @return the allData
+     */
+    public HashMap<String, ArrayList> getAllData() {
+        return allData;
     }
 
 }
