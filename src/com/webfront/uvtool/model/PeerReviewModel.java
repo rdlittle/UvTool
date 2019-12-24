@@ -95,6 +95,31 @@ public class PeerReviewModel {
         return PeerReviewModel.instance;
     }
 
+    public void clear() {
+        getAllPrograms().clear();
+        getAllData().clear();
+        getId().set("");
+        getTotalItems().set("0");
+        getTotalPending().set("0");
+        getTotalPassed().set("0");
+        getTotalFailed().set("0");
+        getTotalDictData().set("0");
+        getItemList().clear();
+        getPassedList().clear();
+        getFailedList().clear();
+        getPendingList().clear();
+        getWrappersList().clear();
+        getPadsAppsList().clear();
+        getPadsProgramsList().clear();
+        getWebDeList().clear();
+        getProgramsList().clear();
+        getDictsList().clear();
+        getDataList().clear();
+        getMissingList().clear();
+        getInProgressList().clear();
+        getTimeStamps().clear();
+    }
+    
     private String decodeMv(String mvString) {
         mvString = mvString.replaceAll(SVM, "~");
         mvString = mvString.replaceAll(" ", "~");
@@ -116,53 +141,53 @@ public class PeerReviewModel {
             if (!wrappers[0].isEmpty()) {
                 itemList.addAll(Arrays.asList(wrappers));
             }
-            wrappersList.addAll(Arrays.asList(wrappers));
-            getAllPrograms().put("wrappers", wrappersList);
+            getWrappersList().addAll(Arrays.asList(wrappers));
+            getAllPrograms().put("wrappers", getWrappersList());
         }
         if (padsPrograms.length > 0) {
             if (!padsPrograms[0].isEmpty()) {
                 itemList.addAll(Arrays.asList(padsPrograms));
             }
-            padsProgramsList.addAll(Arrays.asList(padsPrograms));
-            getAllPrograms().put("pads", padsProgramsList);
+            getPadsProgramsList().addAll(Arrays.asList(padsPrograms));
+            getAllPrograms().put("pads", getPadsProgramsList());
         }
         if (padsApps.length > 0) {
             if (!padsApps[0].isEmpty()) {
                 itemList.addAll(Arrays.asList(padsApps));
             }
-            padsAppsList.addAll(Arrays.asList(padsApps));
-            getAllData().put("padsApps", padsAppsList);
-            dictDataList.addAll(padsAppsList);
+            getPadsAppsList().addAll(Arrays.asList(padsApps));
+            getAllData().put("padsApps", getPadsAppsList());
+            dictDataList.addAll(getPadsAppsList());
         }
         if (webDe.length > 0) {
             if (!webDe[0].isEmpty()) {
                 itemList.addAll(Arrays.asList(webDe));
             }
-            webDeList.addAll(Arrays.asList(webDe));
-            getAllPrograms().put("webde", webDeList);
+            getWebDeList().addAll(Arrays.asList(webDe));
+            getAllPrograms().put("webde", getWebDeList());
         }
         if (programs.length > 0) {
             if (!programs[0].isEmpty()) {
                 itemList.addAll(Arrays.asList(programs));
             }
-            programsList.addAll(Arrays.asList(programs));
-            getAllPrograms().put("programs", programsList);
+            getProgramsList().addAll(Arrays.asList(programs));
+            getAllPrograms().put("programs", getProgramsList());
         }
         if (dicts.length > 0) {
             if (!dicts[0].isEmpty()) {
                 itemList.addAll(Arrays.asList(dicts));
             }
-            dictsList.addAll(Arrays.asList(dicts));
-            getAllData().put("dicts", dictsList);
-            dictDataList.addAll(dictsList);
+            getDictsList().addAll(Arrays.asList(dicts));
+            getAllData().put("dicts", getDictsList());
+            dictDataList.addAll(getDictsList());
         }
         if (data.length > 0) {
             if (!data[0].isEmpty()) {
                 itemList.addAll(Arrays.asList(data));
             }
-            dataList.addAll(Arrays.asList(data));
-            getAllData().put("data", dataList);
-            dictDataList.addAll(dataList);
+            getDataList().addAll(Arrays.asList(data));
+            getAllData().put("data", getDataList());
+            dictDataList.addAll(getDataList());
         }
 
         totalItems.set(Integer.toString(itemList.size()));
@@ -257,19 +282,19 @@ public class PeerReviewModel {
         JsonObject json = new JsonObject();
         json.put("id", id.getValue());
         json.put("item_count", totalItems.getValue());
-        json.put("data", new JsonArray(dataList));
-        json.put("dicts", new JsonArray(dictsList));
-        json.put("pads_programs", new JsonArray(padsProgramsList));
-        json.put("pads_apps", new JsonArray(padsAppsList));
-        json.put("wrappers", new JsonArray(wrappersList));
+        json.put("data", new JsonArray(getDataList()));
+        json.put("dicts", new JsonArray(getDictsList()));
+        json.put("pads_programs", new JsonArray(getPadsProgramsList()));
+        json.put("pads_apps", new JsonArray(getPadsAppsList()));
+        json.put("wrappers", new JsonArray(getWrappersList()));
         json.put("failed", new JsonArray(failedList.sorted()));
         json.put("passed", new JsonArray(passedList.sorted()));
-        json.put("webde", new JsonArray(webDeList));
+        json.put("webde", new JsonArray(getWebDeList()));
         JsonObject ts = new JsonObject();
         ts.putAll(getTimeStamps());
         json.put("timestamps", ts);
-        json.put("in_progress", new JsonArray(inProgressList));
-        json.put("missing", new JsonArray(missingList));
+        json.put("in_progress", new JsonArray(getInProgressList()));
+        json.put("missing", new JsonArray(getMissingList()));
 
         return json;
     }
@@ -286,6 +311,69 @@ public class PeerReviewModel {
      */
     public HashMap<String, ArrayList> getAllData() {
         return allData;
+    }
+
+    /**
+     * @return the wrappersList
+     */
+    public ArrayList<String> getWrappersList() {
+        return wrappersList;
+    }
+
+    /**
+     * @return the padsAppsList
+     */
+    public ArrayList<String> getPadsAppsList() {
+        return padsAppsList;
+    }
+
+    /**
+     * @return the webDeList
+     */
+    public ArrayList<String> getWebDeList() {
+        return webDeList;
+    }
+
+    /**
+     * @return the programsList
+     */
+    public ArrayList<String> getProgramsList() {
+        return programsList;
+    }
+
+    /**
+     * @return the dictsList
+     */
+    public ArrayList<String> getDictsList() {
+        return dictsList;
+    }
+
+    /**
+     * @return the dataList
+     */
+    public ArrayList<String> getDataList() {
+        return dataList;
+    }
+
+    /**
+     * @return the missingList
+     */
+    public ArrayList<String> getMissingList() {
+        return missingList;
+    }
+
+    /**
+     * @return the inProgressList
+     */
+    public ArrayList<String> getInProgressList() {
+        return inProgressList;
+    }
+
+    /**
+     * @return the padsProgramsList
+     */
+    public ArrayList<String> getPadsProgramsList() {
+        return padsProgramsList;
     }
 
 }

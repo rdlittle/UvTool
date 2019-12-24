@@ -28,16 +28,27 @@ import java.util.logging.Logger;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.w3c.dom.events.EventException;
@@ -61,6 +72,8 @@ public class PeerReviewController implements Controller, Initializable, Progress
     @FXML
     Button btnFailReview;
     @FXML
+    CheckBox chkLoadData;
+    @FXML
     Label lblPendingCount;
     @FXML
     Label lblDictDataCount;
@@ -79,11 +92,15 @@ public class PeerReviewController implements Controller, Initializable, Progress
     @FXML
     ListView listFailed;
     @FXML
-    ListView listDictData;
-    @FXML
     ListView<String> listPassed;
     @FXML
     TextField txtReviewId;
+    @FXML
+    TableColumn itemColumn;
+    @FXML
+    TableColumn statusColumn;
+    @FXML
+    TableView<DictDataItem> tblDictData;
     @FXML
     ProgressBar progressBar;
 
@@ -96,11 +113,17 @@ public class PeerReviewController implements Controller, Initializable, Progress
     private final String pathSep = System.getProperty("file.separator");
     private final String VM = new Character((char) 253).toString();
 
-    private PeerReviewModel model;
+    private final PeerReviewModel model;
+    private boolean loadDictData;
+
+    private final ObservableList<DictDataItem> dictDataItemList;
 
     public PeerReviewController() {
         txtReviewId = new TextField();
         this.model = PeerReviewModel.getInstance();
+        loadDictData = com.webfront.u2.util.Config.getInstance().
+                getPreferences().get("loadData").equals("1");
+        dictDataItemList = FXCollections.observableArrayList();
     }
 
     private boolean doCompare(String oldItem, String newItem) {
@@ -146,7 +169,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
             String platform = segs[0];
             String library = segs[1];
             String program = segs[2];
-            if(platform.equals("DMCRBO")) {
+            if (platform.equals("DMCRBO")) {
                 platform = "DMC";
                 program = segs[3];
             }
@@ -155,7 +178,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
             String pathType = net.getPathType(library);
             String remotePath = s.getPath(pathType);
             String localPath = systemConfig.getPreferences().get("codeHome");
-            if(pathType.equals("pads_hook_segment")) {
+            if (pathType.equals("pads_hook_segment")) {
                 library = "";
             }
             if (!remotePath.endsWith("/")) {
@@ -188,7 +211,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
                 if (item.isEmpty()) {
                     continue;
                 }
-                if(item.contains("SEGMENT")) {
+                if (item.contains("SEGMENT")) {
                     item = item.replaceAll("\\\\", "\\.");
                 }
                 mtime = getArtifact(item);
@@ -198,23 +221,21 @@ public class PeerReviewController implements Controller, Initializable, Progress
                     String platform = segs[0];
                     String library = segs[1];
                     String program = segs[2];
-                    String codebase=null;
-                    if(platform.equals("DMCRBO")) {
+                    String codebase = null;
+                    if (platform.equals("DMCRBO")) {
                         platform = "DMC";
                         program = segs[3];
                         codebase = "RBO";
                     }
                     Server s = new Server(platforms.getPlatforms(), platform.toLowerCase());
-                    if(codebase == null) {
+                    if (codebase == null) {
                         codebase = s.getCodeBase();
                     }
-                    
+
                     if (!platform.equalsIgnoreCase(codebase)) {
                         item = String.format("%s~%s~%s", codebase, library, program);
                     }
-                    if(item.contains("SEGMENT")) {
-                        System.out.println("Ready");
-                    }
+
                     net.getApproved("CODE", item);
                     String path = systemConfig.getPreferences().get("codeHome");
 
@@ -240,7 +261,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
                 } catch (SftpException ex) {
                     Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
                     display(item + ": " + ex.getMessage());
-                    if(ex.getMessage().contains("No such file")) {
+                    if (ex.getMessage().contains("No such file")) {
                         this.model.getPendingList().add(item);
                         incrementCounter("pending");
                         continue;
@@ -260,12 +281,30 @@ public class PeerReviewController implements Controller, Initializable, Progress
                 updateProgressBar(pct);
             }
         }
+        getDictData(recordsDone, totalRecords);
         updateProgressBar(0D);
         stage.getScene().setCursor(Cursor.DEFAULT);
         File f = new File(localPath + txtReviewId.textProperty().getValue() + ".json");
         try (FileWriter out = new FileWriter(f)) {
             out.write(Jsoner.prettyPrint(Jsoner.serialize(this.model.toJson())));
             out.close();
+        }
+    }
+
+    private void getDictData(Double recordsDone, Double totalRecords) {
+        for (ArrayList<String> list : this.model.getAllData().values()) {
+            for (String item : list) {
+                String itemStatus = "Unchecked";
+                if (loadDictData) {
+                    boolean isDataOk = net.checkDictData(item);
+                    itemStatus = isDataOk ? "Yes" : "No";                    
+                }
+                recordsDone += 1;
+                Double pct = recordsDone / totalRecords;
+                updateProgressBar(pct);
+                DictDataItem ddItem = new DictDataItem(item, itemStatus);
+                dictDataItemList.add(ddItem);
+            }
         }
     }
 
@@ -288,13 +327,22 @@ public class PeerReviewController implements Controller, Initializable, Progress
         listPassed.setItems(this.model.getPassedList());
         listPending.setItems(this.model.getPendingList());
         listFailed.setItems(this.model.getFailedList());
-        listDictData.setItems(this.model.getDictDataList());
         lblPassedCount.textProperty().bind(this.model.getTotalPassed());
         lblPendingCount.textProperty().bind(this.model.getTotalPending());
         lblFailedCount.textProperty().bind(this.model.getTotalFailed());
         lblMessage.setText("");
         lblDictDataCount.textProperty().bind(this.model.getTotalDictData());
         lblTotalCount.textProperty().bind(this.model.getTotalItems());
+        chkLoadData.selectedProperty().set(loadDictData);
+        chkLoadData.selectedProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                loadDictData = (boolean) newValue;
+            }
+        });
+        itemColumn.setCellValueFactory(new PropertyValueFactory<>("artifactName"));
+        statusColumn.setCellValueFactory(new PropertyValueFactory<>("artifactStatus"));
+        tblDictData.setItems(dictDataItemList);
     }
 
     @Override
@@ -304,6 +352,8 @@ public class PeerReviewController implements Controller, Initializable, Progress
 
     @FXML
     public void onLoadReview() {
+        this.model.clear();
+        dictDataItemList.clear();
         String item = txtReviewId.getText();
         StringBuilder sb = new StringBuilder();
 
@@ -334,7 +384,14 @@ public class PeerReviewController implements Controller, Initializable, Progress
             Thread backgroundThread = new Thread(runner);
             backgroundThread.setDaemon(true);
             backgroundThread.start();
-
+//            if (loadDictData) {
+//                Runnable dictDataRunner = () -> {
+//                    getDictData();
+//                };
+//                Thread dictDataThread = new Thread(dictDataRunner);
+//                dictDataThread.setDaemon(true);
+//                dictDataThread.start();
+//            }
         } catch (JSchException ex) {
             Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SftpException ex) {
@@ -362,6 +419,11 @@ public class PeerReviewController implements Controller, Initializable, Progress
     @FXML
     public void onFailReview() {
 
+    }
+
+    private void resetForm() {
+        dictDataItemList.clear();
+        this.model.clear();
     }
 
     @Override
@@ -395,6 +457,32 @@ public class PeerReviewController implements Controller, Initializable, Progress
     @Override
     public void updateLed(String host, boolean onOff) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public static class DictDataItem {
+
+        private final SimpleStringProperty artifactName;
+        private final SimpleStringProperty artifactStatus;
+
+        private DictDataItem(String itm, String st) {
+            this.artifactName = new SimpleStringProperty(itm);
+            this.artifactStatus = new SimpleStringProperty(st);
+        }
+
+        /**
+         * @return the item
+         */
+        public String getArtifactName() {
+            return artifactName.get();
+        }
+
+        /**
+         * @return the status
+         */
+        public String getArtifactStatus() {
+            return artifactStatus.get();
+        }
+
     }
 
 }

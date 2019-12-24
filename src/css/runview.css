@@ -11,3 +11,14 @@
         border-width: 1px;
     }
 }
+
+.list-view .list-cell:good {
+    -fx-background-color: white;
+    -fx-fill: black;
+    -fx-text-fill: black;
+}
+
+.list-view .list-cell:error {
+    -fx-background-color: tomato;
+    -fx-fill: white;
+}

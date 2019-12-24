@@ -90,6 +90,9 @@ public class Network {
             String user = "release";
             String keyPath = "/home/rlittle/sob/nlstest.id_rsa";
             String multiCmd = String.format("cd %s && ./%s", path, cmd);
+            if(cmd.startsWith("cat")) {
+                multiCmd = String.format("cd %s && %s", path, cmd);
+            }
             JSch jsch = new JSch();
             jsch.addIdentity(keyPath);
             Session session = jsch.getSession(user, host);
@@ -186,6 +189,34 @@ public class Network {
             }
             throw new FileNotFoundException("No approved version found");
         }
+    }
+    
+    public boolean checkDictData(String item) {
+        String[] specs = item.split("~");
+        String cmd = sshCommands.get("getApproved");
+        String downloadPath = systemConfig.getPreferences().get("dataHome");
+        String platform = specs[0];
+        String dataFile = specs[1].replaceAll("\\\\", "~");;
+        String itemId = specs[2];
+        
+        item = String.format("%s~%s~%s", platform, dataFile, itemId);
+        
+        Server s = new Server(platforms.getPlatforms(), "dmc");
+        String remotePath = s.getPath("deploy");
+        if (!remotePath.endsWith("/")) {
+            remotePath = remotePath + "/";
+        }
+        cmd = cmd + " DATA "+item;
+        ByteArrayOutputStream output = 
+                sshExec("nlstest", remotePath, cmd);
+        remotePath = s.getPath("dev_data");
+        cmd = sshCommands.get("cat");
+        cmd = cmd + " " + item;
+        output = sshExec("nlstest", remotePath, cmd);
+        if (output.size()==0) {
+            return false;
+        }
+        return true;
     }
 
     public String getPathType(String library) {

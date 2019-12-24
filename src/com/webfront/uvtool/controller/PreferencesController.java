@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -34,10 +35,10 @@ public class PreferencesController implements Controller, Initializable, Progres
 
     @FXML
     private Button btnDownloads;
-    
+
     @FXML
     private TextField txtDownloads;
-    
+
     @FXML
     private TextField txtTempLocation;
 
@@ -49,10 +50,10 @@ public class PreferencesController implements Controller, Initializable, Progres
 
     @FXML
     private Button btnDiffProgram;
-    
+
     @FXML
     private TextField txtEditor;
-    
+
     @FXML
     private Button btnEditor;
 
@@ -61,20 +62,22 @@ public class PreferencesController implements Controller, Initializable, Progres
 
     @FXML
     private Button btnCancel;
-    
+
     @FXML
     private Button btnProjectHome;
     @FXML
     private Button btnCodeHome;
     @FXML
     private Button btnDataHome;
-    
+
     @FXML
     private TextField txtProjectHome;
     @FXML
     private TextField txtCodeHome;
     @FXML
     private TextField txtDataHome;
+    @FXML
+    private CheckBox chkLoadData;
 
     public PreferencesController() {
         btnDownloads = new Button();
@@ -93,10 +96,12 @@ public class PreferencesController implements Controller, Initializable, Progres
         txtProjectHome = new TextField();
         txtCodeHome = new TextField();
         txtDataHome = new TextField();
+        chkLoadData = new CheckBox();
     }
 
     /**
      * Initializes the controller class.
+     *
      * @param url
      * @param rb
      */
@@ -110,6 +115,7 @@ public class PreferencesController implements Controller, Initializable, Progres
         txtProjectHome.setText(config.getPreferences().get("projectHome"));
         txtCodeHome.setText(config.getPreferences().get("codeHome"));
         txtDataHome.setText(config.getPreferences().get("dataHome"));
+        chkLoadData.selectedProperty().set(config.getPreferences().get("loadData").equals("1"));
     }
 
     @FXML
@@ -120,6 +126,7 @@ public class PreferencesController implements Controller, Initializable, Progres
         config.getPreferences().put("projectHome", txtProjectHome.getText());
         config.getPreferences().put("codeHome", txtCodeHome.getText());
         config.getPreferences().put("dataHome", txtDataHome.getText());
+        config.getPreferences().put("loadData", chkLoadData.isSelected() ? "1" : "0");
         try {
             config.updatePreferences("tmpDir", txtTempLocation.getText());
             config.updatePreferences("diffProgram", txtDiffProgram.getText());
@@ -142,16 +149,16 @@ public class PreferencesController implements Controller, Initializable, Progres
         }
         txtCodeHome.setText(result);
     }
-    
+
     @FXML
     public void btnDataHomeOnClick() {
         String result = browse(true, "Select location for data downloads");
         if (result == null) {
             return;
         }
-        txtDataHome.setText(result);        
-    }    
-    
+        txtDataHome.setText(result);
+    }
+
     @FXML
     public void btnTempLocationOnClick() {
         String result = browse(true, "Select location for temporary files");
@@ -169,24 +176,25 @@ public class PreferencesController implements Controller, Initializable, Progres
         }
         txtDiffProgram.setText(result);
     }
-    
+
     @FXML
     public void btnProjectHomeOnClick() {
         String result = browse(true, "Select location for projects");
         if (result == null) {
             return;
         }
-        txtProjectHome.setText(result);        
+        txtProjectHome.setText(result);
     }
-    
-    @FXML void btnDownloadsOnClick() {
+
+    @FXML
+    void btnDownloadsOnClick() {
         String result = browse(false, "Select location for downloads");
         if (result == null) {
             return;
         }
         txtDownloads.setText(result);
     }
-    
+
     @FXML
     public void btnEditorOnClick() {
         String result = browse(false, "Select preferred text editor");
@@ -194,7 +202,7 @@ public class PreferencesController implements Controller, Initializable, Progres
             return;
         }
         txtEditor.setText(result);
-    }    
+    }
 
     @Override
     public void setStage(Stage s) {

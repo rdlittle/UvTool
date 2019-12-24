@@ -18,7 +18,7 @@
                 "pads_bp": "/uvfs/ma.accounts/pads2.0/PADS.BP",
                 "pads_hook": "/uvfs/ma.accounts/dmc/PADS.HOOK",
                 "pads_hook_segment": "/uvfs/ma.accounts/dmc/PADS.HOOK/SEGMENT",
-                "dev_data": "/uvfs/ma.accounts/dmc/barfyHoldingArea",
+                "dev_data": "/uvfs/ma.accounts/deploy/barfyHoldingArea",
                 "approved": "/uvfs/ma.accounts/deploy/barfyHoldingArea",
                 "failed": "/uvfs/ma.accounts/deploy/RECENT.FAILS",
                 "peer_failed": "/uvfs/ma.accounts/deploy/PEER.FAILED",
