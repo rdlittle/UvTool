@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.webfront.uvtool.controller.PreferencesController">
+<AnchorPane id="AnchorPane" prefHeight="539.0" prefWidth="425.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.webfront.uvtool.controller.PreferencesController">
    <children>
       <Label layoutX="14.0" layoutY="14.0" text="Temporary files location" />
       <TextField fx:id="txtTempLocation" layoutX="14.0" layoutY="30.0" prefHeight="26.0" prefWidth="289.0" />
@@ -13,10 +14,23 @@
       <Label layoutX="14.0" layoutY="67.0" text="Diff program" />
       <TextField fx:id="txtDiffProgram" layoutX="14.0" layoutY="83.0" prefHeight="26.0" prefWidth="289.0" />
       <Button fx:id="btnDiffProgram" layoutX="316.0" layoutY="83.0" mnemonicParsing="false" onAction="#btnDiffProgramOnClick" text="Browse" />
-      <Button fx:id="btnCancel" layoutX="524.0" layoutY="360.0" mnemonicParsing="false" text="Cancel" />
-      <Button fx:id="btnOk" layoutX="450.0" layoutY="360.0" mnemonicParsing="false" onAction="#btnOkOnClick" prefHeight="26.0" prefWidth="63.0" text="OK" />
+      <Button fx:id="btnCancel" layoutX="330.0" layoutY="489.0" mnemonicParsing="false" text="Cancel" />
+      <Button fx:id="btnOk" layoutX="248.0" layoutY="489.0" mnemonicParsing="false" onAction="#btnOkOnClick" prefHeight="26.0" prefWidth="63.0" text="OK" />
       <Label layoutX="14.0" layoutY="128.0" text="Editor" />
       <TextField fx:id="txtEditor" layoutX="14.0" layoutY="144.0" prefHeight="26.0" prefWidth="289.0" />
       <Button fx:id="btnEditor" layoutX="318.0" layoutY="144.0" mnemonicParsing="false" onAction="#btnEditorOnClick" text="Browse" />
+      <TextField fx:id="txtDownloads" layoutX="14.0" layoutY="200.0" prefHeight="26.0" prefWidth="289.0" />
+      <Button fx:id="btnDownloads" layoutX="318.0" layoutY="200.0" mnemonicParsing="false" onAction="#btnDownloadsOnClick" text="Browse" />
+      <Label layoutX="16.0" layoutY="184.0" text="General downloads" />
+      <Label layoutX="16.0" layoutY="242.0" text="Project home" />
+      <TextField fx:id="txtProjectHome" layoutX="13.0" layoutY="260.0" prefHeight="28.0" prefWidth="289.0" />
+      <Label layoutX="16.0" layoutY="308.0" text="Peer review code downloads" />
+      <TextField fx:id="txtCodeHome" layoutX="16.0" layoutY="326.0" prefHeight="28.0" prefWidth="289.0" />
+      <Label layoutX="16.0" layoutY="376.0" text="Peer review data downloads" />
+      <TextField fx:id="txtDataHome" layoutX="17.0" layoutY="394.0" prefHeight="28.0" prefWidth="289.0" />
+      <Button fx:id="btnProjectHome" layoutX="320.0" layoutY="260.0" mnemonicParsing="false" onAction="#btnProjectHomeOnClick" text="Browse" />
+      <Button fx:id="btnCodeHome" layoutX="318.0" layoutY="326.0" mnemonicParsing="false" onAction="#btnCodeHomeOnClick" text="Browse" />
+      <Button fx:id="btnDataHome" layoutX="320.0" layoutY="394.0" mnemonicParsing="false" onAction="#btnDataHomeOnClick" text="Browse" />
+      <CheckBox fx:id="chkLoadData" layoutX="15.0" layoutY="442.0" mnemonicParsing="false" text="Always load dicts &amp; data in peer review" />
    </children>
 </AnchorPane>

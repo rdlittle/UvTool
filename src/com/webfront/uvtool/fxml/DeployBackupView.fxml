@@ -6,7 +6,8 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.control.ToggleGroup?>
@@ -15,7 +16,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="693.0" prefWidth="1042.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.webfront.uvtool.controller.DeployBackupController">
+<AnchorPane id="AnchorPane" prefHeight="693.0" prefWidth="1042.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.webfront.uvtool.controller.DeployBackupController">
     <children>
         <HBox prefHeight="698.0" prefWidth="1042.0">
             <children>
@@ -62,16 +63,16 @@
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                     </padding>
                 </VBox>
-                <VBox prefHeight="698.0" prefWidth="709.0" spacing="10.0">
+                <VBox fx:id="rightVbox" prefHeight="698.0" prefWidth="709.0" spacing="10.0">
                     <children>
                         <Label text="Preview" />
-                        <TextArea fx:id="txtPreview" editable="false" prefHeight="549.0" prefWidth="673.0">
-                            <font>
-                                <Font name="Liberation Mono" size="13.0" />
-                            </font>
-                        </TextArea>
+                  <TabPane fx:id="tabPane" prefHeight="542.0" prefWidth="688.0" tabClosingPolicy="UNAVAILABLE">
+                    <tabs>
+                      <Tab fx:id="previewTab" closable="false" />
+                    </tabs>
+                  </TabPane>
                         <TitledPane collapsible="false" prefHeight="90.0" prefWidth="688.0" text="Find">
-                            <content>
+                     <content>
                                 <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                                     <children>
                                         <TextField fx:id="txtFind" prefHeight="26.0" prefWidth="500.0" />
@@ -82,7 +83,10 @@
                                         <Insets left="10.0" top="20.0" />
                                     </padding>
                                 </HBox>
-                            </content>
+                     </content>
+                     <font>
+                        <Font name="Liberation Mono" size="10.0" />
+                     </font>
                         </TitledPane>
                     </children>
                     <padding>
