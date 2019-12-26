@@ -28,16 +28,19 @@ import java.util.logging.Logger;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -116,6 +119,10 @@ public class PeerReviewController implements Controller, Initializable, Progress
 
     private final ObservableList<DictDataItem> dictDataItemList;
     private final ObservableList<String> projectList;
+    private final SimpleBooleanProperty itemOk = new SimpleBooleanProperty();
+    private final SimpleBooleanProperty reviewOk = new SimpleBooleanProperty();
+    private final SimpleBooleanProperty hasFailed = new SimpleBooleanProperty();
+    private final SimpleBooleanProperty hasPending = new SimpleBooleanProperty();
 
     public PeerReviewController() {
         txtReviewId = new TextField();
@@ -127,8 +134,8 @@ public class PeerReviewController implements Controller, Initializable, Progress
         String home = systemConfig.getPreferences().get("projectHome");
         File f = new File(home);
         String[] dir = f.list();
-        for(String fileName : dir) {
-            if(fileName.endsWith(".json")) {
+        for (String fileName : dir) {
+            if (fileName.endsWith(".json")) {
                 projectList.add(fileName);
             }
         }
@@ -361,12 +368,39 @@ public class PeerReviewController implements Controller, Initializable, Progress
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
                 try {
-                    recallProject(newValue.toString());
+                    if (newValue != null) {
+                        recallProject(newValue.toString());
+                    }
                 } catch (IOException ex) {
                     Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
+        txtReviewId.textProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                listProjects.getSelectionModel().clearSelection();
+            }
+        });
+        this.model.getFailedList().addListener(new ListChangeListener() {
+            @Override
+            public void onChanged(ListChangeListener.Change c) {
+                hasFailed.setValue(!c.getList().isEmpty());
+            }
+        });
+        this.model.getPendingList().addListener(new ListChangeListener() {
+            @Override
+            public void onChanged(ListChangeListener.Change c) {
+                hasPending.setValue(!c.getList().isEmpty());
+            }
+        });
+
+        btnLoad.disableProperty().bind(listProjects.getSelectionModel().selectedItemProperty().isNotNull());
+        btnPassReview.disableProperty().bind(hasFailed.or(hasPending));
+        btnFailReview.disableProperty().bind(btnPassReview.disabledProperty().not());
+        btnPassItem.disableProperty().bind(listPending.getSelectionModel().selectedItemProperty().isNull());
+        btnFailItem.disableProperty().bind(btnPassItem.disabledProperty());
+
         itemColumn.setCellValueFactory(new PropertyValueFactory<>("artifactName"));
         statusColumn.setCellValueFactory(new PropertyValueFactory<>("artifactStatus"));
         tblDictData.setItems(dictDataItemList);
@@ -377,7 +411,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
     public void launch(String v, String t) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
+
     private void recallProject(String project) throws FileNotFoundException, IOException {
         String home = systemConfig.getPreferences().get("projectHome");
         if (!home.endsWith(pathSep)) {
@@ -386,9 +420,9 @@ public class PeerReviewController implements Controller, Initializable, Progress
         String path = home + project;
         BufferedReader reader = new BufferedReader(new FileReader(path));
         StringBuilder buffer = new StringBuilder();
-        for(;;) {
+        for (;;) {
             String line = reader.readLine();
-            if(line == null) {
+            if (line == null) {
                 break;
             }
             buffer.append(line);
@@ -424,7 +458,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
                     if (line == null) {
                         break;
                     }
-                    sb.append(line + "\n");
+                    sb = sb.append(line).append("\n");
                 }
             }
             this.model.init(sb.toString());
@@ -444,12 +478,31 @@ public class PeerReviewController implements Controller, Initializable, Progress
             backgroundThread.setDaemon(true);
             backgroundThread.start();
         } catch (JSchException ex) {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.contentTextProperty().set(ex.getMessage());
+                alert.showAndWait();
+            });
             Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SftpException ex) {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.contentTextProperty().set(ex.getMessage());
+                alert.showAndWait();
+            });
             Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.contentTextProperty().set(ex.getMessage());
+                alert.showAndWait();
+            });
             Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
         }
+        projectList.add(txtReviewId.getText()+".json");
+        ArrayList<String> tempList = new ArrayList<>(projectList.sorted());
+        projectList.clear();
+        projectList.addAll(tempList);
     }
 
     @FXML
