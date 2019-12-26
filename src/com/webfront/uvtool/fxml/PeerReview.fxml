@@ -45,7 +45,7 @@
       </HBox>
       <Label layoutX="475.0" layoutY="237.0" text="Dict / Data" />
       <ProgressBar fx:id="progressBar" layoutX="13.0" layoutY="612.0" prefHeight="20.0" prefWidth="957.0" progress="0.0" />
-      <ListView fx:id="listItems" layoutX="13.0" layoutY="64.0" prefHeight="167.0" prefWidth="298.0" />
+      <ListView fx:id="listProjects" layoutX="13.0" layoutY="64.0" prefHeight="167.0" prefWidth="439.0" />
       <Label layoutX="13.0" layoutY="15.0" text="Project Id" />
       <Label fx:id="lblPendingCount" layoutX="438.0" layoutY="237.0" text="0" textAlignment="RIGHT" />
       <Label fx:id="lblDictDataCount" layoutX="951.0" layoutY="237.0" text="0" textAlignment="RIGHT" />

@@ -28,7 +28,6 @@ import java.util.logging.Logger;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -42,7 +41,6 @@ import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableColumn;
@@ -86,7 +84,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
     @FXML
     Label lblMessage;
     @FXML
-    ListView listItems;
+    ListView listProjects;
     @FXML
     ListView listPending;
     @FXML
@@ -117,6 +115,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
     private boolean loadDictData;
 
     private final ObservableList<DictDataItem> dictDataItemList;
+    private final ObservableList<String> projectList;
 
     public PeerReviewController() {
         txtReviewId = new TextField();
@@ -124,6 +123,15 @@ public class PeerReviewController implements Controller, Initializable, Progress
         loadDictData = com.webfront.u2.util.Config.getInstance().
                 getPreferences().get("loadData").equals("1");
         dictDataItemList = FXCollections.observableArrayList();
+        projectList = FXCollections.observableArrayList();
+        String home = systemConfig.getPreferences().get("projectHome");
+        File f = new File(home);
+        String[] dir = f.list();
+        for(String fileName : dir) {
+            if(fileName.endsWith(".json")) {
+                projectList.add(fileName);
+            }
+        }
     }
 
     private boolean doCompare(String oldItem, String newItem) {
@@ -297,7 +305,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
                 String itemStatus = "Unchecked";
                 if (loadDictData) {
                     boolean isDataOk = net.checkDictData(item);
-                    itemStatus = isDataOk ? "Yes" : "No";                    
+                    itemStatus = isDataOk ? "Yes" : "No";
                 }
                 recordsDone += 1;
                 Double pct = recordsDone / totalRecords;
@@ -309,15 +317,24 @@ public class PeerReviewController implements Controller, Initializable, Progress
     }
 
     private void incrementCounter(String counter) {
-        if (counter.equals("pending")) {
-            Integer i = Integer.parseInt(this.model.getTotalPending().get()) + 1;
-            Platform.runLater(() -> this.model.getTotalPending().set(i.toString()));
-        } else if (counter.equals("passed")) {
-            Integer i = Integer.parseInt(this.model.getTotalPassed().get()) + 1;
-            Platform.runLater(() -> this.model.getTotalPassed().set(i.toString()));
-        } else if (counter.equals("failed")) {
-            Integer i = Integer.parseInt(this.model.getTotalFailed().get()) + 1;
-            Platform.runLater(() -> this.model.getTotalFailed().set(i.toString()));
+        switch (counter) {
+            case "pending": {
+                Integer i = Integer.parseInt(this.model.getTotalPending().get()) + 1;
+                Platform.runLater(() -> this.model.getTotalPending().set(i.toString()));
+                break;
+            }
+            case "passed": {
+                Integer i = Integer.parseInt(this.model.getTotalPassed().get()) + 1;
+                Platform.runLater(() -> this.model.getTotalPassed().set(i.toString()));
+                break;
+            }
+            case "failed": {
+                Integer i = Integer.parseInt(this.model.getTotalFailed().get()) + 1;
+                Platform.runLater(() -> this.model.getTotalFailed().set(i.toString()));
+                break;
+            }
+            default:
+                break;
         }
     }
 
@@ -340,14 +357,56 @@ public class PeerReviewController implements Controller, Initializable, Progress
                 loadDictData = (boolean) newValue;
             }
         });
+        listProjects.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                try {
+                    recallProject(newValue.toString());
+                } catch (IOException ex) {
+                    Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
         itemColumn.setCellValueFactory(new PropertyValueFactory<>("artifactName"));
         statusColumn.setCellValueFactory(new PropertyValueFactory<>("artifactStatus"));
         tblDictData.setItems(dictDataItemList);
+        listProjects.setItems(projectList);
     }
 
     @Override
     public void launch(String v, String t) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    private void recallProject(String project) throws FileNotFoundException, IOException {
+        String home = systemConfig.getPreferences().get("projectHome");
+        if (!home.endsWith(pathSep)) {
+            home = home + pathSep;
+        }
+        String path = home + project;
+        BufferedReader reader = new BufferedReader(new FileReader(path));
+        StringBuilder buffer = new StringBuilder();
+        for(;;) {
+            String line = reader.readLine();
+            if(line == null) {
+                break;
+            }
+            buffer.append(line);
+        }
+        reader.close();
+        dictDataItemList.clear();
+        this.model.fromJson(buffer.toString());
+        for (ArrayList<String> list : this.model.getAllData().values()) {
+            for (String item : list) {
+                String itemStatus = "Unchecked";
+                if (loadDictData) {
+                    boolean isDataOk = net.checkDictData(item);
+                    itemStatus = isDataOk ? "Yes" : "No";
+                }
+                DictDataItem ddItem = new DictDataItem(item, itemStatus);
+                dictDataItemList.add(ddItem);
+            }
+        }
     }
 
     @FXML
@@ -384,14 +443,6 @@ public class PeerReviewController implements Controller, Initializable, Progress
             Thread backgroundThread = new Thread(runner);
             backgroundThread.setDaemon(true);
             backgroundThread.start();
-//            if (loadDictData) {
-//                Runnable dictDataRunner = () -> {
-//                    getDictData();
-//                };
-//                Thread dictDataThread = new Thread(dictDataRunner);
-//                dictDataThread.setDaemon(true);
-//                dictDataThread.start();
-//            }
         } catch (JSchException ex) {
             Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SftpException ex) {
