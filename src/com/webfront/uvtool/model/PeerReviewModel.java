@@ -15,6 +15,7 @@ import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.function.Predicate;
 
 /**
  *
@@ -206,45 +207,57 @@ public class PeerReviewModel {
             if (padsPrograms.length > 0) {
                 if (!padsPrograms[0].isEmpty()) {
                     itemList.addAll(Arrays.asList(padsPrograms));
+                    itemList.removeIf(Predicate.isEqual(""));
                 }
                 getPadsProgramsList().addAll(Arrays.asList(padsPrograms));
+                getPadsProgramsList().removeIf(Predicate.isEqual(""));
                 getAllPrograms().put("pads", getPadsProgramsList());
             }
             if (padsApps.length > 0) {
                 if (!padsApps[0].isEmpty()) {
                     itemList.addAll(Arrays.asList(padsApps));
+                    itemList.removeIf(Predicate.isEqual(""));
                 }
                 getPadsAppsList().addAll(Arrays.asList(padsApps));
+                getPadsAppsList().removeIf(Predicate.isEqual(""));
                 getAllData().put("padsApps", getPadsAppsList());
                 dictDataList.addAll(getPadsAppsList());
             }
             if (webDe.length > 0) {
                 if (!webDe[0].isEmpty()) {
                     itemList.addAll(Arrays.asList(webDe));
+                    itemList.removeIf(Predicate.isEqual(""));
                 }
                 getWebDeList().addAll(Arrays.asList(webDe));
+                getWebDeList().removeIf(Predicate.isEqual(""));
                 getAllPrograms().put("webde", getWebDeList());
             }
             if (programs.length > 0) {
                 if (!programs[0].isEmpty()) {
                     itemList.addAll(Arrays.asList(programs));
+                    itemList.removeIf(Predicate.isEqual(""));
                 }
                 getProgramsList().addAll(Arrays.asList(programs));
+                getProgramsList().removeIf(Predicate.isEqual(""));
                 getAllPrograms().put("programs", getProgramsList());
             }
             if (dicts.length > 0) {
                 if (!dicts[0].isEmpty()) {
                     itemList.addAll(Arrays.asList(dicts));
+                    itemList.removeIf(Predicate.isEqual(""));
                 }
                 getDictsList().addAll(Arrays.asList(dicts));
+                getDictsList().removeIf(Predicate.isEqual(""));
                 getAllData().put("dicts", getDictsList());
                 dictDataList.addAll(getDictsList());
             }
             if (data.length > 0) {
                 if (!data[0].isEmpty()) {
                     itemList.addAll(Arrays.asList(data));
+                    itemList.removeIf(Predicate.isEqual(""));
                 }
                 getDataList().addAll(Arrays.asList(data));
+                getDataList().removeIf(Predicate.isEqual(""));
                 getAllData().put("data", getDataList());
                 dictDataList.addAll(getDataList());
             }
