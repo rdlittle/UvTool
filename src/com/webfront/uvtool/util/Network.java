@@ -17,6 +17,7 @@ import com.webfront.u2.util.Config;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -27,7 +28,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javafx.scene.control.Alert;
 import org.w3c.dom.events.EventException;
 
 /**
@@ -57,7 +57,7 @@ public class Network {
         sshCommands.put("compile", "barfyCompile");
     }
 
-    public int doSftp(String remoteHost, String remotePath, String remoteItem,
+    public int doSftpGet(String remoteHost, String remotePath, String remoteItem,
             String localPath, String localItem) throws JSchException,
             SftpException, IOException {
         String keyPath = "/home/rlittle/sob/nlstest.id_rsa";
@@ -84,6 +84,31 @@ public class Network {
         session.disconnect();
         return mtime;
     }
+    
+    public int doSftpPut(String remoteHost, String remotePath, String remoteItem,
+            String localPath, String localItem) throws JSchException,
+            SftpException, IOException {
+        String keyPath = "/home/rlittle/sob/nlstest.id_rsa";
+        String inputPath = localPath + localItem;
+        JSch jsch = new JSch();
+        FileInputStream inputStream = new FileInputStream(inputPath);
+        jsch.addIdentity(keyPath);
+        Session session = jsch.getSession("release", remoteHost, 22);
+        java.util.Properties config = new java.util.Properties();
+        config.put("StrictHostKeyChecking", "no");
+        session.setConfig(config);
+        session.setPassword("R31ea$E_@)!(");
+        session.connect(1000);
+        Channel channel = session.openChannel("sftp");
+        channel.connect();
+        ChannelSftp c = (ChannelSftp) channel;
+        c.cd(remotePath);
+        c.put(inputStream, remoteItem);
+        int mtime = c.lstat(remoteItem).getMTime();
+        inputStream.close();
+        session.disconnect();
+        return mtime;
+    }    
 
     public ByteArrayOutputStream sshExec(String host, String path, String cmd) {
         try {
@@ -170,7 +195,7 @@ public class Network {
         }
         String remotePath = s.getPath("deploy") + "/APPROVED.PROGRAMS";
         String item = (approvedId.split("~")[2]) + ".approved";
-        doSftp(host, remotePath, approvedId, downloadPath, item);
+        doSftpGet(host, remotePath, approvedId, downloadPath, item);
         StringBuilder fileOutput;
         try (BufferedReader f = new BufferedReader(new FileReader(downloadPath + item))) {
             fileOutput = new StringBuilder();
@@ -190,6 +215,21 @@ public class Network {
             throw new FileNotFoundException("No approved version found");
         }
     }
+    
+    public void setApproved(String itemType, String approvedId) throws
+            FileNotFoundException, EventException, JSchException, SftpException,
+            IOException {
+        Server s = new Server(platforms.getPlatforms(), "dmc");
+        String path = s.getPath("deploy");
+
+        String host = s.getHost("approved");
+        String cmd = sshCommands.get("setApproved");
+        ByteArrayOutputStream output = sshExec(host, path,
+                cmd + " "+ itemType + " " + approvedId);
+        if (output.size() == 0) {
+            throw new EventException((short) -1, "sshExec error");
+        }
+    }    
     
     public boolean checkDictData(String item) {
         String[] specs = item.split("~");
@@ -219,7 +259,7 @@ public class Network {
         return true;
     }
 
-    public String getPathType(String library) {
+    public static String getPathType(String library) {
         Pattern pattern = Pattern.compile(".+\\.uv[f, i, p, s, t]");
         Matcher matcher = pattern.matcher(library);
         if (library.startsWith("DM.")) {

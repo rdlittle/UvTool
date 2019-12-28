@@ -354,7 +354,7 @@ public class DeployBackupController implements Controller, Initializable {
             String libName = getLibName(progName);
             String remotePath = s.getPath(getPathType(libName)) + "/" + libName;
             try {
-                net.doSftp(host, remotePath, progName, downloadPath,
+                net.doSftpGet(host, remotePath, progName, downloadPath,
                         progName + "." + host);
             } catch (JSchException ex) {
                 Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
@@ -434,7 +434,7 @@ public class DeployBackupController implements Controller, Initializable {
         String remotePath = s.getPath("deploy") + "/APPROVED.PROGRAMS";
         String item = (approvedId.split("~")[2]) + ".approved";
         try {
-            net.doSftp(host, remotePath, approvedId, downloadPath, item);
+            net.doSftpGet(host, remotePath, approvedId, downloadPath, item);
         } catch (JSchException ex) {
             Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SftpException ex) {

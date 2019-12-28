@@ -6,13 +6,16 @@
 package com.webfront.uvtool.model;
 
 import com.github.cliftonlabs.json_simple.JsonArray;
+import com.github.cliftonlabs.json_simple.JsonKey;
 import java.util.Arrays;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import com.github.cliftonlabs.json_simple.JsonObject;
+import com.github.cliftonlabs.json_simple.Jsoner;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.function.Predicate;
 
 /**
  *
@@ -51,7 +54,22 @@ public class PeerReviewModel {
     private final HashMap<String, ArrayList> allPrograms;
     private final HashMap<String, ArrayList> allData;
 
+    private final JsonKey idKey = Jsoner.mintJsonKey("id", "");
+    private final JsonKey pendingKey = Jsoner.mintJsonKey("pending", new JsonArray());
+    private final JsonKey timeStampsKey = Jsoner.mintJsonKey("timestamps", new HashMap<String, Integer>());
+    private final JsonKey passedKey = Jsoner.mintJsonKey("passed", new JsonArray());
+    private final JsonKey inProgressKey = Jsoner.mintJsonKey("in_progress", new JsonArray());
+    private final JsonKey missingKey = Jsoner.mintJsonKey("missing", new JsonArray());
+    private final JsonKey wrappersKey = Jsoner.mintJsonKey("wrappers", new JsonArray());
+    private final JsonKey padsProgramsKey = Jsoner.mintJsonKey("pads_programs", new JsonArray());
+    private final JsonKey padsAppsKey = Jsoner.mintJsonKey("pads_apps", new JsonArray());
+    private final JsonKey webDeKey = Jsoner.mintJsonKey("webde", new JsonArray());
+    private final JsonKey programsKey = Jsoner.mintJsonKey("programs", new JsonArray());
+    private final JsonKey dictsKey = Jsoner.mintJsonKey("dicts", new JsonArray());
+    private final JsonKey dataKey = Jsoner.mintJsonKey("data", new JsonArray());
+
     private static PeerReviewModel instance = null;
+    private JsonObject json;
 
     protected PeerReviewModel() {
         id = new SimpleStringProperty();
@@ -83,9 +101,14 @@ public class PeerReviewModel {
 
     public void init(String s) {
         this.rawData = s.split("\n");
-        getAllPrograms().clear();
-        getAllData().clear();
-        decodeProject();
+        clear();
+        decodeProject(true);
+    }
+
+    public void fromJson(String s) {
+        json = Jsoner.deserialize(s, new JsonObject());
+        clear();
+        decodeProject(false);
     }
 
     public static PeerReviewModel getInstance() {
@@ -114,12 +137,13 @@ public class PeerReviewModel {
         getWebDeList().clear();
         getProgramsList().clear();
         getDictsList().clear();
+        getDictDataList().clear();
         getDataList().clear();
         getMissingList().clear();
         getInProgressList().clear();
         getTimeStamps().clear();
     }
-    
+
     private String decodeMv(String mvString) {
         mvString = mvString.replaceAll(SVM, "~");
         mvString = mvString.replaceAll(" ", "~");
@@ -127,69 +151,120 @@ public class PeerReviewModel {
         return mvString;
     }
 
-    private void decodeProject() {
-        id.set(this.rawData[0]);
-        String[] wrappers = decodeMv(this.rawData[3]).split(VM);
-        String[] padsPrograms = decodeMv(this.rawData[4]).split(VM);
-        String[] padsApps = decodeMv(this.rawData[5]).split(VM);
-        String[] webDe = decodeMv(this.rawData[6]).split(VM);
-        String[] programs = decodeMv(this.rawData[7]).split(VM);
-        String[] dicts = decodeMv(this.rawData[10]).split(VM);
-        String[] data = decodeMv(this.rawData[11]).split(VM);
-
-        if (wrappers.length > 0) {
-            if (!wrappers[0].isEmpty()) {
-                itemList.addAll(Arrays.asList(wrappers));
-            }
-            getWrappersList().addAll(Arrays.asList(wrappers));
-            getAllPrograms().put("wrappers", getWrappersList());
-        }
-        if (padsPrograms.length > 0) {
-            if (!padsPrograms[0].isEmpty()) {
-                itemList.addAll(Arrays.asList(padsPrograms));
-            }
-            getPadsProgramsList().addAll(Arrays.asList(padsPrograms));
-            getAllPrograms().put("pads", getPadsProgramsList());
-        }
-        if (padsApps.length > 0) {
-            if (!padsApps[0].isEmpty()) {
-                itemList.addAll(Arrays.asList(padsApps));
-            }
-            getPadsAppsList().addAll(Arrays.asList(padsApps));
-            getAllData().put("padsApps", getPadsAppsList());
-            dictDataList.addAll(getPadsAppsList());
-        }
-        if (webDe.length > 0) {
-            if (!webDe[0].isEmpty()) {
-                itemList.addAll(Arrays.asList(webDe));
-            }
-            getWebDeList().addAll(Arrays.asList(webDe));
-            getAllPrograms().put("webde", getWebDeList());
-        }
-        if (programs.length > 0) {
-            if (!programs[0].isEmpty()) {
-                itemList.addAll(Arrays.asList(programs));
-            }
-            getProgramsList().addAll(Arrays.asList(programs));
-            getAllPrograms().put("programs", getProgramsList());
-        }
-        if (dicts.length > 0) {
-            if (!dicts[0].isEmpty()) {
-                itemList.addAll(Arrays.asList(dicts));
-            }
-            getDictsList().addAll(Arrays.asList(dicts));
+    private void decodeProject(boolean isNew) {
+        String[] wrappers;
+        String[] padsPrograms;
+        String[] padsApps;
+        String[] webDe;
+        String[] programs;
+        String[] dicts;
+        String[] data;
+        if (!isNew) {
+            id.set(json.getStringOrDefault(idKey));
+            wrappersList.addAll(json.getCollectionOrDefault(wrappersKey));
+            padsProgramsList.addAll(json.getCollectionOrDefault(padsProgramsKey));
+            padsAppsList.addAll(json.getCollectionOrDefault(padsAppsKey));
+            webDeList.addAll(json.getCollectionOrDefault(webDeKey));
+            programsList.addAll(json.getCollectionOrDefault(programsKey));
+            dictsList.addAll(json.getCollectionOrDefault(dictsKey));
+            dataList.addAll(json.getCollectionOrDefault(dataKey));
+            missingList.addAll(json.getCollectionOrDefault(missingKey));
+            inProgressList.addAll(json.getCollectionOrDefault(inProgressKey));
+            timeStamps.putAll(json.getMapOrDefault(timeStampsKey));
+            passedList.addAll(json.getCollectionOrDefault(passedKey));
+            pendingList.addAll(json.getCollectionOrDefault(pendingKey));
             getAllData().put("dicts", getDictsList());
             dictDataList.addAll(getDictsList());
-        }
-        if (data.length > 0) {
-            if (!data[0].isEmpty()) {
-                itemList.addAll(Arrays.asList(data));
-            }
-            getDataList().addAll(Arrays.asList(data));
             getAllData().put("data", getDataList());
             dictDataList.addAll(getDataList());
+            getAllData().put("padsApps", getPadsAppsList());
+            dictDataList.addAll(getPadsAppsList());
+            itemList.addAll(wrappersList);
+            itemList.addAll(padsProgramsList);
+            itemList.addAll(padsAppsList);
+            itemList.addAll(webDeList);
+            itemList.addAll(programsList);
+            itemList.addAll(dictsList);
+            itemList.addAll(dataList);
+            itemList.addAll(pendingList);
+        } else {
+            id.set(this.rawData[0]);
+            wrappers = decodeMv(this.rawData[3]).split(VM);
+            padsPrograms = decodeMv(this.rawData[4]).split(VM);
+            padsApps = decodeMv(this.rawData[5]).split(VM);
+            webDe = decodeMv(this.rawData[6]).split(VM);
+            programs = decodeMv(this.rawData[7]).split(VM);
+            dicts = decodeMv(this.rawData[10]).split(VM);
+            data = decodeMv(this.rawData[11]).split(VM);
+
+            if (wrappers.length > 0) {
+                if (!wrappers[0].isEmpty()) {
+                    itemList.addAll(Arrays.asList(wrappers));
+                }
+                getWrappersList().addAll(Arrays.asList(wrappers));
+                getAllPrograms().put("wrappers", getWrappersList());
+            }
+            if (padsPrograms.length > 0) {
+                if (!padsPrograms[0].isEmpty()) {
+                    itemList.addAll(Arrays.asList(padsPrograms));
+                    itemList.removeIf(Predicate.isEqual(""));
+                }
+                getPadsProgramsList().addAll(Arrays.asList(padsPrograms));
+                getPadsProgramsList().removeIf(Predicate.isEqual(""));
+                getAllPrograms().put("pads", getPadsProgramsList());
+            }
+            if (padsApps.length > 0) {
+                if (!padsApps[0].isEmpty()) {
+                    itemList.addAll(Arrays.asList(padsApps));
+                    itemList.removeIf(Predicate.isEqual(""));
+                }
+                getPadsAppsList().addAll(Arrays.asList(padsApps));
+                getPadsAppsList().removeIf(Predicate.isEqual(""));
+                getAllData().put("padsApps", getPadsAppsList());
+                dictDataList.addAll(getPadsAppsList());
+            }
+            if (webDe.length > 0) {
+                if (!webDe[0].isEmpty()) {
+                    itemList.addAll(Arrays.asList(webDe));
+                    itemList.removeIf(Predicate.isEqual(""));
+                }
+                getWebDeList().addAll(Arrays.asList(webDe));
+                getWebDeList().removeIf(Predicate.isEqual(""));
+                getAllPrograms().put("webde", getWebDeList());
+            }
+            if (programs.length > 0) {
+                if (!programs[0].isEmpty()) {
+                    itemList.addAll(Arrays.asList(programs));
+                    itemList.removeIf(Predicate.isEqual(""));
+                }
+                getProgramsList().addAll(Arrays.asList(programs));
+                getProgramsList().removeIf(Predicate.isEqual(""));
+                getAllPrograms().put("programs", getProgramsList());
+            }
+            if (dicts.length > 0) {
+                if (!dicts[0].isEmpty()) {
+                    itemList.addAll(Arrays.asList(dicts));
+                    itemList.removeIf(Predicate.isEqual(""));
+                }
+                getDictsList().addAll(Arrays.asList(dicts));
+                getDictsList().removeIf(Predicate.isEqual(""));
+                getAllData().put("dicts", getDictsList());
+                dictDataList.addAll(getDictsList());
+            }
+            if (data.length > 0) {
+                if (!data[0].isEmpty()) {
+                    itemList.addAll(Arrays.asList(data));
+                    itemList.removeIf(Predicate.isEqual(""));
+                }
+                getDataList().addAll(Arrays.asList(data));
+                getDataList().removeIf(Predicate.isEqual(""));
+                getAllData().put("data", getDataList());
+                dictDataList.addAll(getDataList());
+            }
         }
 
+        totalPending.set(Integer.toString(pendingList.size()));
+        totalPassed.set(Integer.toString(passedList.size()));
         totalItems.set(Integer.toString(itemList.size()));
         totalDictData.set(Integer.toString(dictDataList.size()));
     }
@@ -290,6 +365,7 @@ public class PeerReviewModel {
         json.put("failed", new JsonArray(failedList.sorted()));
         json.put("passed", new JsonArray(passedList.sorted()));
         json.put("webde", new JsonArray(getWebDeList()));
+        json.put("pending", new JsonArray(getPendingList()));
         JsonObject ts = new JsonObject();
         ts.putAll(getTimeStamps());
         json.put("timestamps", ts);
