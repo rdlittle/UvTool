@@ -29,7 +29,6 @@ import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -139,7 +138,7 @@ public class UvToolController implements Initializable {
         btnCopy.setOnAction(event -> launch("viewCopy", "titleCopy"));
         btnCopy.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
         btnCopy.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());
-
+        
         btnCompare.setOnAction(event -> launch("viewCompareSource", "titleCompareSource"));
         btnCompare.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
         btnCompare.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());
@@ -183,7 +182,7 @@ public class UvToolController implements Initializable {
             final Scene scene = new Scene(root);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setScene(scene);
-
+            scene.getStylesheets().add(getClass().getResource("/css/runview.css").toExternalForm());
             stage.setTitle(t);
             Controller ctrl = viewLoader.getController();
             if (ctrl.getCancelButton() != null) {

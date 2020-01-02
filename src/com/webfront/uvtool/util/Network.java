@@ -57,6 +57,26 @@ public class Network {
         sshCommands.put("compile", "barfyCompile");
     }
 
+    public void doSftpDelete(String remoteHost, String remotePath, String remoteItem)
+            throws JSchException,
+            SftpException, IOException {
+        String keyPath = "/home/rlittle/sob/nlstest.id_rsa";
+        JSch jsch = new JSch();
+        jsch.addIdentity(keyPath);
+        Session session = jsch.getSession("release", remoteHost, 22);
+        java.util.Properties config = new java.util.Properties();
+        config.put("StrictHostKeyChecking", "no");
+        session.setConfig(config);
+        session.setPassword("R31ea$E_@)!(");
+        session.connect(1000);
+        Channel channel = session.openChannel("sftp");
+        channel.connect();
+        ChannelSftp c = (ChannelSftp) channel;
+        c.cd(remotePath);
+        c.rm(remoteItem);
+        session.disconnect();
+    }
+
     public int doSftpGet(String remoteHost, String remotePath, String remoteItem,
             String localPath, String localItem) throws JSchException,
             SftpException, IOException {
@@ -84,7 +104,7 @@ public class Network {
         session.disconnect();
         return mtime;
     }
-    
+
     public int doSftpPut(String remoteHost, String remotePath, String remoteItem,
             String localPath, String localItem) throws JSchException,
             SftpException, IOException {
@@ -108,14 +128,15 @@ public class Network {
         inputStream.close();
         session.disconnect();
         return mtime;
-    }    
+    }
 
-    public ByteArrayOutputStream sshExec(String host, String path, String cmd) {
+    public ByteArrayOutputStream sshExec(String host, String path, String cmd)
+            throws JSchException {
         try {
             String user = "release";
             String keyPath = "/home/rlittle/sob/nlstest.id_rsa";
             String multiCmd = String.format("cd %s && ./%s", path, cmd);
-            if(cmd.startsWith("cat")) {
+            if (cmd.startsWith("cat")) {
                 multiCmd = String.format("cd %s && %s", path, cmd);
             }
             JSch jsch = new JSch();
@@ -141,6 +162,7 @@ public class Network {
             channel.connect();
 
             byte[] tmp = new byte[1024];
+            int tries = 0;
             while (true) {
                 while (in.available() > 0) {
                     int i = in.read(tmp, 0, 1024);
@@ -157,7 +179,12 @@ public class Network {
                 }
                 try {
                     Thread.sleep(1000);
+                    if (++tries > 10) {
+                        throw new JSchException("Connection timeout");
+                    }
                 } catch (Exception ee) {
+                    System.out.println(ee.getMessage());
+                    break;
                 }
             }
             channel.disconnect();
@@ -179,10 +206,12 @@ public class Network {
 
         String host = s.getHost("approved");
         String cmd = sshCommands.get("getApproved");
-        ByteArrayOutputStream output = sshExec(host, path,
-                cmd + " "+ itemType + " " + approvedId);
-        if (output.size() == 0) {
-            throw new EventException((short) -1, "sshExec error");
+        try {
+            ByteArrayOutputStream output = sshExec(host, path,
+                    cmd + " " + itemType + " " + approvedId);
+
+        } catch (JSchException ex) {
+            throw ex;
         }
         String downloadPath = systemConfig.getPreferences().get("downloads");
         if ("CODE".equals(itemType)) {
@@ -215,45 +244,67 @@ public class Network {
             throw new FileNotFoundException("No approved version found");
         }
     }
-    
+
     public void setApproved(String itemType, String approvedId) throws
+            FileNotFoundException, EventException, JSchException, SftpException,
+            IOException {
+        /*
+        Executes the remote command to move the item into APPROVED.CODE
+        example:
+        /uvfs/ma.accounts/deploy/addToApproved CODE DMC~aop.uvs~postAopCreate.uvs
+         */
+        Server s = new Server(platforms.getPlatforms(), "dmc");
+        String path = s.getPath("deploy");
+
+        String host = s.getHost("approved");
+        String cmd = sshCommands.get("setApproved");
+        try {
+            ByteArrayOutputStream output = sshExec(host, path,
+                    cmd + " " + itemType + " " + approvedId);
+        } catch (JSchException ex) {
+            throw ex;
+        }
+    }
+
+    public void setFailed(String itemType, String approvedId) throws
             FileNotFoundException, EventException, JSchException, SftpException,
             IOException {
         Server s = new Server(platforms.getPlatforms(), "dmc");
         String path = s.getPath("deploy");
 
         String host = s.getHost("approved");
-        String cmd = sshCommands.get("setApproved");
-        ByteArrayOutputStream output = sshExec(host, path,
-                cmd + " "+ itemType + " " + approvedId);
-        if (output.size() == 0) {
-            throw new EventException((short) -1, "sshExec error");
+        String cmd = sshCommands.get("setFailed");
+        try {
+            ByteArrayOutputStream output = sshExec(host, path,
+                    cmd + " " + itemType + " " + approvedId);
+        } catch (JSchException ex) {
+            throw ex;
         }
-    }    
-    
-    public boolean checkDictData(String item) {
+    }
+
+    public boolean checkDictData(String item) throws JSchException {
         String[] specs = item.split("~");
         String cmd = sshCommands.get("getApproved");
         String downloadPath = systemConfig.getPreferences().get("dataHome");
         String platform = specs[0];
         String dataFile = specs[1].replaceAll("\\\\", "~");;
         String itemId = specs[2];
-        
+
         item = String.format("%s~%s~%s", platform, dataFile, itemId);
-        
+
         Server s = new Server(platforms.getPlatforms(), "dmc");
         String remotePath = s.getPath("deploy");
         if (!remotePath.endsWith("/")) {
             remotePath = remotePath + "/";
         }
-        cmd = cmd + " DATA "+item;
-        ByteArrayOutputStream output = 
-                sshExec("nlstest", remotePath, cmd);
+        cmd = cmd + " DATA " + item;
+        ByteArrayOutputStream output
+                = sshExec("nlstest", remotePath, cmd);
         remotePath = s.getPath("dev_data");
         cmd = sshCommands.get("cat");
         cmd = cmd + " " + item;
         output = sshExec("nlstest", remotePath, cmd);
-        if (output.size()==0) {
+        if (output.size() == 0) {
             return false;
         }
         return true;
@@ -271,22 +322,22 @@ public class Network {
         if (library.endsWith("LIB")) {
             return "rbo";
         }
-        if(library.endsWith("SEGMENT")) {
+        if (library.endsWith("SEGMENT")) {
             return "pads_hook_segment";
         }
-        if(library.equals("PADS.HOOK")) {
+        if (library.equals("PADS.HOOK")) {
             return "pads_hook";
         }
-        if(library.equals("PADS.BP")) {
+        if (library.equals("PADS.BP")) {
             return "pads_bp";
         }
-        if(library.equals("PADS.APP")) {
+        if (library.equals("PADS.APP")) {
             return "main";
         }
-        
+
         return null;
     }
-    
+
     public static String sayHi() {
         return "Hi";
     }

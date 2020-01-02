@@ -282,12 +282,12 @@ public class DeployBackupController implements Controller, Initializable {
         String hostName = getHostName("dmc", host);
         String progName = txtItemName.getText();
         doDownload(hostName, progName);
-        
+
         String leftFile = downloadPath + selectedItem;
         String rightFile = downloadPath + progName + "." + hostName;
         doCompare(leftFile, rightFile);
     }
-    
+
     @FXML
     public void compareDev() {
         compare("dev");
@@ -312,20 +312,32 @@ public class DeployBackupController implements Controller, Initializable {
         try {
             saveBackup(downloadPath + selectedItem);
         } catch (IOException ex) {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.contentTextProperty().set(ex.getMessage());
+                alert.showAndWait();
+            });
             Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        String libName = getLibName(progName);
-        String pt = getPathType(progName);
-        String prefix = pt.equals("rbo") ? "RBO" : "DMC";
-        String approvedId = prefix + "~" + libName + "~" + progName;
+        String libName;
         try {
+            libName = getLibName(progName);
+            String pt = getPathType(progName);
+            String prefix = pt.equals("rbo") ? "RBO" : "DMC";
+            String approvedId = prefix + "~" + libName + "~" + progName;
             getApproved(approvedId);
             String leftFile = downloadPath + selectedItem;
             String rightFile = downloadPath + progName + ".approved";
             doCompare(leftFile, rightFile);
-        } catch (FileNotFoundException ex) {
+        } catch (JSchException | FileNotFoundException | EventException ex) {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.contentTextProperty().set(ex.getMessage());
+                alert.showAndWait();
+            });
             Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
         }
+
     }
 
     private void doCompare(String left, String right) {
@@ -335,6 +347,11 @@ public class DeployBackupController implements Controller, Initializable {
             try {
                 Runtime.getRuntime().exec(cmd);
             } catch (IOException ex) {
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.contentTextProperty().set(ex.getMessage());
+                    alert.showAndWait();
+                });
                 Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
             }
         };
@@ -351,16 +368,17 @@ public class DeployBackupController implements Controller, Initializable {
             } catch (IOException ex) {
                 Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
             }
-            String libName = getLibName(progName);
-            String remotePath = s.getPath(getPathType(libName)) + "/" + libName;
             try {
+                String libName = getLibName(progName);
+                String remotePath = s.getPath(getPathType(libName)) + "/" + libName;
                 net.doSftpGet(host, remotePath, progName, downloadPath,
                         progName + "." + host);
-            } catch (JSchException ex) {
-                Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (SftpException ex) {
-                Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex) {
+            } catch (JSchException | SftpException | IOException ex) {
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.contentTextProperty().set(ex.getMessage());
+                    alert.showAndWait();
+                });
                 Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
             }
 
@@ -406,13 +424,14 @@ public class DeployBackupController implements Controller, Initializable {
         return s.getHost(server);
     }
 
-    private String getLibName(String progName) {
+    private String getLibName(String progName) throws JSchException {
         Server s = new Server(platforms.getPlatforms(), "dmc");
         String path = s.getPath("main");
         String host = s.getHost("dev");
+
         ByteArrayOutputStream output = net.sshExec(host, path,
                 "getDir " + progName);
-        if (output.toString() == "") {
+        if (output.toString().isEmpty()) {
             return "";
         }
         String[] result = (output.toString()).split("\n");
@@ -426,10 +445,12 @@ public class DeployBackupController implements Controller, Initializable {
         Server s = new Server(platforms.getPlatforms(), "dmc");
         String path = s.getPath("main");
         String host = s.getHost("approved");
-        ByteArrayOutputStream output = net.sshExec(host, path,
-                "getApproved CODE " + approvedId);
-        if (output.size() > 0) {
-            throw new EventException((short) -1, "sshExec error");
+        ByteArrayOutputStream output;
+        try {
+            output = net.sshExec(host, path,
+                    "getApproved CODE " + approvedId);
+        } catch (JSchException ex) {
+            Logger.getLogger(DeployBackupController.class.getName()).log(Level.SEVERE, null, ex);
         }
         String remotePath = s.getPath("deploy") + "/APPROVED.PROGRAMS";
         String item = (approvedId.split("~")[2]) + ".approved";
