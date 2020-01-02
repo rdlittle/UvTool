@@ -136,7 +136,6 @@ public class PeerReviewController implements Controller, Initializable, Progress
     Scene scene;
 
     public PeerReviewController() {
-        System.out.println("PeerReviewController()");
         ds.setOffsetX(1.0);
         ds.setOffsetY(1.0);
         txtReviewId = new TextField();
@@ -410,7 +409,6 @@ public class PeerReviewController implements Controller, Initializable, Progress
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        System.out.println("PeerReviewController.initialize()");
         this.res = resources;
 
         listPassed.setItems(this.model.getPassedList());
@@ -430,8 +428,8 @@ public class PeerReviewController implements Controller, Initializable, Progress
             }
         });
 
+        // Set the styles of all buttons for the various mouse events
         btnLoad.getStyleClass().add("loadbutton");
-
         btnLoad.addEventHandler(MouseEvent.MOUSE_ENTERED, (MouseEvent e) -> {
             buttonHover(btnLoad);
         });
@@ -498,7 +496,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
         btnPassReview.addEventHandler(MouseEvent.MOUSE_RELEASED, (MouseEvent e) -> {
             buttonNormal(btnPassReview);
         });
-        
+
         btnFailReview.getStyleClass().add("fail-button");
         btnFailReview.addEventHandler(MouseEvent.MOUSE_ENTERED, (MouseEvent e) -> {
             buttonHover(btnFailReview);
@@ -514,13 +512,14 @@ public class PeerReviewController implements Controller, Initializable, Progress
 
         btnFailReview.addEventHandler(MouseEvent.MOUSE_RELEASED, (MouseEvent e) -> {
             buttonNormal(btnFailReview);
-        });        
+        });
 
         listProjects.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
                 try {
                     if (newValue != null) {
+                        txtReviewId.setText(newValue.toString());
                         recallProject(newValue.toString());
                     }
                 } catch (IOException ex) {
@@ -531,7 +530,13 @@ public class PeerReviewController implements Controller, Initializable, Progress
         txtReviewId.textProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                listProjects.getSelectionModel().clearSelection();
+                Object selectedItem = listProjects.getSelectionModel().getSelectedItem();
+                if(selectedItem == null) {
+                    return;
+                }
+                if (!newValue.equals(selectedItem.toString())) {
+                    listProjects.getSelectionModel().clearSelection();
+                }
             }
         });
         this.model.getFailedList().addListener(new ListChangeListener() {
@@ -940,12 +945,72 @@ public class PeerReviewController implements Controller, Initializable, Progress
 
     @FXML
     public void onPassReview() {
-
+        if (txtReviewId.getText().isEmpty()) {
+            return;
+        }
+        removeProject(txtReviewId.getText());
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.contentTextProperty().set("Don't forget to pass it in Blueprint");
+            alert.showAndWait();
+        });
     }
 
     @FXML
     public void onFailReview() {
+        if (txtReviewId.getText().isEmpty()) {
+            return;
+        }
+        removeProject(txtReviewId.getText());
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.contentTextProperty().set("Don't forget to fail it in Blueprint");
+            alert.showAndWait();
+        });
+    }
 
+    private void removeData() {
+        String path = systemConfig.getPreferences().get("dataHome");
+        if (!path.endsWith(fileSep)) {
+            path = path + fileSep;
+        }
+        for (ArrayList<String> list : this.model.getAllData().values()) {
+            for (String item : list) {
+                File f = new File(path + item);
+                if (f.exists()) {
+                    f.delete();
+                }
+            }
+        }
+    }
+
+    private void removePrograms() {
+        String path = systemConfig.getPreferences().get("codeHome");
+        if (!path.endsWith(fileSep)) {
+            path = path + fileSep;
+        }
+        for (ArrayList<String> list : this.model.getAllPrograms().values()) {
+            for (String item : list) {
+                File f = new File(path + item);
+                if (f.exists()) {
+                    f.delete();
+                }
+            }
+        }
+    }
+
+    private void removeProject(String projectId) {
+        removeData();
+        removePrograms();
+        String projectHome = systemConfig.getPreferences().get("projectHome");
+        if (!projectHome.endsWith(fileSep)) {
+            projectHome = projectHome + fileSep;
+        }
+        File f = new File(projectHome + projectId);
+        f.delete();
+        projectList.remove(txtReviewId.getText());
+        txtReviewId.setText("");
+        resetForm();
     }
 
     private void resetForm() {
@@ -955,7 +1020,6 @@ public class PeerReviewController implements Controller, Initializable, Progress
 
     @Override
     public void setStage(Stage s) {
-        System.out.println("PeerReviewController.setStage()");
         this.stage = s;
     }
 
@@ -1000,6 +1064,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
     @Override
     public void updateLed(String host, boolean onOff) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
     }
 
     public static class DictDataItem {
