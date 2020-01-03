@@ -856,16 +856,30 @@ public class PeerReviewController implements Controller, Initializable, Progress
             this.model.getPassedList().add(item);
             this.model.getTimeStamps().put(item, mtime);
             net.setApproved("CODE", item);
+            
             // Delete remote failed item.  OK if it throws an exception
             String remotePath = "/uvfs/ma.accounts/deploy/PEER.FAILED/";
-            net.doSftpDelete("nlstest", remotePath, item);
+            try {
+                net.doSftpDelete("nlstest", remotePath, item);
+            } catch (SftpException ex) {
+                // Do nothing
+            }
             remotePath = "/uvfs/ma.accounts/deploy/PEER.APPROVED/";
-            net.doSftpDelete("nlstest", remotePath, item);
+            try {
+                net.doSftpDelete("nlstest", remotePath, item);
+            } catch (SftpException ex) {
+                // Do nothing
+            }
+            
             String id = txtReviewId.getText();
             updateProject(id);
-            f = new File(localPath + progName);
+            String codePath = systemConfig.getPreferences().get("codeHome");
+            if (!codePath.endsWith(fileSep)) {
+                codePath = codePath + fileSep;
+            }
+            f = new File(codePath + progName);
             f.delete();
-            f = new File(localPath + progName + ".approved");
+            f = new File(codePath + progName + ".approved");
             if (f.exists()) {
                 f.delete();
             }

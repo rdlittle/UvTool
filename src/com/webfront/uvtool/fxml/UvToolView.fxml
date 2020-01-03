@@ -54,8 +54,8 @@
                <children>
                   <Button fx:id="btnRun" mnemonicParsing="false" prefHeight="52.0" prefWidth="140.0" text="Run" />
                   <Button fx:id="btnCompare" mnemonicParsing="false" prefHeight="52.0" prefWidth="140.0" text="Compare" />
-                  <Button fx:id="btnPeerReview" mnemonicParsing="false" prefHeight="52.0" prefWidth="140.0" text="Peer" />
-                  <Button fx:id="btnBackups" mnemonicParsing="false" prefHeight="52.0" prefWidth="140.0" text="Backups" />
+                  <Button fx:id="btnPeerReview" mnemonicParsing="false" prefHeight="52.0" prefWidth="140.0" text="Peer Review" wrapText="true" />
+                  <Button fx:id="btnBackups" mnemonicParsing="false" prefHeight="52.0" prefWidth="140.0" text="Deploy Backups" wrapText="true" />
                   <Button fx:id="btnPull" mnemonicParsing="false" prefHeight="52.0" prefWidth="140.0" text="Pull/Push" />
                   <Button fx:id="btnCopy" mnemonicParsing="false" prefHeight="52.0" prefWidth="141.0" text="Copy" />
                </children>
