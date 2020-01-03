@@ -531,7 +531,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
                 Object selectedItem = listProjects.getSelectionModel().getSelectedItem();
-                if(selectedItem == null) {
+                if (selectedItem == null) {
                     return;
                 }
                 if (!newValue.equals(selectedItem.toString())) {
@@ -628,6 +628,8 @@ public class PeerReviewController implements Controller, Initializable, Progress
         dictDataItemList.clear();
         String item = txtReviewId.getText();
         StringBuilder sb = new StringBuilder();
+        Thread backgroundThread;
+        backgroundThread = null;
         if (item.isEmpty()) {
             return;
         }
@@ -655,16 +657,34 @@ public class PeerReviewController implements Controller, Initializable, Progress
                     Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
                 }
             };
-            Thread backgroundThread = new Thread(runner);
+            backgroundThread = new Thread(runner);
             backgroundThread.setDaemon(true);
             backgroundThread.start();
-        } catch (JSchException | SftpException | IOException ex) {
+        } catch (JSchException | IOException ex) {
             Platform.runLater(() -> {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.contentTextProperty().set(ex.getMessage());
                 alert.showAndWait();
             });
+            if (backgroundThread != null) {
+                if (backgroundThread.isAlive()) {
+                    backgroundThread.interrupt();
+                }
+            }
             Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SftpException ex) {
+            if (ex.getMessage().contains("No such file")) {
+                File f = new File(localPath + item);
+                if (f.exists()) {
+                    f.delete();
+                }
+            }
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.contentTextProperty().set(ex.getMessage());
+                alert.showAndWait();
+            });
+            return;
         }
         projectList.add(txtReviewId.getText() + ".json");
         ConcurrentSkipListSet<String> tempList = new ConcurrentSkipListSet<>(projectList.sorted());
@@ -976,7 +996,8 @@ public class PeerReviewController implements Controller, Initializable, Progress
         }
         for (ArrayList<String> list : this.model.getAllData().values()) {
             for (String item : list) {
-                File f = new File(path + item);
+                String[] segs = item.split("~");
+                File f = new File(path + segs[2]);
                 if (f.exists()) {
                     f.delete();
                 }
@@ -991,7 +1012,8 @@ public class PeerReviewController implements Controller, Initializable, Progress
         }
         for (ArrayList<String> list : this.model.getAllPrograms().values()) {
             for (String item : list) {
-                File f = new File(path + item);
+                String[] segs = item.split("~");
+                File f = new File(path + segs[2]);
                 if (f.exists()) {
                     f.delete();
                 }
