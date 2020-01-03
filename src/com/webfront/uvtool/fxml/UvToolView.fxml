@@ -12,11 +12,11 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="AnchorPane" prefHeight="126.0" prefWidth="605.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.webfront.uvtool.controller.UvToolController">
+<AnchorPane id="AnchorPane" prefHeight="153.0" prefWidth="928.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.webfront.uvtool.controller.UvToolController">
     <children>
-      <VBox prefHeight="127.0" prefWidth="605.0" spacing="10.0">
+      <VBox prefHeight="153.0" prefWidth="928.0" spacing="10.0">
          <children>
-            <MenuBar prefHeight="29.0" prefWidth="463.0">
+            <MenuBar prefHeight="29.0" prefWidth="729.0">
               <menus>
                 <Menu fx:id="mnuFile" mnemonicParsing="false" text="File">
                   <items>
@@ -50,14 +50,14 @@
                 </Menu>
               </menus>
             </MenuBar>
-            <HBox alignment="CENTER" prefHeight="29.0" prefWidth="578.0" spacing="10.0">
+            <HBox alignment="CENTER" prefHeight="68.0" prefWidth="807.0" spacing="10.0">
                <children>
-                  <Button fx:id="btnRun" mnemonicParsing="false" prefHeight="26.0" prefWidth="74.0" text="Run" />
-                  <Button fx:id="btnCompare" mnemonicParsing="false" prefHeight="26.0" prefWidth="87.0" text="Compare" />
-                  <Button fx:id="btnPeerReview" mnemonicParsing="false" text="Peer Review" />
-                  <Button fx:id="btnBackups" mnemonicParsing="false" prefHeight="26.0" prefWidth="86.0" text="Backups" />
-                  <Button fx:id="btnPull" mnemonicParsing="false" prefHeight="26.0" prefWidth="86.0" text="Pull/Push" />
-                  <Button fx:id="btnCopy" mnemonicParsing="false" prefHeight="26.0" prefWidth="82.0" text="Copy" />
+                  <Button fx:id="btnRun" mnemonicParsing="false" prefHeight="52.0" prefWidth="140.0" text="Run" />
+                  <Button fx:id="btnCompare" mnemonicParsing="false" prefHeight="52.0" prefWidth="140.0" text="Compare" />
+                  <Button fx:id="btnPeerReview" mnemonicParsing="false" prefHeight="52.0" prefWidth="140.0" text="Peer" />
+                  <Button fx:id="btnBackups" mnemonicParsing="false" prefHeight="52.0" prefWidth="140.0" text="Backups" />
+                  <Button fx:id="btnPull" mnemonicParsing="false" prefHeight="52.0" prefWidth="140.0" text="Pull/Push" />
+                  <Button fx:id="btnCopy" mnemonicParsing="false" prefHeight="52.0" prefWidth="141.0" text="Copy" />
                </children>
                <VBox.margin>
                   <Insets top="10.0" />

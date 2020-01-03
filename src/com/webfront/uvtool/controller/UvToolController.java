@@ -29,11 +29,14 @@ import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
@@ -96,7 +99,34 @@ public class UvToolController implements Initializable {
     @FXML
     MenuItem mnuEditApp;
 
+    Image copyImage;
+    ImageView copyImageView;
+    Image runImage;
+    ImageView runImageView;
+    Image compareImage;
+    ImageView compareImageView;
+    Image pullImage;
+    ImageView pullImageView;
+    Image peerImage;
+    ImageView peerImageView;
+    Image backupImage;
+    ImageView backupImageView;
+
     public UvToolController() {
+        copyImage = new Image(getClass().getResourceAsStream("/com/webfront/uvtool/image/copy.png"), 50, 50, false, false);
+        runImage = new Image(getClass().getResourceAsStream("/com/webfront/uvtool/image/gears2.png"), 50, 50, true, false);
+        compareImage = new Image(getClass().getResourceAsStream("/com/webfront/uvtool/image/find.png"), 50, 50, false, false);
+        pullImage = new Image(getClass().getResourceAsStream("/com/webfront/uvtool/image/computer.png"), 50, 50, false, false);
+        peerImage = new Image(getClass().getResourceAsStream("/com/webfront/uvtool/image/review.png"), 50, 50, false, false);
+        backupImage = new Image(getClass().getResourceAsStream("/com/webfront/uvtool/image/backup.png"), 50, 50, false, false);
+        
+        copyImageView = new ImageView(copyImage);
+        runImageView = new ImageView(runImage);
+        compareImageView = new ImageView(compareImage);
+        pullImageView = new ImageView(pullImage);
+        peerImageView = new ImageView(peerImage);
+        backupImageView = new ImageView(backupImage);
+        
         config = Config.getInstance();
         accountList.setAll(config.getAccounts());
         profileList.setAll(config.getProfiles());
@@ -109,7 +139,6 @@ public class UvToolController implements Initializable {
         btnQuery = new Button();
         btnCompare = new Button();
         btnPull = new Button();
-        btnCopy = new Button();
         btnBackups = new Button();
         btnPeerReview = new Button();
         mnuFileNewAccount = new MenuItem();
@@ -127,6 +156,14 @@ public class UvToolController implements Initializable {
         res = rb;
         cbServers.converterProperty().setValue(new ServerConverter());
         cbServers.getItems().addAll(serverList);
+        btnCopy.setGraphic(copyImageView);
+        btnRun.setGraphic(runImageView);
+        btnPeerReview.setGraphic(peerImageView);
+        btnCompare.setGraphic(compareImageView);
+        btnBackups.setGraphic(backupImageView);
+        btnPull.setGraphic(pullImageView);
+        
+        btnCopy.setAlignment(Pos.CENTER);
 
         cbServers.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
@@ -138,7 +175,7 @@ public class UvToolController implements Initializable {
         btnCopy.setOnAction(event -> launch("viewCopy", "titleCopy"));
         btnCopy.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
         btnCopy.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());
-        
+
         btnCompare.setOnAction(event -> launch("viewCompareSource", "titleCompareSource"));
         btnCompare.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
         btnCompare.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());

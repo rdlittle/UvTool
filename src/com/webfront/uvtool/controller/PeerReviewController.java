@@ -55,6 +55,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -132,7 +134,6 @@ public class PeerReviewController implements Controller, Initializable, Progress
     private final SimpleBooleanProperty hasProject = new SimpleBooleanProperty();
 
     final DropShadow ds = new DropShadow();
-
     Scene scene;
 
     public PeerReviewController() {
@@ -410,7 +411,6 @@ public class PeerReviewController implements Controller, Initializable, Progress
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         this.res = resources;
-
         listPassed.setItems(this.model.getPassedList());
         listPending.setItems(this.model.getPendingList());
         listFailed.setItems(this.model.getFailedList());
@@ -673,17 +673,23 @@ public class PeerReviewController implements Controller, Initializable, Progress
             }
             Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SftpException ex) {
+            final String m;
+            String msg = ex.getMessage();
             if (ex.getMessage().contains("No such file")) {
+                msg = item + " not found";
                 File f = new File(localPath + item);
                 if (f.exists()) {
                     f.delete();
                 }
             }
+            m = msg;
             Platform.runLater(() -> {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.contentTextProperty().set(ex.getMessage());
+                alert.contentTextProperty().set(m);
                 alert.showAndWait();
             });
+            txtReviewId.setText("");
+            txtReviewId.requestFocus();
             return;
         }
         projectList.add(txtReviewId.getText() + ".json");
