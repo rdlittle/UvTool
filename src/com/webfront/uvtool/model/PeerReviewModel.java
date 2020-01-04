@@ -179,6 +179,10 @@ public class PeerReviewModel {
             dictDataList.addAll(getDataList());
             getAllData().put("padsApps", getPadsAppsList());
             dictDataList.addAll(getPadsAppsList());
+            getAllPrograms().put("wrappers", wrappersList);
+            getAllPrograms().put("padsPrograms", padsProgramsList);
+            getAllPrograms().put("programs", programsList);
+            getAllPrograms().put("pending", json.getCollectionOrDefault(pendingKey));
             itemList.addAll(wrappersList);
             itemList.addAll(padsProgramsList);
             itemList.addAll(padsAppsList);

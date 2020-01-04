@@ -43,6 +43,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -53,6 +54,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -129,7 +133,12 @@ public class PeerReviewController implements Controller, Initializable, Progress
     private final SimpleBooleanProperty hasPending = new SimpleBooleanProperty();
     private final SimpleBooleanProperty hasProject = new SimpleBooleanProperty();
 
+    final DropShadow ds = new DropShadow();
+    Scene scene;
+
     public PeerReviewController() {
+        ds.setOffsetX(1.0);
+        ds.setOffsetY(1.0);
         txtReviewId = new TextField();
         this.model = PeerReviewModel.getInstance();
         loadDictData = com.webfront.u2.util.Config.getInstance().
@@ -145,6 +154,24 @@ public class PeerReviewController implements Controller, Initializable, Progress
             }
         }
         hasProject.set(false);
+    }
+
+    private void buttonClick(Button btn) {
+        btn.getStyleClass().remove("custom-button-hover");
+        btn.getStyleClass().add("custom-button-click");
+        btn.setEffect(null);
+    }
+
+    private void buttonHover(Button btn) {
+        btn.getStyleClass().remove("custom-button-click");
+        btn.getStyleClass().add("custom-button-hover");
+        btn.setEffect(ds);
+    }
+
+    private void buttonNormal(Button btn) {
+        btn.getStyleClass().remove("custom-button-click");
+        btn.getStyleClass().remove("custom-button-hover");
+        btn.setEffect(null);
     }
 
     private boolean deleteLocalFile(String fullPath) {
@@ -288,6 +315,11 @@ public class PeerReviewController implements Controller, Initializable, Progress
                     File f = new File(oldItem);
                     f.delete();
                 } catch (EventException | JSchException ex) {
+                    Platform.runLater(() -> {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.contentTextProperty().set(ex.getMessage());
+                        alert.showAndWait();
+                    });
                     deleteLocalFile(itemToDelete);
                     Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
                     stage.getScene().setCursor(Cursor.DEFAULT);
@@ -316,7 +348,18 @@ public class PeerReviewController implements Controller, Initializable, Progress
                 updateProgressBar(pct);
             }
         }
-        getDictData(recordsDone, totalRecords);
+        try {
+            getDictData(recordsDone, totalRecords);
+        } catch (JSchException ex) {
+            updateProgressBar(0D);
+            stage.getScene().setCursor(Cursor.DEFAULT);
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.contentTextProperty().set(ex.getMessage());
+                alert.showAndWait();
+            });
+            Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
         updateProgressBar(0D);
         stage.getScene().setCursor(Cursor.DEFAULT);
         File f = new File(localPath + txtReviewId.textProperty().getValue() + ".json");
@@ -326,7 +369,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
         }
     }
 
-    private void getDictData(Double recordsDone, Double totalRecords) {
+    private void getDictData(Double recordsDone, Double totalRecords) throws JSchException {
         for (ArrayList<String> list : this.model.getAllData().values()) {
             for (String item : list) {
                 String itemStatus = "Unchecked";
@@ -384,11 +427,99 @@ public class PeerReviewController implements Controller, Initializable, Progress
                 loadDictData = (boolean) newValue;
             }
         });
+
+        // Set the styles of all buttons for the various mouse events
+        btnLoad.getStyleClass().add("loadbutton");
+        btnLoad.addEventHandler(MouseEvent.MOUSE_ENTERED, (MouseEvent e) -> {
+            buttonHover(btnLoad);
+        });
+
+        btnLoad.addEventHandler(MouseEvent.MOUSE_EXITED, (MouseEvent e) -> {
+            buttonNormal(btnLoad);
+        });
+
+        btnLoad.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent e) -> {
+            buttonClick(btnLoad);
+        });
+
+        btnLoad.addEventHandler(MouseEvent.MOUSE_RELEASED, (MouseEvent e) -> {
+            buttonNormal(btnLoad);
+        });
+
+        btnPassItem.getStyleClass().add("pass-button");
+        btnPassItem.addEventHandler(MouseEvent.MOUSE_ENTERED, (MouseEvent e) -> {
+            buttonHover(btnPassItem);
+        });
+
+        btnPassItem.addEventHandler(MouseEvent.MOUSE_EXITED, (MouseEvent e) -> {
+            buttonNormal(btnPassItem);
+        });
+
+        btnPassItem.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent e) -> {
+            buttonClick(btnPassItem);
+        });
+
+        btnPassItem.addEventHandler(MouseEvent.MOUSE_RELEASED, (MouseEvent e) -> {
+            buttonNormal(btnPassItem);
+        });
+
+        btnFailItem.getStyleClass().add("fail-button");
+        btnFailItem.addEventHandler(MouseEvent.MOUSE_ENTERED, (MouseEvent e) -> {
+            buttonHover(btnFailItem);
+        });
+
+        btnFailItem.addEventHandler(MouseEvent.MOUSE_EXITED, (MouseEvent e) -> {
+            buttonNormal(btnFailItem);
+        });
+
+        btnFailItem.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent e) -> {
+            buttonClick(btnFailItem);
+        });
+
+        btnFailItem.addEventHandler(MouseEvent.MOUSE_RELEASED, (MouseEvent e) -> {
+            buttonNormal(btnFailItem);
+        });
+
+        btnPassReview.getStyleClass().add("pass-button");
+        btnPassReview.addEventHandler(MouseEvent.MOUSE_ENTERED, (MouseEvent e) -> {
+            buttonHover(btnPassReview);
+        });
+
+        btnPassReview.addEventHandler(MouseEvent.MOUSE_EXITED, (MouseEvent e) -> {
+            buttonNormal(btnPassReview);
+        });
+
+        btnPassReview.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent e) -> {
+            buttonClick(btnPassReview);
+        });
+
+        btnPassReview.addEventHandler(MouseEvent.MOUSE_RELEASED, (MouseEvent e) -> {
+            buttonNormal(btnPassReview);
+        });
+
+        btnFailReview.getStyleClass().add("fail-button");
+        btnFailReview.addEventHandler(MouseEvent.MOUSE_ENTERED, (MouseEvent e) -> {
+            buttonHover(btnFailReview);
+        });
+
+        btnFailReview.addEventHandler(MouseEvent.MOUSE_EXITED, (MouseEvent e) -> {
+            buttonNormal(btnFailReview);
+        });
+
+        btnFailReview.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent e) -> {
+            buttonClick(btnFailReview);
+        });
+
+        btnFailReview.addEventHandler(MouseEvent.MOUSE_RELEASED, (MouseEvent e) -> {
+            buttonNormal(btnFailReview);
+        });
+
         listProjects.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
                 try {
                     if (newValue != null) {
+                        txtReviewId.setText(newValue.toString());
                         recallProject(newValue.toString());
                     }
                 } catch (IOException ex) {
@@ -399,7 +530,13 @@ public class PeerReviewController implements Controller, Initializable, Progress
         txtReviewId.textProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                listProjects.getSelectionModel().clearSelection();
+                Object selectedItem = listProjects.getSelectionModel().getSelectedItem();
+                if (selectedItem == null) {
+                    return;
+                }
+                if (!newValue.equals(selectedItem.toString())) {
+                    listProjects.getSelectionModel().clearSelection();
+                }
             }
         });
         this.model.getFailedList().addListener(new ListChangeListener() {
@@ -465,8 +602,18 @@ public class PeerReviewController implements Controller, Initializable, Progress
             for (String item : list) {
                 String itemStatus = "Unchecked";
                 if (loadDictData) {
-                    boolean isDataOk = net.checkDictData(item);
-                    itemStatus = isDataOk ? "Yes" : "No";
+                    boolean isDataOk;
+                    try {
+                        isDataOk = net.checkDictData(item);
+                        itemStatus = isDataOk ? "Yes" : "No";
+                    } catch (JSchException ex) {
+                        Platform.runLater(() -> {
+                            Alert alert = new Alert(Alert.AlertType.ERROR);
+                            alert.contentTextProperty().set(ex.getMessage());
+                            alert.showAndWait();
+                        });
+                        Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
                 DictDataItem ddItem = new DictDataItem(item, itemStatus);
                 dictDataItemList.add(ddItem);
@@ -481,7 +628,11 @@ public class PeerReviewController implements Controller, Initializable, Progress
         dictDataItemList.clear();
         String item = txtReviewId.getText();
         StringBuilder sb = new StringBuilder();
-
+        Thread backgroundThread;
+        backgroundThread = null;
+        if (item.isEmpty()) {
+            return;
+        }
         try {
             int mtime = net.doSftpGet("nlstest", remotePath, item, localPath, item);
             try (BufferedReader f = new BufferedReader(new FileReader(localPath + item))) {
@@ -506,16 +657,40 @@ public class PeerReviewController implements Controller, Initializable, Progress
                     Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
                 }
             };
-            Thread backgroundThread = new Thread(runner);
+            backgroundThread = new Thread(runner);
             backgroundThread.setDaemon(true);
             backgroundThread.start();
-        } catch (JSchException | SftpException | IOException ex) {
+        } catch (JSchException | IOException ex) {
             Platform.runLater(() -> {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.contentTextProperty().set(ex.getMessage());
                 alert.showAndWait();
             });
+            if (backgroundThread != null) {
+                if (backgroundThread.isAlive()) {
+                    backgroundThread.interrupt();
+                }
+            }
             Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SftpException ex) {
+            final String m;
+            String msg = ex.getMessage();
+            if (ex.getMessage().contains("No such file")) {
+                msg = item + " not found";
+                File f = new File(localPath + item);
+                if (f.exists()) {
+                    f.delete();
+                }
+            }
+            m = msg;
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.contentTextProperty().set(m);
+                alert.showAndWait();
+            });
+            txtReviewId.setText("");
+            txtReviewId.requestFocus();
+            return;
         }
         projectList.add(txtReviewId.getText() + ".json");
         ConcurrentSkipListSet<String> tempList = new ConcurrentSkipListSet<>(projectList.sorted());
@@ -582,10 +757,9 @@ public class PeerReviewController implements Controller, Initializable, Progress
         try {
             try (LineNumberReader reader = new LineNumberReader(new FileReader(f))) {
                 StringBuilder sb = new StringBuilder();
-                reader.setLineNumber(0);
                 String lineOne = reader.readLine();
                 if (!lineOne.contains("!!! Pending")) {
-                    sb.append("!!! Pending" + lineSep);
+                    sb.append("!!! Pending" + lineSep + lineOne + lineSep);
                     for (;;) {
                         String line = reader.readLine();
                         if (line == null) {
@@ -618,6 +792,14 @@ public class PeerReviewController implements Controller, Initializable, Progress
 
     @FXML
     public void onPassItem() {
+        /*
+        This method writes the approved item to nlstest
+        /uvfs/ma.accounts/deploy/barfyHoldingArea
+        Then executes the remote command 
+        /uvfs/ma.accounts/deploy/addToApproved CODE DMC~aop.uvs~postAopCreate.uvs
+        on nlstest by invoking Network.setApproved()
+        Finally, attempts to delete it from /uvfs/ma.accounts/deploy/PEER.FAILED/
+         */
         String item = listPending.getSelectionModel().getSelectedItem().toString();
         String path = systemConfig.getPreferences().get("codeHome");
         if (!path.endsWith(fileSep)) {
@@ -633,11 +815,10 @@ public class PeerReviewController implements Controller, Initializable, Progress
             progName = specs[3];
         }
         Server s = new Server(platforms.getPlatforms(), platform.toLowerCase());
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         File f = new File(path + progName);
 
         try (LineNumberReader reader = new LineNumberReader(new FileReader(f))) {
-            reader.setLineNumber(0);
             String line = reader.readLine();
             if (line.contains("!!! Pending")) {
                 reader.close();
@@ -662,6 +843,11 @@ public class PeerReviewController implements Controller, Initializable, Progress
                 }
             }
         } catch (IOException ex) {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.contentTextProperty().set(ex.getMessage());
+                alert.showAndWait();
+            });
             Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
         }
         try {
@@ -669,28 +855,50 @@ public class PeerReviewController implements Controller, Initializable, Progress
             this.model.getPendingList().remove(item);
             this.model.getPassedList().add(item);
             this.model.getTimeStamps().put(item, mtime);
-//            net.setApproved("CODE", item);
-            path = systemConfig.getPreferences().get("projectHome");
-            if (!path.endsWith(fileSep)) {
-                path = path + fileSep;
+            net.setApproved("CODE", item);
+            
+            // Delete remote failed item.  OK if it throws an exception
+            String remotePath = "/uvfs/ma.accounts/deploy/PEER.FAILED/";
+            try {
+                net.doSftpDelete("nlstest", remotePath, item);
+            } catch (SftpException ex) {
+                // Do nothing
             }
+            remotePath = "/uvfs/ma.accounts/deploy/PEER.APPROVED/";
+            try {
+                net.doSftpDelete("nlstest", remotePath, item);
+            } catch (SftpException ex) {
+                // Do nothing
+            }
+            
             String id = txtReviewId.getText();
-            if(id.isEmpty()) {
-                id = listProjects.getSelectionModel().getSelectedItem().toString();
+            updateProject(id);
+            String codePath = systemConfig.getPreferences().get("codeHome");
+            if (!codePath.endsWith(fileSep)) {
+                codePath = codePath + fileSep;
             }
-            if (!id.endsWith(".json")) {
-                id = id+".json";
+            f = new File(codePath + progName);
+            f.delete();
+            f = new File(codePath + progName + ".approved");
+            if (f.exists()) {
+                f.delete();
             }
-            f = new File(path+id);
-            try (FileWriter out = new FileWriter(f)) {
-                out.write(Jsoner.prettyPrint(Jsoner.serialize(this.model.toJson())));
-                out.close();
+            if (this.model.getPendingList().isEmpty()) {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.contentTextProperty().set("Nothing left to review");
+                        alert.showAndWait();
+                    }
+                });
             }
-        } catch (JSchException ex) {
-            Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SftpException ex) {
-            Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
+        } catch (JSchException | SftpException | IOException ex) {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.contentTextProperty().set(ex.getMessage());
+                alert.showAndWait();
+            });
             Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
         }
 
@@ -698,17 +906,153 @@ public class PeerReviewController implements Controller, Initializable, Progress
 
     @FXML
     public void onFailItem() {
-        display("Item failed");
+        String item = listPending.getSelectionModel().getSelectedItem().toString();
+        String localPath = systemConfig.getPreferences().get("codeHome");
+        if (!localPath.endsWith(fileSep)) {
+            localPath = localPath + fileSep;
+        }
+        String[] specs = item.split("~");
+        String platform = specs[0];
+        String library = specs[1];
+        String progName = specs[2];
+        String pathType = Network.getPathType(library);
+        if (platform.equals("DMCRBO")) {
+            platform = "DMC";
+            progName = specs[3];
+        }
+        Server s = new Server(platforms.getPlatforms(), platform.toLowerCase());
+        StringBuilder sb = new StringBuilder();
+        File f = new File(localPath + progName);
+
+        try (LineNumberReader reader = new LineNumberReader(new FileReader(f))) {
+            String line = reader.readLine();
+            if (line.contains("!!! Pending")) {
+                reader.close();
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.contentTextProperty().set("Please remove \"!!! Pending\" from the source code");
+                alert.showAndWait();
+            } else {
+                sb = sb.append("!!! SEE COMMENTS" + lineSep);
+                sb = sb.append(line + lineSep);
+            }
+            for (;;) {
+                line = reader.readLine();
+                if (line == null) {
+                    break;
+                }
+                sb = sb.append(line + lineSep);
+            }
+            reader.close();
+            BufferedWriter out = new BufferedWriter(new FileWriter(f));
+            out.write(sb.toString());
+            out.close();
+            String remotePath = s.getPath(pathType);
+            String remoteItem = progName;
+            String localItem = progName;
+            net.doSftpPut(s.getHost("dev"), remotePath, remoteItem, localPath, localItem);
+            remotePath = "/uvfs/ma.accounts/deploy/barfyHoldingAreaFail/";
+            net.doSftpPut(s.getHost("failed"), remotePath, remoteItem, localPath, item);
+            net.setFailed("CODE", item);
+            this.model.getFailedList().add(item);
+            this.model.getPendingList().remove(item);
+            String id = txtReviewId.getText();
+            updateProject(id);
+            f = new File(localPath + progName);
+            f.delete();
+            f = new File(localPath + progName + ".approved");
+            if (f.exists()) {
+                f.delete();
+            }
+            if (this.model.getPendingList().isEmpty()) {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.contentTextProperty().set("Nothing left to review");
+                        alert.showAndWait();
+                    }
+                });
+            }
+        } catch (IOException | JSchException | SftpException ex) {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.contentTextProperty().set(ex.getMessage());
+                alert.showAndWait();
+            });
+            Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @FXML
     public void onPassReview() {
-
+        if (txtReviewId.getText().isEmpty()) {
+            return;
+        }
+        removeProject(txtReviewId.getText());
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.contentTextProperty().set("Don't forget to pass it in Blueprint");
+            alert.showAndWait();
+        });
     }
 
     @FXML
     public void onFailReview() {
+        if (txtReviewId.getText().isEmpty()) {
+            return;
+        }
+        removeProject(txtReviewId.getText());
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.contentTextProperty().set("Don't forget to fail it in Blueprint");
+            alert.showAndWait();
+        });
+    }
 
+    private void removeData() {
+        String path = systemConfig.getPreferences().get("dataHome");
+        if (!path.endsWith(fileSep)) {
+            path = path + fileSep;
+        }
+        for (ArrayList<String> list : this.model.getAllData().values()) {
+            for (String item : list) {
+                String[] segs = item.split("~");
+                File f = new File(path + segs[2]);
+                if (f.exists()) {
+                    f.delete();
+                }
+            }
+        }
+    }
+
+    private void removePrograms() {
+        String path = systemConfig.getPreferences().get("codeHome");
+        if (!path.endsWith(fileSep)) {
+            path = path + fileSep;
+        }
+        for (ArrayList<String> list : this.model.getAllPrograms().values()) {
+            for (String item : list) {
+                String[] segs = item.split("~");
+                File f = new File(path + segs[2]);
+                if (f.exists()) {
+                    f.delete();
+                }
+            }
+        }
+    }
+
+    private void removeProject(String projectId) {
+        removeData();
+        removePrograms();
+        String projectHome = systemConfig.getPreferences().get("projectHome");
+        if (!projectHome.endsWith(fileSep)) {
+            projectHome = projectHome + fileSep;
+        }
+        File f = new File(projectHome + projectId);
+        f.delete();
+        projectList.remove(txtReviewId.getText());
+        txtReviewId.setText("");
+        resetForm();
     }
 
     private void resetForm() {
@@ -744,9 +1088,25 @@ public class PeerReviewController implements Controller, Initializable, Progress
         Platform.runLater(() -> progressBar.progressProperty().setValue(p));
     }
 
+    private void updateProject(String projectId) throws IOException {
+        String path = systemConfig.getPreferences().get("projectHome");
+        if (!path.endsWith(fileSep)) {
+            path = path + fileSep;
+        }
+
+        if (!projectId.endsWith(".json")) {
+            projectId = projectId + ".json";
+        }
+        File f = new File(path + projectId);
+        try (FileWriter fwout = new FileWriter(f)) {
+            fwout.write(Jsoner.prettyPrint(Jsoner.serialize(this.model.toJson())));
+        }
+    }
+
     @Override
     public void updateLed(String host, boolean onOff) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
     }
 
     public static class DictDataItem {

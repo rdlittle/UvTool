@@ -63,6 +63,7 @@ public class UvTool extends Application {
 
         UvToolController controller = loader.getController();
         scene = new Scene(root);
+        
         controller.getFileExit().setOnAction(new EventHandler() {
             @Override
             public void handle(Event event) {
@@ -72,6 +73,7 @@ public class UvTool extends Application {
         stage.setTitle(res.getString("titleUvTool"));
         stage.setX((double) config.getWindowLocation().x);
         stage.setY((double) config.getWindowLocation().y);
+        scene.getStylesheets().add(UvTool.class.getResource("/css/runview.css").toExternalForm());
         stage.setScene(scene);
         stage.setOnCloseRequest(new WindowHandler());
         toggleStage();

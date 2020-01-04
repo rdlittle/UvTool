@@ -22,3 +22,37 @@
     -fx-background-color: tomato;
     -fx-fill: white;
 }
+
+.loadbutton {
+    -fx-background-color: cornsilk;
+    -fx-background-radius: 10;
+    -fx-border-color: black;
+    -fx-border-radius: 10;
+}
+
+.custom-button-hover {
+    -fx-background-color: aquamarine;
+    -fx-background-radius: 10;
+    -fx-border-color: black;
+    -fx-border-radius: 10;
+}
+
+.custom-button-click {
+    -fx-background-color: lightcoral;
+    -fx-background-radius: 10;
+    -fx-border-color: black;
+    -fx-border-radius: 10;
+}
+
+.fail-button {
+    -fx-background-color: lightcoral;
+    -fx-background-radius: 10;
+    -fx-border-color: black;
+    -fx-border-radius: 10;
+}
+.pass-button {
+    -fx-background-color: lightgreen;
+    -fx-background-radius: 10;
+    -fx-border-color: black;
+    -fx-border-radius: 10;
+}
