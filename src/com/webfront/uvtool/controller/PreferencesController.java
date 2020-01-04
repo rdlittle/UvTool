@@ -188,7 +188,7 @@ public class PreferencesController implements Controller, Initializable, Progres
 
     @FXML
     void btnDownloadsOnClick() {
-        String result = browse(false, "Select location for downloads");
+        String result = browse(true, "Select location for downloads");
         if (result == null) {
             return;
         }
