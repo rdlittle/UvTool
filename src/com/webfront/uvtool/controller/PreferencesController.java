@@ -115,7 +115,7 @@ public class PreferencesController implements Controller, Initializable, Progres
         txtProjectHome.setText(config.getPreferences().get("projectHome"));
         txtCodeHome.setText(config.getPreferences().get("codeHome"));
         txtDataHome.setText(config.getPreferences().get("dataHome"));
-        chkLoadData.selectedProperty().set(config.getPreferences().get("loadData").equals("1"));
+        chkLoadData.selectedProperty().set(config.getPreferences().getOrDefault("loadData", "0").equals("1"));
     }
 
     @FXML
