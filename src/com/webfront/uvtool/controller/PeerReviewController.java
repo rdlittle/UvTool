@@ -142,7 +142,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
         txtReviewId = new TextField();
         this.model = PeerReviewModel.getInstance();
         loadDictData = com.webfront.u2.util.Config.getInstance().
-                getPreferences().get("loadData").equals("1");
+                getPreferences().getOrDefault("loadData", "0").equals("1");
         dictDataItemList = FXCollections.observableArrayList();
         projectList = FXCollections.observableArrayList();
         String home = systemConfig.getPreferences().get("projectHome");
