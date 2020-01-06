@@ -154,6 +154,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
             }
         }
         hasProject.set(false);
+        
     }
 
     private void buttonClick(Button btn) {
@@ -572,6 +573,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
         itemColumn.setCellValueFactory(new PropertyValueFactory<>("artifactName"));
         statusColumn.setCellValueFactory(new PropertyValueFactory<>("artifactStatus"));
         tblDictData.setItems(dictDataItemList);
+        tblDictData.placeholderProperty().setValue(new Label(""));
         listProjects.setItems(projectList);
     }
 
