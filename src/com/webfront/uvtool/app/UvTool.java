@@ -29,6 +29,7 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -52,6 +53,17 @@ public class UvTool extends Application {
     @Override
     public void start(Stage stg) throws Exception {
         config = Config.getInstance();
+        if (config.isNewInstall()) {
+            Platform.runLater(() -> {
+                String msg = "Please set up preferences: "
+                        + "Edit->Preferences";
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.titleProperty().set("New installation?");
+                alert.contentTextProperty().set(msg);
+                alert.showAndWait();
+            });
+        }
+
         stage = stg;
         Platform.setImplicitExit(false);
         javax.swing.SwingUtilities.invokeLater(this::addAppToTray);
@@ -63,7 +75,7 @@ public class UvTool extends Application {
 
         UvToolController controller = loader.getController();
         scene = new Scene(root);
-        
+
         controller.getFileExit().setOnAction(new EventHandler() {
             @Override
             public void handle(Event event) {

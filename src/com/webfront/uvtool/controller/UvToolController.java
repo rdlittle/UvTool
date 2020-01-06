@@ -19,6 +19,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -31,6 +32,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -119,14 +121,14 @@ public class UvToolController implements Initializable {
         pullImage = new Image(getClass().getResourceAsStream("/com/webfront/uvtool/image/arrows.png"), 50, 50, false, false);
         peerImage = new Image(getClass().getResourceAsStream("/com/webfront/uvtool/image/review.png"), 50, 50, false, false);
         backupImage = new Image(getClass().getResourceAsStream("/com/webfront/uvtool/image/backup.png"), 50, 50, false, false);
-        
+
         copyImageView = new ImageView(copyImage);
         runImageView = new ImageView(runImage);
         compareImageView = new ImageView(compareImage);
         pullImageView = new ImageView(pullImage);
         peerImageView = new ImageView(peerImage);
         backupImageView = new ImageView(backupImage);
-        
+
         config = Config.getInstance();
         accountList.setAll(config.getAccounts());
         profileList.setAll(config.getProfiles());
@@ -162,7 +164,7 @@ public class UvToolController implements Initializable {
         btnCompare.setGraphic(compareImageView);
         btnBackups.setGraphic(backupImageView);
         btnPull.setGraphic(pullImageView);
-        
+
         btnCopy.setAlignment(Pos.CENTER);
 
         cbServers.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
@@ -207,6 +209,16 @@ public class UvToolController implements Initializable {
     }
 
     private void launch(String view, String title) {
+        if (config.getProfiles().size() == 0) {
+            Platform.runLater(() -> {
+                String msg = "Please set up connections: "
+                        + "Edit->Profiles";
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.titleProperty().set("New installation?");
+                alert.contentTextProperty().set(msg);
+                alert.showAndWait();
+            });
+        }
         final FXMLLoader viewLoader = new FXMLLoader();
         String v = res.getString(view);
         String t = res.getString(title);
@@ -232,7 +244,6 @@ public class UvToolController implements Initializable {
                 });
             }
             ctrl.setStage(stage);
-
             stage.showAndWait();
         } catch (IOException ex) {
             Logger.getLogger(UvToolController.class.getName()).log(Level.SEVERE, null, ex);
