@@ -241,6 +241,7 @@ public class Network {
             if (aFile.exists()) {
                 aFile.delete();
             }
+            doSftpDelete(host, remotePath, item);
             throw new FileNotFoundException("No approved version found");
         }
     }

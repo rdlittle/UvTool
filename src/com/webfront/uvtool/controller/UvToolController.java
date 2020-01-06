@@ -116,7 +116,7 @@ public class UvToolController implements Initializable {
         copyImage = new Image(getClass().getResourceAsStream("/com/webfront/uvtool/image/copy.png"), 50, 50, false, false);
         runImage = new Image(getClass().getResourceAsStream("/com/webfront/uvtool/image/gears2.png"), 50, 50, true, false);
         compareImage = new Image(getClass().getResourceAsStream("/com/webfront/uvtool/image/find.png"), 50, 50, false, false);
-        pullImage = new Image(getClass().getResourceAsStream("/com/webfront/uvtool/image/computer.png"), 50, 50, false, false);
+        pullImage = new Image(getClass().getResourceAsStream("/com/webfront/uvtool/image/arrows.png"), 50, 50, false, false);
         peerImage = new Image(getClass().getResourceAsStream("/com/webfront/uvtool/image/review.png"), 50, 50, false, false);
         backupImage = new Image(getClass().getResourceAsStream("/com/webfront/uvtool/image/backup.png"), 50, 50, false, false);
         
