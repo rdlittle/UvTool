@@ -34,6 +34,7 @@ import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -110,13 +111,15 @@ public class ProfileController implements Controller {
     Profile selectedProfile;
     private FilteredList<Server> filteredServerList;
     private FilteredList<Account> filteredAccountList;
+    boolean firstUse = config.getProfiles().size() == 0;
 
     public ProfileController() {
+
     }
 
     @Override
     public void setStage(Stage s) {
-        
+
     }
 
     @FXML
@@ -139,6 +142,22 @@ public class ProfileController implements Controller {
 
         cbAccounts.converterProperty().set(new AccountConverter());
         cbAccounts.setItems(filteredAccountList);
+        cbAccounts.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                cbAccounts.editableProperty().set(false);
+                event.consume();
+            } else {
+                if (event.getCode() == KeyCode.ENTER) {
+                    String txt = cbAccounts.editorProperty().getValue().getText();
+                    Account a = new Account();
+                    a.setName(txt);
+                    config.getAccounts().add(a);
+                    cbAccounts.valueProperty().set(a);
+                    event.consume();
+                    txtPath.requestFocus();
+                }
+            };
+        });        
 
         cbProfiles.converterProperty().set(new ProfileConverter());
         cbProfiles.setItems(config.getProfiles());
@@ -146,14 +165,20 @@ public class ProfileController implements Controller {
         cbProfiles.setEffect(shadow);
         cbServers.converterProperty().set(new ServerConverter());
         cbServers.setItems(config.getServers());
+        
         cbServers.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             if (event.getCode() == KeyCode.ESCAPE) {
                 cbServers.editableProperty().set(false);
                 event.consume();
             } else {
                 if (event.getCode() == KeyCode.ENTER) {
-                    Server s = cbServers.getValue();
+                    String txt = cbServers.editorProperty().getValue().getText();
+                    Server s = new Server();
+                    s.setName(txt);
+                    config.getServers().add(s);
+                    cbServers.valueProperty().set(s);
                     event.consume();
+                    txtHostName.requestFocus();
                 }
             };
         });
@@ -170,10 +195,19 @@ public class ProfileController implements Controller {
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
                 String prevValue = (String) oldValue;
                 if (prevValue != null && !prevValue.isEmpty()) {
-                    btnSave.disableProperty().set(false);
+                    cbAccounts.getValue().setPath(newValue.toString());
+//                    btnSave.disableProperty().set(false);
                 }
             }
         });
+        
+        txtHostName.textProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                String prevValue = (String) oldValue;
+                cbServers.getValue().setHost(newValue.toString());
+            }
+        });        
 
         txtUserName.textProperty().addListener(new ChangeListener() {
             @Override
@@ -310,6 +344,15 @@ public class ProfileController implements Controller {
             config.addProfile(p);
             lblStatusMessage.setText(resources.getString("msgProfileCreated"));
         }
+        if (firstUse) {
+            Platform.runLater(() -> {
+                String msg = "Restart application to load profiles";
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.titleProperty().set("New installation?");
+                alert.contentTextProperty().set(msg);
+                alert.showAndWait();
+            });
+        }
     }
 
     @FXML
@@ -351,37 +394,6 @@ public class ProfileController implements Controller {
         cbServers.editableProperty().set(true);
         txtHostName.clear();
         cbServers.requestFocus();
-//        cbServers.getEditor().setOnKeyPressed(new EventHandler<KeyEvent>() {
-//            @Override
-//            public void handle(KeyEvent event) {
-//                KeyCode key = event.getCode();
-//                System.out.println("key pressed: " + key);
-//                if (key == KeyCode.ESCAPE) {
-//                    System.out.println("ESC key pressed");
-//                    txtHostName.requestFocus();
-//                    cbServers.editableProperty().set(false);
-//                } else if (key == KeyCode.ENTER) {
-//                    System.out.println("Enter key pressed");
-//                }
-//            }
-//        });
-//        cbServers.getEditor().setOnKeyTyped(new EventHandler<KeyEvent>() {
-//            @Override
-//            public void handle(KeyEvent event) {
-//                KeyCode key = event.getCode();
-//                System.out.println("key typed: " + key);
-//                if (key == KeyCode.ESCAPE) {
-//                    System.out.println("ESC key typed");
-//                    txtHostName.requestFocus();
-//                    cbServers.editableProperty().set(false);
-//                } else if (key == KeyCode.ENTER) {
-//                    System.out.println("Enter key typed");
-//                    cbServers.editableProperty().set(false);
-//                }
-//            }
-//        });
-
-//        launch("viewServer","titleServer");
     }
 
     @FXML
@@ -400,7 +412,9 @@ public class ProfileController implements Controller {
 
     @FXML
     public void btnAddAccountOnAction() {
-
+        cbAccounts.editableProperty().set(true);
+        txtPath.clear();
+        cbAccounts.requestFocus();
     }
 
     public void setFormData() {
