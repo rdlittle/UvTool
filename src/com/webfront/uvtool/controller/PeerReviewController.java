@@ -835,7 +835,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
                         reader.close();
                         break;
                     }
-                    if (line.contains("!!!")) {
+                    if (line.startsWith("!!!")) {
                         reader.close();
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.contentTextProperty().set("You have \"!!!\" comments in the source code");
