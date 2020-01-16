@@ -233,7 +233,9 @@ public class CopyViewController implements Controller, Initializable, Progress {
                 if (((RadioButton) newValue).getId().equals("rbFromSavedList")) {
                     lblCriteria.setText("List name");
                 } else if (((RadioButton) newValue).getId().equals("rbFromQuery")) {
-                    lblCriteria.setText("Selection criteria");
+                    lblCriteria.setText("Selection criteria. "
+                            + "Multiple commands are allowed, "
+                            + "one command per line");
                 } else {
                     lblCriteria.setText("Enter items below, one per line");
                 }
