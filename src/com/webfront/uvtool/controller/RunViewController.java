@@ -205,6 +205,9 @@ public class RunViewController implements Controller, Progress, Initializable {
             backgroundThread = new Thread(task);
             backgroundThread.setDaemon(true);
             backgroundThread.start();
+            while(backgroundThread.isAlive()) {
+            }
+            a.teardown();
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(RunViewController.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
