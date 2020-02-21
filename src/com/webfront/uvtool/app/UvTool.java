@@ -10,7 +10,6 @@ import com.webfront.uvtool.controller.UvToolController;
 import java.awt.AWTException;
 import java.awt.Font;
 import java.awt.Image;
-import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
@@ -19,7 +18,6 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -35,9 +33,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javax.imageio.ImageIO;
-import tray.SystemTrayAdapter;
-import tray.SystemTrayProvider;
-import tray.TrayIconAdapter;
 
 /**
  *

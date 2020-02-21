@@ -15,6 +15,7 @@ import com.webfront.u2.util.ServerConverter;
 import com.webfront.uvtool.app.UvTool;
 import com.webfront.uvtool.util.CBClient;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -50,6 +51,7 @@ import javafx.stage.Stage;
  */
 public class UvToolController implements Initializable {
 
+    private final String version = "4.3";
     private final Config config;
     private final ObservableList<Account> accountList = FXCollections.observableArrayList();
     private final ObservableList<Profile> profileList = FXCollections.observableArrayList();
@@ -100,6 +102,10 @@ public class UvToolController implements Initializable {
     MenuItem mnuEditProfile;
     @FXML
     MenuItem mnuEditApp;
+    @FXML
+    MenuItem mnuHelp;
+    @FXML
+    MenuItem mnuHelpAbout;    
 
     Image copyImage;
     ImageView copyImageView;
@@ -326,8 +332,28 @@ public class UvToolController implements Initializable {
     }
 
     @FXML
-    public void onMnuHelpAbout() {
+    public void onMnuHelp() {
         launch("viewHelpAbout", "titleHelpAbout");
+    }
+
+    @FXML
+    public void onMnuHelpAbout() {
+        Platform.runLater(() -> {
+            
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            String crSymbol = new String(Character.toChars(169));
+            Image icon = new Image(getClass().
+                    getResourceAsStream("/com/webfront/uvtool/image/u2-96X96.png"));
+            
+            Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+            stage.getIcons().add(icon);
+            
+            alert.setTitle("About UvTool");
+            alert.setHeaderText("UvTool version "+version);
+            alert.setGraphic(new ImageView(icon));
+            alert.contentTextProperty().set(crSymbol+" 2020  Market America, Inc.");
+            alert.showAndWait();
+        });
     }
 
     @FXML
