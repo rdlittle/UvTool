@@ -7,10 +7,10 @@ package com.webfront.uvtool.app;
 
 import com.webfront.u2.util.Config;
 import com.webfront.uvtool.controller.UvToolController;
-import com.webfront.uvtool.util.CBClient;
 import java.awt.AWTException;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
@@ -19,6 +19,7 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -34,6 +35,9 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javax.imageio.ImageIO;
+import tray.SystemTrayAdapter;
+import tray.SystemTrayProvider;
+import tray.TrayIconAdapter;
 
 /**
  *
@@ -135,10 +139,20 @@ public class UvTool extends Application {
             return;
         }
         try {
+//            SystemTrayAdapter trayAdapter = SystemTrayProvider.getSystemTray();
+//            URL imageUrl = getClass().getResource("myImage.svg");
+//            String tooltip = "I'm transparent under linux!";
+//            PopupMenu popup = produceMyPopupMenu();
+//            TrayIconAdapter trayIconAdapter = trayAdapter.createAndAddTrayIcon(
+//                    imageUrl,
+//                    tooltip,
+//                    popup);
+            java.awt.PopupMenu popup = new java.awt.PopupMenu();
             sysTray = SystemTray.getSystemTray();
-            InputStream is = UvTool.class.getResourceAsStream("u2-24X24.png");
+            InputStream is = UvTool.class.getResourceAsStream("u2-96X96.png");
             Image image = ImageIO.read(is);
             trayIcon = new TrayIcon(image);
+            trayIcon.setImageAutoSize(true);
             trayIcon.setToolTip(res.getString("msgToolTipSysTray"));
             trayIcon.addMouseListener(new MouseAdapter() {
                 @Override
@@ -155,7 +169,6 @@ public class UvTool extends Application {
                 Platform.runLater(() -> stage.fireEvent(new Event(WindowEvent.WINDOW_CLOSE_REQUEST)));
             });
 
-            java.awt.PopupMenu popup = new java.awt.PopupMenu();
             Font defaultFont = Font.decode(null);
             Font boldFont = defaultFont.deriveFont(Font.BOLD, 16);
             exitItem.setFont(boldFont);

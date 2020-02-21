@@ -28,13 +28,13 @@
         "nls": {
             "codebase": "NLS",
             "servers": {
-                "dev": "nlsdev",
+                "dev": "dmcdev",
                 "test": "nlstest",
                 "live": "dmctw"
             },
             "paths": {
-                "main": "/uvfs/ma.accounts/dmc",
-                "uvcode": "/uvcode"
+                "main": "/uvfs/ma.accounts/dmctw",
+                "uvcode": "/uvcodetw"
             }
         },
         "compro": {
