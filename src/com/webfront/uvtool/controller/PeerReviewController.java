@@ -1031,6 +1031,9 @@ public class PeerReviewController implements Controller, Initializable, Progress
         }
         for (ArrayList<String> list : this.model.getAllPrograms().values()) {
             for (String item : list) {
+                if (item.isEmpty()) {
+                    continue;
+                }
                 String[] segs = item.split("~");
                 File f = new File(path + segs[2]);
                 if (f.exists()) {
