@@ -305,7 +305,6 @@ public class PeerReviewController implements Controller, Initializable, Progress
                     boolean isMatch = doCompare(oldItem, newItem);
                     if (!isMatch) {
                         this.model.getPendingList().add(item);
-                        deleteLocalFile(oldItem);
                         incrementCounter("pending");
                     } else {
                         deleteLocalFile(oldItem);
@@ -313,8 +312,6 @@ public class PeerReviewController implements Controller, Initializable, Progress
                         this.model.getPassedList().add(item);
                         incrementCounter("passed");
                     }
-                    File f = new File(oldItem);
-                    f.delete();
                 } catch (EventException | JSchException ex) {
                     Platform.runLater(() -> {
                         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -1049,6 +1046,9 @@ public class PeerReviewController implements Controller, Initializable, Progress
         String projectHome = systemConfig.getPreferences().get("projectHome");
         if (!projectHome.endsWith(fileSep)) {
             projectHome = projectHome + fileSep;
+        }
+        if (!projectId.endsWith(".json")) {
+            projectId = projectId + ".json";
         }
         File f = new File(projectHome + projectId);
         f.delete();

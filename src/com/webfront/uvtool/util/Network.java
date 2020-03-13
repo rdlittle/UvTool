@@ -209,6 +209,7 @@ public class Network {
         try {
             ByteArrayOutputStream output = sshExec(host, path,
                     cmd + " " + itemType + " " + approvedId);
+            System.out.println(output.toString());
 
         } catch (JSchException ex) {
             throw ex;
@@ -244,6 +245,7 @@ public class Network {
             doSftpDelete(host, remotePath, item);
             throw new FileNotFoundException("No approved version found");
         }
+        
     }
 
     public void setApproved(String itemType, String approvedId) throws
