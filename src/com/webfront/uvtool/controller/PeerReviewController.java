@@ -126,6 +126,8 @@ public class PeerReviewController implements Controller, Initializable, Progress
 
     private final PeerReviewModel model;
     private boolean loadDictData;
+    private final boolean DISABLED = true;
+    private final boolean ENABLED = false;
 
     private final ObservableList<DictDataItem> dictDataItemList;
     private final ObservableList<String> projectList;
@@ -134,6 +136,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
     private final SimpleBooleanProperty hasProject = new SimpleBooleanProperty();
 
     final DropShadow ds = new DropShadow();
+    
     Scene scene;
 
     public PeerReviewController() {
@@ -799,6 +802,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
         on nlstest by invoking Network.setApproved()
         Finally, attempts to delete it from /uvfs/ma.accounts/deploy/PEER.FAILED/
          */
+        updateButtonAndCursor(btnPassItem, DISABLED);
         String item = listPending.getSelectionModel().getSelectedItem().toString();
         String path = systemConfig.getPreferences().get("codeHome");
         if (!path.endsWith(fileSep)) {
@@ -820,6 +824,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
         try (LineNumberReader reader = new LineNumberReader(new FileReader(f))) {
             String line = reader.readLine();
             if (line.contains("!!! Pending")) {
+                updateButtonAndCursor(btnPassItem, ENABLED);
                 reader.close();
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.contentTextProperty().set("Please remove \"!!! Pending\" from the source code");
@@ -833,6 +838,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
                         break;
                     }
                     if (line.startsWith("!!!")) {
+                        updateButtonAndCursor(btnPassItem, ENABLED);
                         reader.close();
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.contentTextProperty().set("You have \"!!!\" comments in the source code");
@@ -847,9 +853,11 @@ public class PeerReviewController implements Controller, Initializable, Progress
                 alert.contentTextProperty().set(ex.getMessage());
                 alert.showAndWait();
             });
+            updateButtonAndCursor(btnPassItem, ENABLED);
             Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
         }
         try {
+            updateButtonAndCursor(btnPassItem, ENABLED);
             int mtime = putArtifact(item);
             this.model.getPendingList().remove(item);
             this.model.getPassedList().add(item);
@@ -891,6 +899,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
                         alert.showAndWait();
                     }
                 });
+                updateButtonAndCursor(btnPassItem, ENABLED);
             }
         } catch (JSchException | SftpException | IOException ex) {
             Platform.runLater(() -> {
@@ -898,13 +907,15 @@ public class PeerReviewController implements Controller, Initializable, Progress
                 alert.contentTextProperty().set(ex.getMessage());
                 alert.showAndWait();
             });
+            updateButtonAndCursor(btnPassItem, ENABLED);
             Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        updateButtonAndCursor(btnPassItem, ENABLED);
     }
 
     @FXML
     public void onFailItem() {
+        updateButtonAndCursor(btnFailItem, DISABLED);
         String item = listPending.getSelectionModel().getSelectedItem().toString();
         String localPath = systemConfig.getPreferences().get("codeHome");
         if (!localPath.endsWith(fileSep)) {
@@ -926,6 +937,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
         try (LineNumberReader reader = new LineNumberReader(new FileReader(f))) {
             String line = reader.readLine();
             if (line.contains("!!! Pending")) {
+                updateButtonAndCursor(btnFailItem, ENABLED);
                 reader.close();
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.contentTextProperty().set("Please remove \"!!! Pending\" from the source code");
@@ -971,6 +983,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
                         alert.showAndWait();
                     }
                 });
+                updateButtonAndCursor(btnFailItem, ENABLED);
             }
         } catch (IOException | JSchException | SftpException ex) {
             Platform.runLater(() -> {
@@ -978,8 +991,10 @@ public class PeerReviewController implements Controller, Initializable, Progress
                 alert.contentTextProperty().set(ex.getMessage());
                 alert.showAndWait();
             });
+            updateButtonAndCursor(btnFailItem, ENABLED);
             Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
         }
+        updateButtonAndCursor(btnFailItem, ENABLED);
     }
 
     @FXML
@@ -1112,6 +1127,16 @@ public class PeerReviewController implements Controller, Initializable, Progress
     public void updateLed(String host, boolean onOff) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 
+    }
+    
+    public void updateButtonAndCursor(Button btn, boolean isDisabled) {
+        btn.disableProperty().set(isDisabled);
+        if (isDisabled) {
+            stage.getScene().setCursor(Cursor.WAIT);
+        } else {
+            stage.getScene().setCursor(Cursor.DEFAULT);
+        }
+        
     }
 
     public static class DictDataItem {
