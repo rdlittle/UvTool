@@ -57,6 +57,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -69,6 +70,7 @@ import org.w3c.dom.events.EventException;
 public class PeerReviewController implements Controller, Initializable, Progress {
 
     private Stage stage;
+    private java.awt.PopupMenu popup;
 
     @FXML
     Button btnLoad;
@@ -158,6 +160,9 @@ public class PeerReviewController implements Controller, Initializable, Progress
         }
         hasProject.set(false);
         
+        popup = new java.awt.PopupMenu();
+        java.awt.MenuItem popupItem = new java.awt.MenuItem("Delete");
+        popup.add(popupItem);
     }
 
     private void buttonClick(Button btn) {
@@ -412,6 +417,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         this.res = resources;
+        listProjects.setItems(projectList);
         listPassed.setItems(this.model.getPassedList());
         listPending.setItems(this.model.getPendingList());
         listFailed.setItems(this.model.getFailedList());
@@ -528,6 +534,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
                 }
             }
         });
+        
         txtReviewId.textProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
@@ -1127,6 +1134,16 @@ public class PeerReviewController implements Controller, Initializable, Progress
     public void updateLed(String host, boolean onOff) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 
+    }
+    
+    @FXML
+    public void onListProjectsMouseReleased(MouseEvent e) {
+        if (e.getButton() == MouseButton.SECONDARY) {
+            double x = e.getX();
+            double y = e.getY();
+            // Do a popup here for 'delete'
+            //popup.show(listProjects, (int)x, (int)y);
+        }
     }
     
     public void updateCursor(boolean isDisabled) {
