@@ -643,7 +643,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
             return;
         }
         try {
-            int mtime = net.doSftpGet("nlstest", remotePath, item, localPath, item);
+            int mtime = net.doSftpGet("dmctest", remotePath, item, localPath, item);
             try (BufferedReader f = new BufferedReader(new FileReader(localPath + item))) {
                 while (true) {
                     String line = f.readLine();
@@ -799,6 +799,21 @@ public class PeerReviewController implements Controller, Initializable, Progress
         backgroundThread.start();
     }
 
+    public void passDictData() {
+        for (String item : this.model.getDictDataList()) {
+            System.out.println(item);
+            String[] segs = item.split("~");
+            String platform = segs[0];
+            String fileName = segs[1];
+            String itemId = segs[2];
+            String itemType = "CODE";
+            if(fileName.startsWith("DICT,")) {
+                fileName = fileName.replaceFirst("DICT,", "");
+                itemType = "DICT";
+            }
+        }
+    }
+    
     @FXML
     public void onPassItem() {
         /*
@@ -830,7 +845,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
 
         try (LineNumberReader reader = new LineNumberReader(new FileReader(f))) {
             String line = reader.readLine();
-            if (line.contains("!!! Pending")) {
+            if (line.matches(".*!{0,3}\\s*[P|p]ending")) {
                 updateCursor(ENABLED);
                 reader.close();
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -1006,6 +1021,9 @@ public class PeerReviewController implements Controller, Initializable, Progress
 
     @FXML
     public void onPassReview() {
+        if (this.model.getDictDataList().size()>0) {
+            passDictData();
+        }
         if (txtReviewId.getText().isEmpty()) {
             return;
         }
