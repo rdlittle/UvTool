@@ -12,7 +12,7 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
-import com.webfront.uvtool.model.Server;
+import com.webfront.uvtool.model.ServerGroup;
 import com.webfront.u2.util.Config;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -201,7 +201,7 @@ public class Network {
     public void getApproved(String itemType, String approvedId) throws
             FileNotFoundException, EventException, JSchException, SftpException,
             IOException {
-        Server s = new Server(platforms.getPlatforms(), "dmc");
+        ServerGroup s = new ServerGroup(platforms.getPlatforms(), "dmc");
         String path = s.getPath("deploy");
 
         String host = s.getHost("approved");
@@ -256,7 +256,7 @@ public class Network {
         example:
         /uvfs/ma.accounts/deploy/addToApproved CODE DMC~aop.uvs~postAopCreate.uvs
          */
-        Server s = new Server(platforms.getPlatforms(), "dmc");
+        ServerGroup s = new ServerGroup(platforms.getPlatforms(), "dmc");
         String path = s.getPath("deploy");
 
         String host = s.getHost("approved");
@@ -272,7 +272,7 @@ public class Network {
     public void setFailed(String itemType, String approvedId) throws
             FileNotFoundException, EventException, JSchException, SftpException,
             IOException {
-        Server s = new Server(platforms.getPlatforms(), "dmc");
+        ServerGroup s = new ServerGroup(platforms.getPlatforms(), "dmc");
         String path = s.getPath("deploy");
 
         String host = s.getHost("approved");
@@ -295,7 +295,7 @@ public class Network {
 
         item = String.format("%s~%s~%s", platform, dataFile, itemId);
 
-        Server s = new Server(platforms.getPlatforms(), "dmc");
+        ServerGroup s = new ServerGroup(platforms.getPlatforms(), "dmc");
         String remotePath = s.getPath("deploy");
         if (!remotePath.endsWith("/")) {
             remotePath = remotePath + "/";

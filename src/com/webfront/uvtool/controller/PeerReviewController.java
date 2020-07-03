@@ -11,7 +11,7 @@ import com.jcraft.jsch.SftpException;
 import com.webfront.u2.util.Config;
 import com.webfront.u2.util.Progress;
 import com.webfront.uvtool.model.PeerReviewModel;
-import com.webfront.uvtool.model.Server;
+import com.webfront.uvtool.model.ServerGroup;
 import com.webfront.uvtool.util.ConfigProperties;
 import com.webfront.uvtool.util.Network;
 import java.io.BufferedReader;
@@ -235,7 +235,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
                 platform = "DMC";
                 program = segs[3];
             }
-            Server s = new Server(platforms.getPlatforms(), platform.toLowerCase());
+            ServerGroup s = new ServerGroup(platforms.getPlatforms(), platform.toLowerCase());
             String codebase = s.getCodeBase();
             String pathType = net.getPathType(library);
             String remotePath = s.getPath(pathType);
@@ -291,7 +291,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
                         program = segs[3];
                         codebase = "RBO";
                     }
-                    Server s = new Server(platforms.getPlatforms(), platform.toLowerCase());
+                    ServerGroup s = new ServerGroup(platforms.getPlatforms(), platform.toLowerCase());
                     if (codebase == null) {
                         codebase = s.getCodeBase();
                     }
@@ -718,7 +718,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
             platform = "DMC";
             program = segs[3];
         }
-        Server s = new Server(platforms.getPlatforms(), platform.toLowerCase());
+        ServerGroup s = new ServerGroup(platforms.getPlatforms(), platform.toLowerCase());
         String codebase = s.getCodeBase();
         String pathType = Network.getPathType(library);
         String rPath = s.getPath(pathType);
@@ -747,22 +747,23 @@ public class PeerReviewController implements Controller, Initializable, Progress
         }
         String[] specs = item.split("~");
         String progName = specs[2];
-        String left = path + progName;
-        String right = path + progName + ".approved";
+        String left = path + progName + ".approved";
+        String right = path + progName;
         String executable = diff;
         String args = left + " " + right;
         boolean isTwoPart = true;
-        File f = new File(right);
+        File f = new File(left);
         if (!f.exists()) {
-            right = path + progName + ".live";
-            f = new File(right);
+            left = path + progName + ".live";
+            f = new File(left);
             if (!f.exists()) {
                 isTwoPart = false;
                 executable = editor;
-                args = left;
+                args = right;
             }
         }
-        f = new File(left);
+        f = new File(right);
+        
         try {
             try (LineNumberReader reader = new LineNumberReader(new FileReader(f))) {
                 StringBuilder sb = new StringBuilder();
@@ -839,7 +840,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
             platform = "DMC";
             progName = specs[3];
         }
-        Server s = new Server(platforms.getPlatforms(), platform.toLowerCase());
+        ServerGroup s = new ServerGroup(platforms.getPlatforms(), platform.toLowerCase());
         StringBuilder sb = new StringBuilder();
         File f = new File(path + progName);
 
@@ -884,8 +885,12 @@ public class PeerReviewController implements Controller, Initializable, Progress
             this.model.getPendingList().remove(item);
             this.model.getPassedList().add(item);
             this.model.getTimeStamps().put(item, mtime);
-            net.setApproved("CODE", item);
-            
+            //net.setApproved("CODE", item);
+            /* This needs to be replaced with doSftpPut() to 
+            dmctest /uvfs/ma.accounts/deploy/barfyApproved/PLATFORM~LIB~PROGNAME
+            */
+            net.doSftpPut("dmctest", "/uvfs/ma.accounts/deploy/addToApproved/", 
+                    item, localPath, localPath);
             // Delete remote failed item.  OK if it throws an exception
             String remotePath = "/uvfs/ma.accounts/deploy/PEER.FAILED/";
             try {
@@ -952,7 +957,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
             platform = "DMC";
             progName = specs[3];
         }
-        Server s = new Server(platforms.getPlatforms(), platform.toLowerCase());
+        ServerGroup s = new ServerGroup(platforms.getPlatforms(), platform.toLowerCase());
         StringBuilder sb = new StringBuilder();
         File f = new File(localPath + progName);
 

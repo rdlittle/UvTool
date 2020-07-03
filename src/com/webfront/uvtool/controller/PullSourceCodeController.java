@@ -9,11 +9,13 @@ import asjava.uniclientlibs.UniDynArray;
 import asjava.uniobjects.UniFile;
 import asjava.uniobjects.UniFileException;
 import asjava.uniobjects.UniSessionException;
+import com.github.cliftonlabs.json_simple.JsonObject;
 import com.webfront.u2.util.Config;
 
 import com.webfront.u2.model.Profile;
 import com.webfront.u2.util.Progress;
 import com.webfront.u2.client.UvClient;
+import com.webfront.uvtool.util.ConfigProperties;
 import com.webfront.uvtool.util.Path;
 import com.webfront.uvtool.util.SelectorTask;
 import java.net.URL;
@@ -288,11 +290,16 @@ public class PullSourceCodeController implements Controller, Initializable, Prog
     public void onSourceProfileChange() {
         sourceFileList.clear();
         client.setSourceProfile(cbSourceProfile.getValue());
+        ConfigProperties cf = ConfigProperties.getInstance();
+        JsonObject platforms = cf.getPlatforms();
+        JsonObject obj = (JsonObject)platforms.get("platforms");
         cbFromFile.disableProperty().set(true);
+        JsonObject sg = (JsonObject)obj.get("dmc");
         String path = "/uvcode";
         if (client.getSourceProfile().getServerName().equalsIgnoreCase("mustang")) {
             path = "/usr/local/madev";
         }
+        
         SelectorTask selectorTask = new SelectorTask(client.getSourceProfile(), path, "");
         selectorTask.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED,
                 new EventHandler<WorkerStateEvent>() {
