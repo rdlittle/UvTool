@@ -5,10 +5,10 @@
  */
 package com.webfront.uvtool.util;
 
+import com.github.cliftonlabs.json_simple.JsonObject;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
 import com.webfront.u2.model.Profile;
-import com.github.cliftonlabs.json_simple.JsonObject;
 import java.util.ArrayList;
 import javafx.concurrent.Task;
 import org.apache.commons.net.ftp.FTPClient;
@@ -16,7 +16,6 @@ import org.apache.commons.net.ftp.FTPFile;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
-import com.webfront.uvtool.model.ServerGroup;
 import java.util.Vector;
 
 /**
@@ -31,7 +30,7 @@ public class SelectorTask extends Task<ArrayList<String>> {
     private final String filter;
     private final ArrayList<String> list;
     private final ArrayList<String> exclude;
-    private final ConfigProperties configProperties;
+    private final NetworkTopography networkTopography;
 
     public SelectorTask(Profile client, String remotePath, String filter) {
         this.client = client;
@@ -53,12 +52,14 @@ public class SelectorTask extends Task<ArrayList<String>> {
         this.exclude.add("VOC");
         this.exclude.add("TRAININGLIB");
         this.exclude.add("PARAMS");
-        this.configProperties = ConfigProperties.getInstance();
+        this.networkTopography = NetworkTopography.getInstance();
     }
 
     @Override
     protected ArrayList<String> call() throws Exception {
         String host = client.getServer().getHost();
+        String nodeName = client.getServer().getName();
+        JsonObject node = this.networkTopography.getNodes().getMap(NetworkTopography.hosts);
         
         if (client.getServer().getHost().equalsIgnoreCase("dmcdev") ||
                 client.getServer().getHost().equalsIgnoreCase("dmctest") ||

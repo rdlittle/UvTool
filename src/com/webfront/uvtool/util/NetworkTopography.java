@@ -5,6 +5,7 @@
  */
 package com.webfront.uvtool.util;
 
+import com.github.cliftonlabs.json_simple.JsonKey;
 import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import com.webfront.u2.util.Config;
@@ -21,17 +22,30 @@ import java.util.logging.Logger;
  *
  * @author rlittle
  */
-public class ConfigProperties {
+public class NetworkTopography {
 
-    public static ConfigProperties instance = null;
+    public static NetworkTopography instance = null;
     private final String JSON_PATH = Config.configPath;
-    private JsonObject platforms;
+    private JsonObject nodes;
+    public static JsonKey hosts;
+    public static JsonKey paths;
+    public static JsonKey dev;
+    public static JsonKey staging;
+    public static JsonKey live;
+    public static JsonKey codebase;
     private String cbHost;
 
-    protected ConfigProperties() {
+    protected NetworkTopography() {
         InputStream istream = null;
         try {
-            platforms = new JsonObject();
+            nodes = new JsonObject();
+            
+            hosts = Jsoner.mintJsonKey("hosts", new JsonObject());
+            paths = Jsoner.mintJsonKey("paths", new JsonObject());
+            dev = Jsoner.mintJsonKey("dev", new JsonObject());
+            staging = Jsoner.mintJsonKey("staging", new JsonObject());
+            live = Jsoner.mintJsonKey("live", new JsonObject());
+            codebase = Jsoner.mintJsonKey("codebase", new String());
             istream = new FileInputStream(new File(JSON_PATH));
             InputStreamReader reader = new InputStreamReader(istream);
             StringBuilder builder = new StringBuilder();
@@ -44,31 +58,33 @@ public class ConfigProperties {
                     }
                     builder.append((char) c);
                 }
-                platforms = Jsoner.deserialize(builder.toString(), new JsonObject());
+                nodes = Jsoner.deserialize(builder.toString(), new JsonObject());
             } catch (IOException ex) {
-                Logger.getLogger(Network.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(NetworkOperations.class.getName()).log(Level.SEVERE, null, ex);
             }
-            cbHost = platforms.get("cb_host").toString();
+            JsonObject cbObject = nodes.getMap(Jsoner.mintJsonKey("couchbase", new JsonObject()));
+            JsonObject cbHosts = cbObject.getMap(this.hosts);
+            cbHost = cbHosts.getString(this.staging);
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(ConfigProperties.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(NetworkTopography.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
                 istream.close();
             } catch (IOException ex) {
-                Logger.getLogger(ConfigProperties.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(NetworkTopography.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
     
-    public static ConfigProperties getInstance() {
+    public static NetworkTopography getInstance() {
         if (instance == null) {
-            instance = new ConfigProperties();
+            instance = new NetworkTopography();
         }
         return instance;
     }
     
-    public JsonObject getPlatforms() {
-        return platforms;
+    public JsonObject getNodes() {
+        return nodes;
     }
     
     public String getCbHost() {

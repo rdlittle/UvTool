@@ -11,9 +11,9 @@ import com.jcraft.jsch.SftpException;
 import com.webfront.u2.util.Config;
 import com.webfront.u2.util.Progress;
 import com.webfront.uvtool.model.PeerReviewModel;
-import com.webfront.uvtool.model.ServerGroup;
-import com.webfront.uvtool.util.ConfigProperties;
-import com.webfront.uvtool.util.Network;
+import com.webfront.uvtool.model.NetworkNode;
+import com.webfront.uvtool.util.NetworkTopography;
+import com.webfront.uvtool.util.NetworkOperations;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -116,8 +116,8 @@ public class PeerReviewController implements Controller, Initializable, Progress
     ProgressBar progressBar;
 
     ResourceBundle res;
-    private final Network net = new Network();
-    private final ConfigProperties platforms = ConfigProperties.getInstance();
+    private final NetworkOperations net = new NetworkOperations();
+    private final NetworkTopography networkNodes = NetworkTopography.getInstance();
     private final String remotePath = "/uvfs/ma.accounts/deploy/DM.PEER";
     private final String localPath = "/home/rlittle/sob/projects/";
     private final Config systemConfig = Config.getInstance();
@@ -235,7 +235,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
                 platform = "DMC";
                 program = segs[3];
             }
-            ServerGroup s = new ServerGroup(platforms.getPlatforms(), platform.toLowerCase());
+            NetworkNode s = new NetworkNode(networkNodes.getNodes(), platform.toLowerCase());
             String codebase = s.getCodeBase();
             String pathType = net.getPathType(library);
             String remotePath = s.getPath(pathType);
@@ -291,7 +291,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
                         program = segs[3];
                         codebase = "RBO";
                     }
-                    ServerGroup s = new ServerGroup(platforms.getPlatforms(), platform.toLowerCase());
+                    NetworkNode s = new NetworkNode(networkNodes.getNodes(), platform.toLowerCase());
                     if (codebase == null) {
                         codebase = s.getCodeBase();
                     }
@@ -718,9 +718,9 @@ public class PeerReviewController implements Controller, Initializable, Progress
             platform = "DMC";
             program = segs[3];
         }
-        ServerGroup s = new ServerGroup(platforms.getPlatforms(), platform.toLowerCase());
+        NetworkNode s = new NetworkNode(networkNodes.getNodes(), platform.toLowerCase());
         String codebase = s.getCodeBase();
-        String pathType = Network.getPathType(library);
+        String pathType = NetworkOperations.getPathType(library);
         String rPath = s.getPath(pathType);
         String lPath = systemConfig.getPreferences().get("codeHome");
         if (pathType.equals("pads_hook_segment")) {
@@ -835,12 +835,12 @@ public class PeerReviewController implements Controller, Initializable, Progress
         String platform = specs[0];
         String library = specs[1];
         String progName = specs[2];
-        String pathType = Network.getPathType(library);
+        String pathType = NetworkOperations.getPathType(library);
         if (platform.equals("DMCRBO")) {
             platform = "DMC";
             progName = specs[3];
         }
-        ServerGroup s = new ServerGroup(platforms.getPlatforms(), platform.toLowerCase());
+        NetworkNode s = new NetworkNode(networkNodes.getNodes(), platform.toLowerCase());
         StringBuilder sb = new StringBuilder();
         File f = new File(path + progName);
 
@@ -952,12 +952,12 @@ public class PeerReviewController implements Controller, Initializable, Progress
         String platform = specs[0];
         String library = specs[1];
         String progName = specs[2];
-        String pathType = Network.getPathType(library);
+        String pathType = NetworkOperations.getPathType(library);
         if (platform.equals("DMCRBO")) {
             platform = "DMC";
             progName = specs[3];
         }
-        ServerGroup s = new ServerGroup(platforms.getPlatforms(), platform.toLowerCase());
+        NetworkNode s = new NetworkNode(networkNodes.getNodes(), platform.toLowerCase());
         StringBuilder sb = new StringBuilder();
         File f = new File(localPath + progName);
 

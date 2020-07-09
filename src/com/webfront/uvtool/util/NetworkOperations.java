@@ -12,7 +12,7 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
-import com.webfront.uvtool.model.ServerGroup;
+import com.webfront.uvtool.model.NetworkNode;
 import com.webfront.u2.util.Config;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -34,17 +34,17 @@ import org.w3c.dom.events.EventException;
  *
  * @author rlittle
  */
-public class Network {
+public class NetworkOperations {
 
     private final Config systemConfig = Config.getInstance();
-    private final ConfigProperties platforms = ConfigProperties.getInstance();
+    private final NetworkTopography platforms = NetworkTopography.getInstance();
     private final String cbHost = platforms.getCbHost();
     private final String cbUser = "release";
     private final String cbPassword = "R31ea$E_@)!(";
 
     private final HashMap<String, String> sshCommands;
 
-    public Network() {
+    public NetworkOperations() {
         sshCommands = new HashMap<>();
 
         sshCommands.put("getApproved", "getAPPData");
@@ -191,9 +191,9 @@ public class Network {
             session.disconnect();
             return output;
         } catch (JSchException ex) {
-            Logger.getLogger(Network.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(NetworkOperations.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(Network.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(NetworkOperations.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
@@ -201,7 +201,7 @@ public class Network {
     public void getApproved(String itemType, String approvedId) throws
             FileNotFoundException, EventException, JSchException, SftpException,
             IOException {
-        ServerGroup s = new ServerGroup(platforms.getPlatforms(), "dmc");
+        NetworkNode s = new NetworkNode(platforms.getNodes(), "dmc");
         String path = s.getPath("deploy");
 
         String host = s.getHost("approved");
@@ -256,7 +256,7 @@ public class Network {
         example:
         /uvfs/ma.accounts/deploy/addToApproved CODE DMC~aop.uvs~postAopCreate.uvs
          */
-        ServerGroup s = new ServerGroup(platforms.getPlatforms(), "dmc");
+        NetworkNode s = new NetworkNode(platforms.getNodes(), "dmc");
         String path = s.getPath("deploy");
 
         String host = s.getHost("approved");
@@ -272,7 +272,7 @@ public class Network {
     public void setFailed(String itemType, String approvedId) throws
             FileNotFoundException, EventException, JSchException, SftpException,
             IOException {
-        ServerGroup s = new ServerGroup(platforms.getPlatforms(), "dmc");
+        NetworkNode s = new NetworkNode(platforms.getNodes(), "dmc");
         String path = s.getPath("deploy");
 
         String host = s.getHost("approved");
@@ -295,7 +295,7 @@ public class Network {
 
         item = String.format("%s~%s~%s", platform, dataFile, itemId);
 
-        ServerGroup s = new ServerGroup(platforms.getPlatforms(), "dmc");
+        NetworkNode s = new NetworkNode(platforms.getNodes(), "dmc");
         String remotePath = s.getPath("deploy");
         if (!remotePath.endsWith("/")) {
             remotePath = remotePath + "/";
