@@ -39,6 +39,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -47,16 +48,16 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
@@ -138,7 +139,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
     private final SimpleBooleanProperty hasProject = new SimpleBooleanProperty();
 
     final DropShadow ds = new DropShadow();
-    
+
     Scene scene;
 
     public PeerReviewController() {
@@ -159,7 +160,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
             }
         }
         hasProject.set(false);
-        
+
         popup = new java.awt.PopupMenu();
         java.awt.MenuItem popupItem = new java.awt.MenuItem("Delete");
         popup.add(popupItem);
@@ -369,7 +370,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
         updateProgressBar(0D);
         stage.getScene().setCursor(Cursor.DEFAULT);
         File f = new File(localPath + txtReviewId.textProperty().getValue() + ".json");
-        try (FileWriter out = new FileWriter(f)) {
+        try ( FileWriter out = new FileWriter(f)) {
             out.write(Jsoner.prettyPrint(Jsoner.serialize(this.model.toJson())));
             out.close();
         }
@@ -535,7 +536,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
                 }
             }
         });
-        
+
         txtReviewId.textProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
@@ -646,7 +647,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
         }
         try {
             int mtime = net.doSftpGet("dmctest", remotePath, item, localPath, item);
-            try (BufferedReader f = new BufferedReader(new FileReader(localPath + item))) {
+            try ( BufferedReader f = new BufferedReader(new FileReader(localPath + item))) {
                 while (true) {
                     String line = f.readLine();
                     if (line == null) {
@@ -656,7 +657,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
                 }
             }
             this.model.init(sb.toString());
-            try (FileWriter out = new FileWriter(new File(localPath + item + ".json"))) {
+            try ( FileWriter out = new FileWriter(new File(localPath + item + ".json"))) {
                 out.write(Jsoner.prettyPrint(Jsoner.serialize(this.model.toJson())));
             }
             File f2 = new File(localPath + item);
@@ -765,9 +766,9 @@ public class PeerReviewController implements Controller, Initializable, Progress
             }
         }
         f = new File(right);
-        
+
         try {
-            try (LineNumberReader reader = new LineNumberReader(new FileReader(f))) {
+            try ( LineNumberReader reader = new LineNumberReader(new FileReader(f))) {
                 StringBuilder sb = new StringBuilder();
                 String lineOne = reader.readLine();
                 if (!lineOne.contains("!!! Pending")) {
@@ -779,7 +780,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
                         }
                         sb = sb.append(line + lineSep);
                     }
-                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(f))) {
+                    try ( BufferedWriter writer = new BufferedWriter(new FileWriter(f))) {
                         writer.write(sb.toString());
                     }
                 }
@@ -810,13 +811,13 @@ public class PeerReviewController implements Controller, Initializable, Progress
             String fileName = segs[1];
             String itemId = segs[2];
             String itemType = "CODE";
-            if(fileName.startsWith("DICT,")) {
+            if (fileName.startsWith("DICT,")) {
                 fileName = fileName.replaceFirst("DICT,", "");
                 itemType = "DICT";
             }
         }
     }
-    
+
     @FXML
     public void onPassItem() {
         /*
@@ -846,7 +847,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
         StringBuilder sb = new StringBuilder();
         File f = new File(path + progName);
 
-        try (LineNumberReader reader = new LineNumberReader(new FileReader(f))) {
+        try ( LineNumberReader reader = new LineNumberReader(new FileReader(f))) {
             String line = reader.readLine();
             if (line.matches(".*!{0,3}\\s*[P|p]ending")) {
                 updateCursor(ENABLED);
@@ -887,7 +888,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
             this.model.getPendingList().remove(item);
             this.model.getPassedList().add(item);
             this.model.getTimeStamps().put(item, mtime);
-            net.doSftpPut("dmctest", "/uvfs/ma.accounts/deploy/addToApproved/", 
+            net.doSftpPut("dmctest", "/uvfs/ma.accounts/deploy/addToApproved/",
                     item, localPath, localPath);
 
             // Delete the remote failed item.  OK if it throws an exception
@@ -903,7 +904,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
             } catch (SftpException ex) {
                 // Do nothing
             }
-            
+
             String id = txtReviewId.getText();
             updateProject(id);
             String codePath = systemConfig.getPreferences().get("codeHome");
@@ -960,7 +961,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
         StringBuilder sb = new StringBuilder();
         File f = new File(localPath + progName);
 
-        try (LineNumberReader reader = new LineNumberReader(new FileReader(f))) {
+        try ( LineNumberReader reader = new LineNumberReader(new FileReader(f))) {
             String line = reader.readLine();
             if (line.contains("!!! Pending")) {
                 updateCursor(ENABLED);
@@ -1025,7 +1026,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
 
     @FXML
     public void onPassReview() {
-        if (this.model.getDictDataList().size()>0) {
+        if (this.model.getDictDataList().size() > 0) {
             passDictData();
         }
         if (txtReviewId.getText().isEmpty()) {
@@ -1099,7 +1100,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
         }
         File f = new File(projectHome + projectId);
         f.delete();
-        projectList.remove(txtReviewId.getText());
+        projectList.remove(txtReviewId.getText()+".json");
         txtReviewId.setText("");
         resetForm();
     }
@@ -1147,7 +1148,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
             projectId = projectId + ".json";
         }
         File f = new File(path + projectId);
-        try (FileWriter fwout = new FileWriter(f)) {
+        try ( FileWriter fwout = new FileWriter(f)) {
             fwout.write(Jsoner.prettyPrint(Jsoner.serialize(this.model.toJson())));
         }
     }
@@ -1157,24 +1158,36 @@ public class PeerReviewController implements Controller, Initializable, Progress
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 
     }
-    
+
     @FXML
     public void onListProjectsMouseReleased(MouseEvent e) {
         if (e.getButton() == MouseButton.SECONDARY) {
-            double x = e.getX();
-            double y = e.getY();
-            // Do a popup here for 'delete'
-            //popup.show(listProjects, (int)x, (int)y);
+            ContextMenu menu = new ContextMenu();
+            MenuItem item1 = new MenuItem("Remove");
+            item1.setOnAction(new EventHandler() {
+                @Override
+                public void handle(Event t) {
+                    removeProject(txtReviewId.textProperty().get());
+                }
+            });
+            MenuItem item2 = new MenuItem("Reload");
+            item2.setOnAction(new EventHandler<ActionEvent>() {
+                public void handle(ActionEvent e) {
+                    onLoadReview();
+                }
+            });
+            menu.getItems().addAll(item1, item2);
+            listProjects.setContextMenu(menu);
         }
     }
-    
+
     public void updateCursor(boolean isDisabled) {
         if (isDisabled) {
             stage.getScene().setCursor(Cursor.WAIT);
         } else {
             stage.getScene().setCursor(Cursor.DEFAULT);
         }
-        
+
     }
 
     public static class DictDataItem {
