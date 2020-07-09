@@ -526,7 +526,8 @@ public class PeerReviewController implements Controller, Initializable, Progress
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
                 try {
                     if (newValue != null) {
-                        txtReviewId.setText(newValue.toString());
+                        String reviewId = newValue.toString().replaceAll("\\.json", "");
+                        txtReviewId.setText(reviewId);
                         recallProject(newValue.toString());
                     }
                 } catch (IOException ex) {
@@ -542,7 +543,8 @@ public class PeerReviewController implements Controller, Initializable, Progress
                 if (selectedItem == null) {
                     return;
                 }
-                if (!newValue.equals(selectedItem.toString())) {
+                String targetItem = selectedItem.toString().replaceAll("\\.json", "");
+                if (!targetItem.equals(newValue)) {
                     listProjects.getSelectionModel().clearSelection();
                 }
             }
@@ -571,7 +573,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
             }
         });
 
-        btnLoad.disableProperty().bind(listProjects.getSelectionModel().selectedItemProperty().isNotNull());
+        btnLoad.disableProperty().bind(txtReviewId.textProperty().isEmpty());
         btnPassReview.disableProperty().bind(hasFailed.or(hasPending).or(hasProject.not()));
         btnFailReview.disableProperty().bind(btnPassReview.disabledProperty().not().or(hasProject.not()));
         btnPassItem.disableProperty().bind(listPending.getSelectionModel().selectedItemProperty().isNull());
@@ -840,7 +842,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
             platform = "DMC";
             progName = specs[3];
         }
-        NetworkNode s = new NetworkNode(networkNodes.getNodes(), platform.toLowerCase());
+//        NetworkNode node = new NetworkNode(networkNodes.getNodes(), platform.toLowerCase());
         StringBuilder sb = new StringBuilder();
         File f = new File(path + progName);
 
@@ -885,13 +887,10 @@ public class PeerReviewController implements Controller, Initializable, Progress
             this.model.getPendingList().remove(item);
             this.model.getPassedList().add(item);
             this.model.getTimeStamps().put(item, mtime);
-            //net.setApproved("CODE", item);
-            /* This needs to be replaced with doSftpPut() to 
-            dmctest /uvfs/ma.accounts/deploy/barfyApproved/PLATFORM~LIB~PROGNAME
-            */
             net.doSftpPut("dmctest", "/uvfs/ma.accounts/deploy/addToApproved/", 
                     item, localPath, localPath);
-            // Delete remote failed item.  OK if it throws an exception
+
+            // Delete the remote failed item.  OK if it throws an exception
             String remotePath = "/uvfs/ma.accounts/deploy/PEER.FAILED/";
             try {
                 net.doSftpDelete("nlstest", remotePath, item);
