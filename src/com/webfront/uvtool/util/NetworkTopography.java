@@ -27,12 +27,14 @@ public class NetworkTopography {
     public static NetworkTopography instance = null;
     private final String JSON_PATH = Config.configPath;
     private JsonObject nodes;
-    public static JsonKey hosts;
+    public static JsonKey hostsKey;
     public static JsonKey paths;
     public static JsonKey dev;
     public static JsonKey staging;
     public static JsonKey live;
     public static JsonKey codebase;
+    public static JsonKey nameKey;
+    
     private String cbHost;
 
     protected NetworkTopography() {
@@ -40,12 +42,13 @@ public class NetworkTopography {
         try {
             nodes = new JsonObject();
             
-            hosts = Jsoner.mintJsonKey("hosts", new JsonObject());
+            hostsKey = Jsoner.mintJsonKey("hosts", new JsonObject());
             paths = Jsoner.mintJsonKey("paths", new JsonObject());
             dev = Jsoner.mintJsonKey("dev", new JsonObject());
             staging = Jsoner.mintJsonKey("staging", new JsonObject());
             live = Jsoner.mintJsonKey("live", new JsonObject());
             codebase = Jsoner.mintJsonKey("codebase", new String());
+            nameKey = Jsoner.mintJsonKey("name", new String());
             istream = new FileInputStream(new File(JSON_PATH));
             InputStreamReader reader = new InputStreamReader(istream);
             StringBuilder builder = new StringBuilder();
@@ -63,7 +66,7 @@ public class NetworkTopography {
                 Logger.getLogger(NetworkOperations.class.getName()).log(Level.SEVERE, null, ex);
             }
             JsonObject cbObject = nodes.getMap(Jsoner.mintJsonKey("couchbase", new JsonObject()));
-            JsonObject cbHosts = cbObject.getMap(this.hosts);
+            JsonObject cbHosts = cbObject.getMapOrDefault(hostsKey);
             cbHost = cbHosts.getString(this.staging);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(NetworkTopography.class.getName()).log(Level.SEVERE, null, ex);
@@ -85,6 +88,10 @@ public class NetworkTopography {
     
     public JsonObject getNodes() {
         return nodes;
+    }
+    
+    public JsonObject getNode(String name) {
+        return nodes.getMap(Jsoner.mintJsonKey(name, new JsonObject()));
     }
     
     public String getCbHost() {
