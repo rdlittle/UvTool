@@ -119,8 +119,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
     ResourceBundle res;
     private final NetworkOperations net = new NetworkOperations();
     private final NetworkTopography networkNodes = NetworkTopography.getInstance();
-    private final String remotePath = "/uvfs/ma.accounts/deploy/DM.PEER";
-    private final String localPath = "/home/rlittle/sob/projects/";
+//    private final String localPath = "/home/rlittle/sob/projects/";
     private final Config systemConfig = Config.getInstance();
     private final String fileSep = System.getProperty("file.separator");
     private final String lineSep = System.getProperty("line.separator");
@@ -268,7 +267,10 @@ public class PeerReviewController implements Controller, Initializable, Progress
         updateProgressBar(recordsDone);
         Double totalRecords = Double.valueOf(this.model.getTotalItems().get());
         stage.getScene().setCursor(Cursor.WAIT);
-        String path = "";
+        String localPath = systemConfig.getPreferences().get("codeHome");
+        if (!localPath.endsWith(fileSep)) {
+            localPath = localPath + fileSep;
+        }
         String itemToDelete = "";
 
         for (ArrayList<String> list : this.model.getAllPrograms().values()) {
@@ -301,13 +303,9 @@ public class PeerReviewController implements Controller, Initializable, Progress
                         item = String.format("%s~%s~%s", codebase, library, program);
                     }
 
-                    path = systemConfig.getPreferences().get("codeHome");
-                    if (!path.endsWith(fileSep)) {
-                        path = path + fileSep;
-                    }
                     String[] specs = item.split("~");
-                    String newItem = path + specs[2];
-                    String oldItem = path + specs[2] + ".approved";
+                    String newItem = localPath + specs[2];
+                    String oldItem = localPath + specs[2] + ".approved";
                     itemToDelete = oldItem;
                     net.getApproved("CODE", item);
 
@@ -639,12 +637,15 @@ public class PeerReviewController implements Controller, Initializable, Progress
         this.model.clear();
         dictDataItemList.clear();
         String item = txtReviewId.getText();
-        StringBuilder sb = new StringBuilder();
-        Thread backgroundThread;
-        backgroundThread = null;
         if (item.isEmpty()) {
             return;
         }
+        StringBuilder sb = new StringBuilder();
+        Thread backgroundThread;
+        backgroundThread = null;
+        String remotePath = "/uvfs/ma.accounts/deploy/DM.PEER";
+        String localPath = systemConfig.getPreferences().get("codeHome");
+
         try {
             int mtime = net.doSftpGet("dmctest", remotePath, item, localPath, item);
             try ( BufferedReader f = new BufferedReader(new FileReader(localPath + item))) {
@@ -712,7 +713,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
     }
 
     private int putArtifact(String item) throws JSchException, SftpException, IOException {
-        int mtime = 0;
+        int mtime;
         String[] segs = item.split("~");
         String platform = segs[0];
         String library = segs[1];
@@ -721,10 +722,10 @@ public class PeerReviewController implements Controller, Initializable, Progress
             platform = "DMC";
             program = segs[3];
         }
-        NetworkNode s = new NetworkNode(networkNodes.getNodes(), platform.toLowerCase());
-        String codebase = s.getCodeBase();
+        NetworkNode node = new NetworkNode(networkNodes.getNodes(), platform.toLowerCase());
+        String codebase = node.getCodeBase();
         String pathType = NetworkOperations.getPathType(library);
-        String rPath = s.getPath(pathType);
+        String rPath = node.getPath(pathType);
         String lPath = systemConfig.getPreferences().get("codeHome");
         if (pathType.equals("pads_hook_segment")) {
             library = "";
@@ -735,7 +736,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
         if (!lPath.endsWith(fileSep)) {
             lPath = lPath + fileSep;
         }
-        String host = s.getHost("dev");
+        String host = node.getHost("dev");
         mtime = net.doSftpPut(host, rPath + library, program, lPath, program);
 
         return mtime;
@@ -821,12 +822,10 @@ public class PeerReviewController implements Controller, Initializable, Progress
     @FXML
     public void onPassItem() {
         /*
-        This method writes the approved item to nlstest
-        /uvfs/ma.accounts/deploy/barfyHoldingArea
-        Then executes the remote command 
-        /uvfs/ma.accounts/deploy/addToApproved CODE DMC~aop.uvs~postAopCreate.uvs
-        on nlstest by invoking Network.setApproved()
-        Finally, attempts to delete it from /uvfs/ma.accounts/deploy/PEER.FAILED/
+        This method writes the approved item to integrated dev, then nlstest
+        /uvfs/ma.accounts/deploy/barfyApproved
+
+        Finally, attempts to delete it from /uvfs/ma.accounts/deploy/barfyFailed/
          */
         updateCursor(DISABLED);
         String item = listPending.getSelectionModel().getSelectedItem().toString();
@@ -843,7 +842,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
             platform = "DMC";
             progName = specs[3];
         }
-//        NetworkNode node = new NetworkNode(networkNodes.getNodes(), platform.toLowerCase());
+        NetworkNode node = new NetworkNode(networkNodes.getNodes(), platform.toLowerCase());
         StringBuilder sb = new StringBuilder();
         File f = new File(path + progName);
 
@@ -884,27 +883,29 @@ public class PeerReviewController implements Controller, Initializable, Progress
         }
         try {
             updateCursor(ENABLED);
-            int mtime = putArtifact(item);
+            int mtime = 0;
+//            mtime = putArtifact(item); // Write back to 'integrated'
             this.model.getPendingList().remove(item);
             this.model.getPassedList().add(item);
             this.model.getTimeStamps().put(item, mtime);
-            net.doSftpPut("dmctest", "/uvfs/ma.accounts/deploy/addToApproved/",
-                    item, localPath, localPath);
+            String approvePath = node.getPath("peer_approved");
+            String failPath = node.getPath("peer_failed");
+            net.doSftpPut("dmctest", approvePath, item, path, progName);
 
             // Delete the remote failed item.  OK if it throws an exception
-            String remotePath = "/uvfs/ma.accounts/deploy/PEER.FAILED/";
             try {
-                net.doSftpDelete("nlstest", remotePath, item);
+                net.doSftpDelete("nlstest", failPath, item);
             } catch (SftpException ex) {
                 // Do nothing
             }
-            remotePath = "/uvfs/ma.accounts/deploy/PEER.APPROVED/";
+            // Delete the remote approved item.  OK if it throws an exception
             try {
-                net.doSftpDelete("nlstest", remotePath, item);
+                net.doSftpDelete("nlstest", approvePath, item);
             } catch (SftpException ex) {
                 // Do nothing
             }
 
+            // Remove the item from the local system
             String id = txtReviewId.getText();
             updateProject(id);
             String codePath = systemConfig.getPreferences().get("codeHome");
@@ -957,7 +958,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
             platform = "DMC";
             progName = specs[3];
         }
-        NetworkNode s = new NetworkNode(networkNodes.getNodes(), platform.toLowerCase());
+        NetworkNode node = new NetworkNode(networkNodes.getNodes(), platform.toLowerCase());
         StringBuilder sb = new StringBuilder();
         File f = new File(localPath + progName);
 
@@ -970,27 +971,37 @@ public class PeerReviewController implements Controller, Initializable, Progress
                 alert.contentTextProperty().set("Please remove \"!!! Pending\" from the source code");
                 alert.showAndWait();
             } else {
-                sb = sb.append("!!! SEE COMMENTS" + lineSep);
-                sb = sb.append(line + lineSep);
+                sb = sb.append("!!! SEE COMMENTS").append(lineSep);
             }
             for (;;) {
                 line = reader.readLine();
                 if (line == null) {
                     break;
                 }
-                sb = sb.append(line + lineSep);
+                sb = sb.append(line).append(lineSep);
             }
             reader.close();
-            BufferedWriter out = new BufferedWriter(new FileWriter(f));
-            out.write(sb.toString());
-            out.close();
-            String remotePath = s.getPath(pathType);
+            try ( BufferedWriter out = new BufferedWriter(new FileWriter(f))) {
+                out.write(sb.toString());
+            }
+            String remotePath = node.getPath(pathType);
+            if (!remotePath.endsWith("/")) {
+                remotePath = remotePath + "/";
+            }
+            remotePath = remotePath + library;
             String remoteItem = progName;
             String localItem = progName;
-            net.doSftpPut(s.getHost("dev"), remotePath, remoteItem, localPath, localItem);
-            remotePath = "/uvfs/ma.accounts/deploy/barfyHoldingAreaFail/";
-            net.doSftpPut(s.getHost("failed"), remotePath, remoteItem, localPath, item);
-            net.setFailed("CODE", item);
+
+            // Write item back to integrated dev
+            net.doSftpPut(node.getHost("dev"), remotePath, remoteItem, localPath, localItem);
+
+            // Add to barfyFailed
+            // 'item', in this context, is in the form 'PLATFORM~LIBRARY~PROGRAM.NAME
+            // 'remoteItem', in this context is PROGRAM.NAME
+            String failPath = node.getPath("failed");
+            net.doSftpPut(node.getHost("failed"), failPath, item, localPath, remoteItem);
+
+            // Update our project
             this.model.getFailedList().add(item);
             this.model.getPendingList().remove(item);
             String id = txtReviewId.getText();
@@ -1100,7 +1111,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
         }
         File f = new File(projectHome + projectId);
         f.delete();
-        projectList.remove(txtReviewId.getText()+".json");
+        projectList.remove(txtReviewId.getText() + ".json");
         txtReviewId.setText("");
         resetForm();
     }
@@ -1172,6 +1183,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
             });
             MenuItem item2 = new MenuItem("Reload");
             item2.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
                 public void handle(ActionEvent e) {
                     onLoadReview();
                 }

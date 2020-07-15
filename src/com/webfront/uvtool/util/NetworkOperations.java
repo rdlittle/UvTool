@@ -124,7 +124,8 @@ public class NetworkOperations {
         ChannelSftp c = (ChannelSftp) channel;
         c.cd(remotePath);
         c.put(inputStream, remoteItem);
-        int mtime = c.lstat(remoteItem).getMTime();
+        int mtime;
+        mtime = c.lstat(remoteItem).getMTime();
         inputStream.close();
         session.disconnect();
         return mtime;
@@ -201,11 +202,14 @@ public class NetworkOperations {
     public void getApproved(String itemType, String approvedId) throws
             FileNotFoundException, EventException, JSchException, SftpException,
             IOException {
-        NetworkNode s = new NetworkNode(platforms.getNodes(), "dmc");
-        String path = s.getPath("deploy");
+        NetworkNode node = new NetworkNode(platforms.getNodes(), "dmc");
+        String path = node.getPath("deploy");
 
-        String host = s.getHost("approved");
+        String host = node.getHost("approved");
         String cmd = sshCommands.get("getApproved");
+        
+        // Run a command on the remote server that moves the item into the
+        // barfy holding area
         try {
             ByteArrayOutputStream output = sshExec(host, path,
                     cmd + " " + itemType + " " + approvedId);
@@ -223,7 +227,7 @@ public class NetworkOperations {
         if (!downloadPath.endsWith("/")) {
             downloadPath = downloadPath + "/";
         }
-        String remotePath = s.getPath("deploy") + "/APPROVED.PROGRAMS";
+        String remotePath = node.getPath("approved");
         String item = (approvedId.split("~")[2]) + ".approved";
         doSftpGet(host, remotePath, approvedId, downloadPath, item);
         StringBuilder fileOutput;
@@ -257,7 +261,7 @@ public class NetworkOperations {
         /uvfs/ma.accounts/deploy/addToApproved CODE DMC~aop.uvs~postAopCreate.uvs
          */
         NetworkNode s = new NetworkNode(platforms.getNodes(), "dmc");
-        String path = s.getPath("deploy");
+        String path = s.getPath("approved");
 
         String host = s.getHost("approved");
         String cmd = sshCommands.get("setApproved");
