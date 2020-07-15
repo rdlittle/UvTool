@@ -11,11 +11,11 @@ import com.couchbase.client.java.query.N1qlQueryRow;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 import com.webfront.u2.util.Config;
-import com.webfront.uvtool.model.ServerGroup;
+import com.webfront.uvtool.model.NetworkNode;
 import com.webfront.uvtool.app.UvTool;
 import com.webfront.uvtool.util.CBClient;
-import com.webfront.uvtool.util.ConfigProperties;
-import com.webfront.uvtool.util.Network;
+import com.webfront.uvtool.util.NetworkTopography;
+import com.webfront.uvtool.util.NetworkOperations;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -75,9 +75,9 @@ public class DeployBackupController implements Controller, Initializable {
 
     ResourceBundle res;
     private final Config config = Config.getInstance();
-    private final ConfigProperties platforms = ConfigProperties.getInstance();
+    private final NetworkTopography networkTopography = NetworkTopography.getInstance();
     private final String downloadPath;
-    private final Network net = new Network();
+    private final NetworkOperations net = new NetworkOperations();
 
     public static final int TEXT_WIDTH = 214;
 
@@ -305,7 +305,7 @@ public class DeployBackupController implements Controller, Initializable {
 
     @FXML
     public void compareApproved() {
-        ServerGroup s = new ServerGroup(platforms.getPlatforms(), "dmc");
+        NetworkNode s = new NetworkNode(networkTopography.getNodes(), "dmc");
         String host = getHostName("dmc", "live");
         String progName = txtItemName.getText();
 
@@ -361,7 +361,7 @@ public class DeployBackupController implements Controller, Initializable {
     }
 
     private void doDownload(String host, String progName) {
-        ServerGroup s = new ServerGroup(platforms.getPlatforms(), "dmc");
+        NetworkNode s = new NetworkNode(networkTopography.getNodes(), "dmc");
         Thread t = new Thread(() -> {
             try {
                 saveBackup(downloadPath + selectedItem);
@@ -420,12 +420,12 @@ public class DeployBackupController implements Controller, Initializable {
     }
 
     private String getHostName(String platform, String server) {
-        ServerGroup s = new ServerGroup(platforms.getPlatforms(), platform);
+        NetworkNode s = new NetworkNode(networkTopography.getNodes(), platform);
         return s.getHost(server);
     }
 
     private String getLibName(String progName) throws JSchException {
-        ServerGroup s = new ServerGroup(platforms.getPlatforms(), "dmc");
+        NetworkNode s = new NetworkNode(networkTopography.getNodes(), "dmc");
         String path = s.getPath("main");
         String host = s.getHost("dev");
 
@@ -442,7 +442,7 @@ public class DeployBackupController implements Controller, Initializable {
 
     private void getApproved(String approvedId) throws
             FileNotFoundException, EventException {
-        ServerGroup s = new ServerGroup(platforms.getPlatforms(), "dmc");
+        NetworkNode s = new NetworkNode(networkTopography.getNodes(), "dmc");
         String path = s.getPath("main");
         String host = s.getHost("approved");
         ByteArrayOutputStream output;

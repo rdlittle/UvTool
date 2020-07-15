@@ -5,10 +5,12 @@
  */
 package com.webfront.uvtool.util;
 
+import com.github.cliftonlabs.json_simple.JsonKey;
+import com.github.cliftonlabs.json_simple.JsonObject;
+import com.github.cliftonlabs.json_simple.Jsoner;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
 import com.webfront.u2.model.Profile;
-import com.github.cliftonlabs.json_simple.JsonObject;
 import java.util.ArrayList;
 import javafx.concurrent.Task;
 import org.apache.commons.net.ftp.FTPClient;
@@ -16,7 +18,7 @@ import org.apache.commons.net.ftp.FTPFile;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
-import com.webfront.uvtool.model.ServerGroup;
+import java.util.HashMap;
 import java.util.Vector;
 
 /**
@@ -31,7 +33,7 @@ public class SelectorTask extends Task<ArrayList<String>> {
     private final String filter;
     private final ArrayList<String> list;
     private final ArrayList<String> exclude;
-    private final ConfigProperties configProperties;
+    private final NetworkTopography networkTopography;
 
     public SelectorTask(Profile client, String remotePath, String filter) {
         this.client = client;
@@ -53,16 +55,21 @@ public class SelectorTask extends Task<ArrayList<String>> {
         this.exclude.add("VOC");
         this.exclude.add("TRAININGLIB");
         this.exclude.add("PARAMS");
-        this.configProperties = ConfigProperties.getInstance();
+        this.networkTopography = NetworkTopography.getInstance();
     }
 
     @Override
     protected ArrayList<String> call() throws Exception {
-        String host = client.getServer().getHost();
+        String nodeName = client.getServer().getName();
+        String acct = client.getAccountName();
+
+        JsonKey hostKey = Jsoner.mintJsonKey(nodeName, new JsonObject());
+        JsonObject node = this.networkTopography.getNode(acct);
+        JsonObject hosts = node.getMap(NetworkTopography.hostsKey);
+        JsonObject host = hosts.getMap(hostKey);
+        boolean isSsh = host.getInteger(Jsoner.mintJsonKey("ssh", null)).equals(1);
         
-        if (client.getServer().getHost().equalsIgnoreCase("dmcdev") ||
-                client.getServer().getHost().equalsIgnoreCase("dmctest") ||
-                client.getServer().getHost().equalsIgnoreCase("dmc")) {
+        if (isSsh) {
             return scall();
         }
         FTPClient ftp = new FTPClient();
@@ -134,7 +141,7 @@ public class SelectorTask extends Task<ArrayList<String>> {
         // 
         JSch jsch = new JSch();
         Session session = jsch.getSession("release", "dmcdev");
-        java.util.Properties config = new java.util.Properties(); 
+        java.util.Properties config = new java.util.Properties();
         config.put("StrictHostKeyChecking", "no");
         session.setConfig(config);
         session.setPassword("R31ea$E_@)!(");
@@ -181,7 +188,7 @@ public class SelectorTask extends Task<ArrayList<String>> {
             if (this.exclude.contains(name)) {
                 continue;
             }
-            if(name.contains("junk")) {
+            if (name.contains("junk")) {
                 continue;
             }
             if (this.filter.isEmpty() && isLocal) {

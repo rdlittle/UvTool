@@ -15,7 +15,7 @@ import com.webfront.u2.util.Config;
 import com.webfront.u2.model.Profile;
 import com.webfront.u2.util.Progress;
 import com.webfront.u2.client.UvClient;
-import com.webfront.uvtool.util.ConfigProperties;
+import com.webfront.uvtool.util.NetworkTopography;
 import com.webfront.uvtool.util.Path;
 import com.webfront.uvtool.util.SelectorTask;
 import java.net.URL;
@@ -290,13 +290,10 @@ public class PullSourceCodeController implements Controller, Initializable, Prog
     public void onSourceProfileChange() {
         sourceFileList.clear();
         client.setSourceProfile(cbSourceProfile.getValue());
-        ConfigProperties cf = ConfigProperties.getInstance();
-        JsonObject platforms = cf.getPlatforms();
-        JsonObject obj = (JsonObject)platforms.get("platforms");
-        cbFromFile.disableProperty().set(true);
-        JsonObject sg = (JsonObject)obj.get("dmc");
+        String host = client.getSourceProfile().getServerName();
+
         String path = "/uvcode";
-        if (client.getSourceProfile().getServerName().equalsIgnoreCase("mustang")) {
+        if (host.equalsIgnoreCase("mustang")) {
             path = "/usr/local/madev";
         }
         

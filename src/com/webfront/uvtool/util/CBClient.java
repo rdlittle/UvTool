@@ -14,7 +14,7 @@ import com.couchbase.client.java.query.*;
  */
 public class CBClient {
 
-    private final ConfigProperties platforms = ConfigProperties.getInstance();
+    private final NetworkTopography platforms = NetworkTopography.getInstance();
 //    private final String cbHost = "http://corvette";
     private final String cbHost = platforms.getCbHost();
     private final String cbUser = "release";

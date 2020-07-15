@@ -14,28 +14,26 @@ import java.util.Map;
  *
  * @author rlittle
  */
-public class ServerGroup {
+public class NetworkNode {
 
     private final String name;
     private final String codeBase;
-    private final Map<String, String> hosts;
+    private final Map<String, JsonObject> hosts;
     private final Map<String, String> paths;
-    private final boolean isSsh;
+    private final JsonKey hostNameKey;
+    private final JsonKey sshKey;
 
-    public ServerGroup(JsonObject json, String n) {
+    public NetworkNode(JsonObject networkNodes, String n) {
         this.name = n;
-        JsonKey key = Jsoner.mintJsonKey("platforms", new JsonObject());
-        JsonKey hostsKey = Jsoner.mintJsonKey("nodes", new JsonObject());
+        JsonKey hostsKey = Jsoner.mintJsonKey("hosts", new JsonObject());
         JsonKey pathKey = Jsoner.mintJsonKey("paths", new JsonObject());
         JsonKey codeBaseKey = Jsoner.mintJsonKey("codebase", new String());
-        JsonKey sshKey = Jsoner.mintJsonKey("ssh", true);
-        Map<Object, JsonObject> platforms = json.getMap(key);
-        
-        JsonObject platform = platforms.get(this.name);
-        this.codeBase = platform.getString(codeBaseKey);
-        this.hosts = platform.getMap(hostsKey);
-        this.paths = platform.getMap(pathKey);
-        this.isSsh = platform.getMap(sshKey);
+        JsonObject node = (JsonObject)networkNodes.get(this.name);
+        this.codeBase = node.getString(codeBaseKey);
+        this.hosts = node.getMap(hostsKey);
+        this.paths = node.getMap(pathKey);
+        this.hostNameKey = Jsoner.mintJsonKey("name", new JsonObject());
+        this.sshKey = Jsoner.mintJsonKey("ssh", true);
     }
 
     /**
@@ -45,8 +43,10 @@ public class ServerGroup {
         return codeBase;
     }
     
-    public String getHost(String h) {
-        return hosts.get(h);
+    public String getHost(String platform) {
+        JsonObject node = hosts.get(platform);
+        String hostName = node.getString(this.hostNameKey);
+        return hostName;
     }
     
     /**
@@ -60,7 +60,8 @@ public class ServerGroup {
         return paths.get(p);
     }
     
-    public boolean isSsh() {
-        return this.isSsh;
+    public boolean isSsh(String platform) {
+        JsonObject node = hosts.get(platform);
+        return node.getBoolean(this.sshKey);
     }
 }
