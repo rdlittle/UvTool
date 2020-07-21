@@ -240,6 +240,7 @@ public class PeerReviewModel {
                 if (!programs[0].isEmpty()) {
                     itemList.addAll(Arrays.asList(programs));
                     itemList.removeIf(Predicate.isEqual(""));
+                    pendingList.addAll(programs);
                 }
                 getProgramsList().addAll(Arrays.asList(programs));
                 getProgramsList().removeIf(Predicate.isEqual(""));
@@ -358,23 +359,23 @@ public class PeerReviewModel {
     }
 
     public JsonObject toJson() {
-        JsonObject json = new JsonObject();
-        json.put("id", id.getValue());
-        json.put("item_count", totalItems.getValue());
-        json.put("data", new JsonArray(getDataList()));
-        json.put("dicts", new JsonArray(getDictsList()));
-        json.put("pads_programs", new JsonArray(getPadsProgramsList()));
-        json.put("pads_apps", new JsonArray(getPadsAppsList()));
-        json.put("wrappers", new JsonArray(getWrappersList()));
-        json.put("failed", new JsonArray(failedList.sorted()));
-        json.put("passed", new JsonArray(passedList.sorted()));
-        json.put("webde", new JsonArray(getWebDeList()));
-        json.put("pending", new JsonArray(getPendingList()));
+        JsonObject project = new JsonObject();
+        project.put("id", id.getValue());
+        project.put("item_count", totalItems.getValue());
+        project.put("data", new JsonArray(getDataList()));
+        project.put("dicts", new JsonArray(getDictsList()));
+        project.put("pads_programs", new JsonArray(getPadsProgramsList()));
+        project.put("pads_apps", new JsonArray(getPadsAppsList()));
+        project.put("wrappers", new JsonArray(getWrappersList()));
+        project.put("failed", new JsonArray(failedList.sorted()));
+        project.put("passed", new JsonArray(passedList.sorted()));
+        project.put("webde", new JsonArray(getWebDeList()));
+        project.put("pending", new JsonArray(getPendingList()));
         JsonObject ts = new JsonObject();
         ts.putAll(getTimeStamps());
-        json.put("timestamps", ts);
-        json.put("in_progress", new JsonArray(getInProgressList()));
-        json.put("missing", new JsonArray(getMissingList()));
+        project.put("timestamps", ts);
+        project.put("in_progress", new JsonArray(getInProgressList()));
+        project.put("missing", new JsonArray(getMissingList()));
 
         return json;
     }

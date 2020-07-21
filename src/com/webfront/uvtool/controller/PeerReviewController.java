@@ -262,7 +262,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
     }
 
     private void getProjectArtifacts() throws IOException {
-        int mtime = 0;
+        int mtime;
         Double recordsDone = 0D;
         updateProgressBar(recordsDone);
         Double totalRecords = Double.valueOf(this.model.getTotalItems().get());
@@ -644,7 +644,10 @@ public class PeerReviewController implements Controller, Initializable, Progress
         Thread backgroundThread;
         backgroundThread = null;
         String remotePath = "/uvfs/ma.accounts/deploy/DM.PEER";
-        String localPath = systemConfig.getPreferences().get("codeHome");
+        String localPath = systemConfig.getPreferences().get("projectHome");
+        if(!localPath.endsWith(fileSep)) {
+            localPath = localPath+ fileSep;
+        }
 
         try {
             int mtime = net.doSftpGet("dmctest", remotePath, item, localPath, item);
