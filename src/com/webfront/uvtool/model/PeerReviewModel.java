@@ -179,10 +179,6 @@ public class PeerReviewModel {
             dictDataList.addAll(getDataList());
             getAllData().put("padsApps", getPadsAppsList());
             dictDataList.addAll(getPadsAppsList());
-            getAllPrograms().put("wrappers", wrappersList);
-            getAllPrograms().put("padsPrograms", padsProgramsList);
-            getAllPrograms().put("programs", programsList);
-            getAllPrograms().put("pending", json.getCollectionOrDefault(pendingKey));
             itemList.addAll(wrappersList);
             itemList.addAll(padsProgramsList);
             itemList.addAll(padsAppsList);
@@ -240,7 +236,6 @@ public class PeerReviewModel {
                 if (!programs[0].isEmpty()) {
                     itemList.addAll(Arrays.asList(programs));
                     itemList.removeIf(Predicate.isEqual(""));
-                    pendingList.addAll(programs);
                 }
                 getProgramsList().addAll(Arrays.asList(programs));
                 getProgramsList().removeIf(Predicate.isEqual(""));

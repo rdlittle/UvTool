@@ -887,7 +887,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
         try {
             updateCursor(ENABLED);
             int mtime = 0;
-//            mtime = putArtifact(item); // Write back to 'integrated'
+            mtime = putArtifact(item); // Write back to 'integrated'
             this.model.getPendingList().remove(item);
             this.model.getPassedList().add(item);
             this.model.getTimeStamps().put(item, mtime);
