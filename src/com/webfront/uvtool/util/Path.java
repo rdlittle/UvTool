@@ -33,6 +33,7 @@ public class Path {
         codeMap.get("mustang").put("PADS.INCLUDE", "/usr/local/pads2.0/PADS.BP/");
         codeMap.get("mustang").put("PADS.HOOK", "/home/uvuser/PADS.HOOK/");
         codeMap.get("mustang").put("PADS.HOOK/SEGMENT", "/home/uvuser/");
+        codeMap.get("mustang").put("BOBL.BP", "/usr/local/madev/");
         codeMap.get("mustang").put("DM.BP", "/usr/local/madev/");
         codeMap.get("mustang").put("DM.SR", "/usr/local/madev/");
         codeMap.get("mustang").put("DM.INCLUDE", "/usr/local/madev/");
@@ -43,7 +44,8 @@ public class Path {
         codeMap.get("dev").put("PADS.INCLUDE", "/uvfs/ma.accounts/pads2.0/PADS.BP/");
         codeMap.get("dev").put("PADS.HOOK", "/uvfs/ma.accounts/dmc/");
         codeMap.get("dev").put("PADS.HOOK/SEGMENT", "/uvfs/ma.accounts/dmc/");
-        codeMap.get("dev").put("DM.SR", "/uvfs/ma.accounts/dmc/");
+        codeMap.get("dev").put("DM.BP", "/uvfs/ma.accounts/dmc/");
+        codeMap.get("dev").put("BOBL.BP", "/uvfs/ma.accounts/dmc/");
         codeMap.get("dev").put("DM.SR", "/uvfs/ma.accounts/dmc/");
         codeMap.get("dev").put("DM.INCLUDE", "/uvfs/ma.accounts/dmc/");
         codeMap.get("dev").put("uvcode", "/uvcode/");
@@ -53,7 +55,7 @@ public class Path {
         codeMap.get("staging").put("PADS.INCLUDE", "/uvfs/ma.accounts/pads2.0/PADS.BP/");
         codeMap.get("staging").put("PADS.HOOK", "/uvfs/ma.accounts/PADS.HOOK/PADS.HOOK/");
         codeMap.get("staging").put("PADS.HOOK/SEGMENT", "/uvfs/ma.accounts/PADS.HOOK/SEGMENT/");
-        codeMap.get("staging").put("DM.SR", "/uvfs/ma.accounts/dmc/");
+        codeMap.get("staging").put("DM.BP", "/uvfs/ma.accounts/dmc/");
         codeMap.get("staging").put("DM.SR", "/uvfs/ma.accounts/dmc/");
         codeMap.get("staging").put("DM.INCLUDE", "/uvfs/ma.accounts/dmc/");
         codeMap.get("staging").put("uvcode", "/uvcode/");
@@ -63,7 +65,7 @@ public class Path {
         codeMap.get("dmc").put("PADS.INCLUDE", "/uvfs/ma.accounts/pads2.0/PADS.BP/");
         codeMap.get("dmc").put("PADS.HOOK", "/uvfs/ma.accounts/PADS.HOOK/PADS.HOOK/");
         codeMap.get("dmc").put("PADS.HOOK/SEGMENT", "/uvfs/ma.accounts/PADS.HOOK/SEGMENT/");
-        codeMap.get("dmc").put("DM.SR", "/uvfs/ma.accounts/dmc/");
+        codeMap.get("dmc").put("DM.BP", "/uvfs/ma.accounts/dmc/");
         codeMap.get("dmc").put("DM.SR", "/uvfs/ma.accounts/dmc/");
         codeMap.get("dmc").put("DM.INCLUDE", "/uvfs/ma.accounts/dmc/");
         codeMap.get("dmc").put("uvcode", "/uvcode/");
@@ -73,7 +75,7 @@ public class Path {
         codeMap.get("nlsdev").put("PADS.INCLUDE", "/uvfs/ma.accounts/pads2.0/PADS.BP/");
         codeMap.get("nlsdev").put("PADS.HOOK", "/uvfs/ma.accounts/PADS.HOOK/PADS.HOOK/");
         codeMap.get("nlsdev").put("PADS.HOOK/SEGMENT", "/uvfs/ma.accounts/PADS.HOOK/SEGMENT/");
-        codeMap.get("nlsdev").put("DM.SR", "/uvfs/ma.accounts/dmctw/");
+        codeMap.get("nlsdev").put("DM.BP", "/uvfs/ma.accounts/dmctw/");
         codeMap.get("nlsdev").put("DM.SR", "/uvfs/ma.accounts/dmctw/");
         codeMap.get("nlsdev").put("DM.INCLUDE", "/uvfs/ma.accounts/dmctw/");
         codeMap.get("nlsdev").put("uvcode", "/uvcodetw/");
@@ -83,7 +85,7 @@ public class Path {
         codeMap.get("nlstest").put("PADS.INCLUDE", "/uvfs/ma.accounts/pads2.0/PADS.BP/");
         codeMap.get("nlstest").put("PADS.HOOK", "/uvfs/ma.accounts/PADS.HOOK/PADS.HOOK/");
         codeMap.get("nlstest").put("PADS.HOOK/SEGMENT", "/uvfs/ma.accounts/PADS.HOOK/SEGMENT/");
-        codeMap.get("nlstest").put("DM.SR", "/uvfs/ma.accounts/dmctw/");
+        codeMap.get("nlstest").put("DM.BP", "/uvfs/ma.accounts/dmctw/");
         codeMap.get("nlstest").put("DM.SR", "/uvfs/ma.accounts/dmctw/");
         codeMap.get("nlstest").put("DM.INCLUDE", "/uvfs/ma.accounts/dmctw/");
         codeMap.get("nlstest").put("uvcode", "/uvcodetw/");
@@ -93,7 +95,7 @@ public class Path {
         codeMap.get("nls").put("PADS.INCLUDE", "/uvfs/ma.accounts/pads2.0/PADS.BP/");
         codeMap.get("nls").put("PADS.HOOK", "/uvfs/ma.accounts/PADS.HOOK/PADS.HOOK/");
         codeMap.get("nls").put("PADS.HOOK/SEGMENT", "/uvfs/ma.accounts/PADS.HOOK/SEGMENT/");
-        codeMap.get("nls").put("DM.SR", "/uvfs/ma.accounts/dmc/");
+        codeMap.get("nls").put("DM.BP", "/uvfs/ma.accounts/dmc/");
         codeMap.get("nls").put("DM.SR", "/uvfs/ma.accounts/dmc/");
         codeMap.get("nls").put("DM.INCLUDE", "/uvfs/ma.accounts/dmc/");
         codeMap.get("nls").put("uvcode", "/uvcode/");

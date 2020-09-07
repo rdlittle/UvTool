@@ -203,7 +203,7 @@ public class SourceCompareController implements Controller, Initializable, Progr
             fileType = "uvcode";
         }
         String path = new Path().getPath(client.getSourceProfile().getServerName(), fileType);
-        if (fileType.equals("DM.BP") || fileType.equals("DM.SR")) {
+        if (fileType.equals("DM.BP") || fileType.equals("DM.SR") || fileType.equals("BOBL.BP")) {
             filter = "*";
         } else if(fileType.contains("PADS")) {
             filter = "*";

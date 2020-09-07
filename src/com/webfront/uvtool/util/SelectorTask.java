@@ -61,6 +61,7 @@ public class SelectorTask extends Task<ArrayList<String>> {
     @Override
     protected ArrayList<String> call() throws Exception {
         String nodeName = client.getServer().getName();
+        System.out.println(nodeName);
         String acct = client.getAccountName();
 
         JsonKey hostKey = Jsoner.mintJsonKey(nodeName, new JsonObject());
@@ -129,6 +130,9 @@ public class SelectorTask extends Task<ArrayList<String>> {
             list.add(name);
         }
         if (this.filter.isEmpty()) {
+            if (nodeName.equalsIgnoreCase("mustang") || nodeName.equalsIgnoreCase("dev")) {
+                list.add("BOBL.BP");
+            }
             list.add("DM.BP");
             list.add("DM.SR");
             list.add("PADS.HOOK/SEGMENT");
@@ -202,6 +206,9 @@ public class SelectorTask extends Task<ArrayList<String>> {
             list.add(name);
         }
         if (isDirList) {
+            if (this.client.getServerName().equalsIgnoreCase("dev")) {
+                list.add("BOBL.BP");
+            }
             list.add("DM.BP");
             list.add("DM.SR");
             list.add("PADS.HOOK/SEGMENT");
