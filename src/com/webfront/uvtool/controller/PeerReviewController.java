@@ -5,6 +5,7 @@
  */
 package com.webfront.uvtool.controller;
 
+import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
@@ -312,6 +313,12 @@ public class PeerReviewController implements Controller, Initializable, Progress
                     boolean isMatch = doCompare(oldItem, newItem);
                     if (!isMatch) {
                         this.model.getPendingList().add(item);
+                        BufferedReader oldFile = new BufferedReader(new FileReader(oldItem));
+                        String firstLine = oldFile.readLine();
+                        oldFile.close();
+                        if ("no APPROVED.PROGRAMS code found!".equals(firstLine)) {
+                            deleteLocalFile(itemToDelete);
+                        }
                         incrementCounter("pending");
                     } else {
                         deleteLocalFile(oldItem);
@@ -340,7 +347,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
                     stage.getScene().setCursor(Cursor.DEFAULT);
                 } catch (IOException ex) {
                     deleteLocalFile(itemToDelete);
-                    if ("No approved version found".equals(ex.getMessage())) {
+                    if ("no APPROVED.PROGRAMS code found!".equals(ex.getMessage())) {
                         this.model.getPendingList().add(item);
                         incrementCounter("pending");
                         continue;
@@ -367,9 +374,18 @@ public class PeerReviewController implements Controller, Initializable, Progress
         }
         updateProgressBar(0D);
         stage.getScene().setCursor(Cursor.DEFAULT);
+        localPath = systemConfig.getPreferences().get("projectHome");
+        if (!localPath.endsWith(fileSep)) {
+            localPath = localPath + fileSep;
+        }
         File f = new File(localPath + txtReviewId.textProperty().getValue() + ".json");
         try ( FileWriter out = new FileWriter(f)) {
-            out.write(Jsoner.prettyPrint(Jsoner.serialize(this.model.toJson())));
+            JsonObject project = this.model.toJson();
+            String serialProject = Jsoner.serialize(project);
+            String printable = Jsoner.prettyPrint(serialProject);
+//            System.out.println(printable);
+            out.write(printable);
+            out.flush();
             out.close();
         }
     }
@@ -645,8 +661,8 @@ public class PeerReviewController implements Controller, Initializable, Progress
         backgroundThread = null;
         String remotePath = "/uvfs/ma.accounts/deploy/DM.PEER";
         String localPath = systemConfig.getPreferences().get("projectHome");
-        if(!localPath.endsWith(fileSep)) {
-            localPath = localPath+ fileSep;
+        if (!localPath.endsWith(fileSep)) {
+            localPath = localPath + fileSep;
         }
 
         try {
@@ -663,6 +679,8 @@ public class PeerReviewController implements Controller, Initializable, Progress
             this.model.init(sb.toString());
             try ( FileWriter out = new FileWriter(new File(localPath + item + ".json"))) {
                 out.write(Jsoner.prettyPrint(Jsoner.serialize(this.model.toJson())));
+                out.flush();
+                out.close();
             }
             File f2 = new File(localPath + item);
             f2.delete();
