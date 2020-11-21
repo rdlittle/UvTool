@@ -79,7 +79,7 @@ public class SelectorTask extends Task<ArrayList<String>> {
         ftp.login(client.getUserName(),
                 client.getUserPassword());
 
-        ftp.changeWorkingDirectory(this.path);
+        boolean cwdResult = ftp.changeWorkingDirectory(this.path);
 
         ftp.enterLocalPassiveMode();
         FTPFile[] itemList;

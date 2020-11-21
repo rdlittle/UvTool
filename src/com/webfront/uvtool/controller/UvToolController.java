@@ -15,7 +15,6 @@ import com.webfront.u2.util.ServerConverter;
 import com.webfront.uvtool.app.UvTool;
 import com.webfront.uvtool.util.CBClient;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -51,7 +50,7 @@ import javafx.stage.Stage;
  */
 public class UvToolController implements Initializable {
 
-    private final String version = "5.5.3";
+    private final String version = "5.5.4";
     private final Config config;
     private final ObservableList<Account> accountList = FXCollections.observableArrayList();
     private final ObservableList<Profile> profileList = FXCollections.observableArrayList();
