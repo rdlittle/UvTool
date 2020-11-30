@@ -5,17 +5,11 @@
  */
 package com.webfront.uvtool.tests;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.couchbase.client.java.*;
-import com.couchbase.client.java.document.*;
-import com.couchbase.client.java.document.json.*;
-import com.couchbase.client.java.query.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  *
@@ -26,21 +20,14 @@ public class DBTest {
     public DBTest() {
     }
     
-    @BeforeAll
+    @BeforeClass
     public static void setUpClass() {
     }
     
-    @AfterAll
+    @AfterClass
     public static void tearDownClass() {
-    }
-    
-    @BeforeEach
-    public void setUp() {
-    }
-    
-    @AfterEach
-    public void tearDown() {
-    }
+    }    
+
 
     // TODO add test methods here.
     // The methods must be annotated with annotation @Test. For example:
@@ -49,9 +36,13 @@ public class DBTest {
     // public void hello() {}
     @Test
     public void connect() {
+        System.out.println("DBTest.connect");
         Cluster cluster = CouchbaseCluster.create("http://corvette");
         cluster.authenticate("release", "R31ea$E_@)!(");
         Bucket bucket = cluster.openBucket("deployBackup");
-        assertTrue(bucket != null, "Connect failed");
+        assertTrue(bucket != null);
+        bucket.close();
+        assertTrue(bucket.isClosed());
+        
     }
 }
