@@ -14,12 +14,11 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.shape.Line?>
 
-<AnchorPane id="AnchorPane" prefHeight="674.0" prefWidth="523.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.webfront.uvtool.controller.CopyViewController">
+<AnchorPane id="AnchorPane" prefHeight="674.0" prefWidth="523.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.webfront.uvtool.controller.CopyViewController">
     <children>
         <Label layoutX="13.0" layoutY="27.0" text="Source" />
         <ComboBox fx:id="cbSourceProfile" layoutX="93.0" layoutY="22.0" prefHeight="26.0" prefWidth="197.0" promptText="Select profile" />
         <Label layoutX="13.0" layoutY="76.0" text="File" />
-        <TextField fx:id="txtSourceFile" layoutX="93.0" layoutY="71.0" prefHeight="26.0" prefWidth="197.0" />
         <Label layoutX="304.0" layoutY="76.0" text="Field" />
         <TextField fx:id="txtSourceField" layoutX="344.0" layoutY="71.0" prefHeight="26.0" prefWidth="43.0" />
         <Label layoutX="403.0" layoutY="76.0" text="Value" />
@@ -90,5 +89,6 @@
       <RadioButton fx:id="rbSelectFromDest" layoutX="228.0" layoutY="260.0" mnemonicParsing="false" text="Destination" toggleGroup="$tgSelectFrom" />
       <Label layoutX="18.0" layoutY="261.0" text="Select On" />
       <RadioButton fx:id="rbSelectSpecific" layoutX="370.0" layoutY="119.0" mnemonicParsing="false" text="Specific Items" toggleGroup="$tgSourceItems" />
+      <ComboBox fx:id="cbSourceFile" editable="true" layoutX="93.0" layoutY="71.0" prefHeight="26.0" prefWidth="197.0" />
     </children>
 </AnchorPane>
