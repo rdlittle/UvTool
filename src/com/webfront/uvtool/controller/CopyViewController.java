@@ -25,6 +25,8 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -72,6 +74,8 @@ public class CopyViewController implements Controller, Initializable, Progress {
     ComboBox<Profile> cbSourceProfile;
     @FXML
     ComboBox<Profile> cbDestProfile;
+    @FXML
+    ComboBox<String> cbSourceFile;
 
     @FXML
     Circle sourceLed;
@@ -96,8 +100,8 @@ public class CopyViewController implements Controller, Initializable, Progress {
     @FXML
     TextField txtDestValue;
 
-    @FXML
-    TextField txtSourceFile;
+//    @FXML
+//    TextField txtSourceFile;
     @FXML
     TextField txtSourceField;
     @FXML
@@ -147,6 +151,7 @@ public class CopyViewController implements Controller, Initializable, Progress {
     List<Stop> stopsOff;
 
     private final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+    private ObservableList<String> fileList;
     
     private Stage stage;
 
@@ -164,6 +169,7 @@ public class CopyViewController implements Controller, Initializable, Progress {
 
         cbSourceProfile = new ComboBox<>();
         cbDestProfile = new ComboBox<>();
+        cbSourceFile = new ComboBox<>();
 
         destLed = new Circle();
         lblCriteria = new Label();
@@ -188,7 +194,7 @@ public class CopyViewController implements Controller, Initializable, Progress {
         txtDestField = new TextField();
         txtDestValue = new TextField();
 
-        txtSourceFile = new TextField();
+//        txtSourceFile = new TextField();
         txtSourceField = new TextField();
         txtSourceValue = new TextField();
 
@@ -207,6 +213,14 @@ public class CopyViewController implements Controller, Initializable, Progress {
 
         alert.setTitle("File name mismatch");
         alert.contentTextProperty().set("Destination file does not match source file!");
+        
+        ArrayList<String> files = new ArrayList<>();
+        files.add("&SAVEDLISTS&");
+        files.add("&COMO&");
+        files.add("&HOLD&");
+        files.add("&TEMP");
+        fileList = FXCollections.observableArrayList(files);
+        
     }
 
     @Override
@@ -223,6 +237,7 @@ public class CopyViewController implements Controller, Initializable, Progress {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         res = rb;
+        cbSourceFile.setItems(fileList);
         cbSourceProfile.setItems(config.getProfiles());
         cbDestProfile.setItems(config.getProfiles());
         sourceProfileProperty.bind(cbSourceProfile.valueProperty());
@@ -242,14 +257,14 @@ public class CopyViewController implements Controller, Initializable, Progress {
             }
         });
 
-        txtSourceFile.focusedProperty().addListener(new ChangeListener() {
-            @Override
-            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                if (txtDestFile.getText().isEmpty()) {
-                    txtDestFile.setText(txtSourceFile.getText());
-                }
-            }
-        });
+//        txtSourceFile.focusedProperty().addListener(new ChangeListener() {
+//            @Override
+//            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+//                if (txtDestFile.getText().isEmpty()) {
+//                    txtDestFile.setText(txtSourceFile.getText());
+//                }
+//            }
+//        });
         txtSourceField.focusedProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
@@ -263,6 +278,14 @@ public class CopyViewController implements Controller, Initializable, Progress {
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
                 if (txtDestValue.getText().isEmpty()) {
                     txtDestValue.setText(txtSourceValue.getText());
+                }
+            }
+        });
+        cbSourceFile.valueProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                if (newValue != null) {
+                    txtDestFile.setText((String)newValue);
                 }
             }
         });
@@ -289,7 +312,7 @@ public class CopyViewController implements Controller, Initializable, Progress {
     @FXML
     public void onCopy() {
         boolean proceed = true;
-        if (!txtSourceFile.getText().equals(txtDestFile.getText())) {
+        if (!cbSourceFile.getValue().equals(txtDestFile.getText())) {
             Optional<ButtonType> result = alert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.CANCEL) {
                 proceed = false;
@@ -297,7 +320,7 @@ public class CopyViewController implements Controller, Initializable, Progress {
         }
         if (proceed && validateForm()) {
             updateProgressBar(0D);
-            String fileName = txtSourceFile.getText();
+            String fileName = cbSourceFile.getValue();
             String field = txtSourceField.getText();
             String value = txtSourceValue.getText();
             UvData source = new UvData(fileName, field, value);
@@ -371,7 +394,7 @@ public class CopyViewController implements Controller, Initializable, Progress {
         boolean hasDestFile = !txtDestFile.getText().isEmpty();
         boolean hasDestValue = !txtDestValue.getText().isEmpty();
 
-        boolean hasSourceFile = !txtSourceFile.getText().isEmpty();
+        boolean hasSourceFile = !cbSourceFile.getValue().isEmpty();
         boolean hasSourceField = !txtSourceField.getText().isEmpty();
         boolean hasSourceValue = !txtSourceValue.getText().isEmpty();
 
@@ -383,7 +406,7 @@ public class CopyViewController implements Controller, Initializable, Progress {
 
         if (!hasSourceFile) {
             lblStatusMessage.setText(res.getString("lblSource") + " " + res.getString("errFileName"));
-            txtSourceFile.requestFocus();
+            cbSourceFile.requestFocus();
             return false;
         }
         if (!hasDestFile) {
