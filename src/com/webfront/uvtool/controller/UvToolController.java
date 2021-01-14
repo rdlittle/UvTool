@@ -50,7 +50,7 @@ import javafx.stage.Stage;
  */
 public class UvToolController implements Initializable {
 
-    private final String version = "5.5.6";
+    private final String version = "5.6.0";
     private final Config config;
     private final ObservableList<Account> accountList = FXCollections.observableArrayList();
     private final ObservableList<Profile> profileList = FXCollections.observableArrayList();

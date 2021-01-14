@@ -869,30 +869,30 @@ public class PeerReviewController implements Controller, Initializable, Progress
 
         try ( LineNumberReader reader = new LineNumberReader(new FileReader(f))) {
             String line = reader.readLine();
-            if (line.matches(".*!{0,3}\\s*[P|p]ending")) {
-                updateCursor(ENABLED);
-                reader.close();
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.contentTextProperty().set("Please remove \"!!! Pending\" from the source code");
-                alert.showAndWait();
-                return;
-            } else {
-                for (;;) {
-                    line = reader.readLine();
-                    if (line == null) {
-                        reader.close();
-                        break;
-                    }
-                    if (line.startsWith("!!!")) {
-                        updateCursor(ENABLED);
-                        reader.close();
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.contentTextProperty().set("You have \"!!!\" comments in the source code");
-                        alert.showAndWait();
-                        return;
-                    }
-                }
-            }
+//            if (line.matches(".*!{0,3}\\s*[P|p]ending")) {
+//                updateCursor(ENABLED);
+//                reader.close();
+//                Alert alert = new Alert(Alert.AlertType.ERROR);
+//                alert.contentTextProperty().set("Please remove \"!!! Pending\" from the source code");
+//                alert.showAndWait();
+//                return;
+//            } else {
+//                for (;;) {
+//                    line = reader.readLine();
+//                    if (line == null) {
+//                        reader.close();
+//                        break;
+//                    }
+//                    if (line.startsWith("!!!")) {
+//                        updateCursor(ENABLED);
+//                        reader.close();
+//                        Alert alert = new Alert(Alert.AlertType.ERROR);
+//                        alert.contentTextProperty().set("You have \"!!!\" comments in the source code");
+//                        alert.showAndWait();
+//                        return;
+//                    }
+//                }
+//            }
         } catch (IOException ex) {
             Platform.runLater(() -> {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -905,26 +905,26 @@ public class PeerReviewController implements Controller, Initializable, Progress
         try {
             updateCursor(ENABLED);
             int mtime = 0;
-            mtime = putArtifact(item); // Write back to 'integrated'
+//            mtime = putArtifact(item); // Write back to 'integrated'
             this.model.getPendingList().remove(item);
             this.model.getPassedList().add(item);
             this.model.getTimeStamps().put(item, mtime);
             String approvePath = node.getPath("peer_approved");
             String failPath = node.getPath("peer_failed");
-            net.doSftpPut("dmctest", approvePath, item, path, progName);
+//            net.doSftpPut("dmctest", approvePath, item, path, progName);
 
             // Delete the remote failed item.  OK if it throws an exception
-            try {
-                net.doSftpDelete("nlstest", failPath, item);
-            } catch (SftpException ex) {
-                // Do nothing
-            }
-            // Delete the remote approved item.  OK if it throws an exception
-            try {
-                net.doSftpDelete("nlstest", approvePath, item);
-            } catch (SftpException ex) {
-                // Do nothing
-            }
+//            try {
+//                net.doSftpDelete("nlstest", failPath, item);
+//            } catch (SftpException ex) {
+//                // Do nothing
+//            }
+//            // Delete the remote approved item.  OK if it throws an exception
+//            try {
+//                net.doSftpDelete("nlstest", approvePath, item);
+//            } catch (SftpException ex) {
+//                // Do nothing
+//            }
 
             // Remove the item from the local system
             String id = txtReviewId.getText();
@@ -950,14 +950,24 @@ public class PeerReviewController implements Controller, Initializable, Progress
                 });
                 updateCursor(ENABLED);
             }
-        } catch (JSchException | SftpException | IOException ex) {
+//        } catch (JSchException | SftpException | IOException ex) {
+//            Platform.runLater(() -> {
+//                Alert alert = new Alert(Alert.AlertType.ERROR);
+//                alert.contentTextProperty().set(ex.getMessage());
+//                alert.showAndWait();
+//            });
+//            updateCursor(ENABLED);
+//            Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+        } catch(IOException ex) {
             Platform.runLater(() -> {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.contentTextProperty().set(ex.getMessage());
                 alert.showAndWait();
             });
             updateCursor(ENABLED);
-            Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PeerReviewController.class.getName()).log(Level.SEVERE, null, ex);            
+                
         }
         updateCursor(ENABLED);
     }
@@ -1059,7 +1069,7 @@ public class PeerReviewController implements Controller, Initializable, Progress
     @FXML
     public void onPassReview() {
         if (this.model.getDictDataList().size() > 0) {
-            passDictData();
+//            passDictData();
         }
         if (txtReviewId.getText().isEmpty()) {
             return;
