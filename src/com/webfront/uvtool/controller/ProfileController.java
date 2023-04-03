@@ -318,8 +318,10 @@ public class ProfileController implements Controller {
             if (cbServers.getValue() != null) {
                 s = cbServers.getValue();
             }
-            if (cbAccounts.getValue() != null) {
-                a = cbAccounts.getValue();
+            if (cbAccounts.getValue() != null) {                a = cbAccounts.getValue();
+                if (a.getId() == -1) {
+                    config.addAccount(selectedProfile.getAccount());
+                }
             }
             u.setName(txtUserName.getText());
             u.setPassword(pwPassword.getText());
