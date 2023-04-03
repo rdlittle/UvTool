@@ -55,7 +55,7 @@ public class ServerViewController implements Controller, Initializable {
 
     @Override
     public void setStage(Stage s) {
-        
+
     }
 
     /**
@@ -68,16 +68,18 @@ public class ServerViewController implements Controller, Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         this.res = rb;
         txtHostName.setPromptText("Enter host name");
+        cbServer.converterProperty().set(new ServerConverter());
         cbServer.setItems(Config.getInstance().getServers());
         cbServer.valueProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
                 if (newValue != null) {
-                Server s = (Server) newValue;
-                txtHostName.setText(s.getHost());                    
+                    Server s = (Server) newValue;
+//                    cbServer.getItems().add(s);
                 }
             }
         });
+
         cbServer.requestFocus();
     }
 
@@ -86,12 +88,16 @@ public class ServerViewController implements Controller, Initializable {
         Server selectedServer = cbServer.getValue();
         String serverName = selectedServer.getName();
         String hostName = selectedServer.getHost();
+        if (hostName.isEmpty() && !txtHostName.getText().isEmpty()) {
+            hostName = txtHostName.getText();
+        }
         if (serverName.isEmpty()) {
             lblStatusMessage.setText(res.getString("errNoServerName"));
             cbServer.requestFocus();
         } else if (hostName.isEmpty()) {
             lblStatusMessage.setText(res.getString("errNoHostName"));
             txtHostName.requestFocus();
+
         } else {
             Config cfg = Config.getInstance();
             lblStatusMessage.setText("");
