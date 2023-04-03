@@ -6,10 +6,9 @@
 package com.webfront.uvtool.tests;
 
 import com.couchbase.client.java.*;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -19,14 +18,7 @@ public class DBTest {
     
     public DBTest() {
     }
-    
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }    
+ 
 
 
     // TODO add test methods here.
