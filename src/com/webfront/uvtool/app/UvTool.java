@@ -48,6 +48,7 @@ public class UvTool extends Application {
     SystemTray sysTray;
     TrayIcon trayIcon;
     ResourceBundle res;
+    javafx.scene.image.Image appIcon;
 
     @Override
     public void start(Stage stg) throws Exception {
@@ -63,7 +64,9 @@ public class UvTool extends Application {
             });
         }
 
+        appIcon = new javafx.scene.image.Image("/icons/u2-24X24.png");
         stage = stg;
+        stage.getIcons().add(appIcon);
         Platform.setImplicitExit(false);
         javax.swing.SwingUtilities.invokeLater(this::addAppToTray);
         FXMLLoader loader = new FXMLLoader();

@@ -185,7 +185,7 @@ public class RunViewController implements Controller, Progress, Initializable {
             Profile readProfile = cbReadFrom.getValue();
             Profile writeProfile = cbWriteTo.getValue();
             String[] criteria = txtCriteria.getText().split("\n");
-            if (p.getPromptList().size() > 0) {
+            if (!p.getPromptList().isEmpty()) {
                 dialog.showAndWait();
                 HashMap<Integer, String> h = dialog.getResult();
                 if(h == null) return;
@@ -196,7 +196,7 @@ public class RunViewController implements Controller, Progress, Initializable {
                     Prompt prp = p.getPrompts().get(i);
                     prp.setResponse(r);
                     p.getPrompts().put(i, prp);
-                };
+                }
             }
             p.setListName(txtListName.getText());
             p.setSelectCriteria(criteria);

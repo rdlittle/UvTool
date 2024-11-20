@@ -76,6 +76,9 @@ public class ServerViewController implements Controller, Initializable {
                 if (newValue != null) {
                     Server s = (Server) newValue;
 //                    cbServer.getItems().add(s);
+                    txtHostName.setText(s.getHost());
+                    cbServer.getItems().add(s);
+                    cbServer.setValue(s);
                 }
             }
         });
