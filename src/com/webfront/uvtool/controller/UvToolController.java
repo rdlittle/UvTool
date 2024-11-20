@@ -82,7 +82,8 @@ public class UvToolController implements Initializable {
     Button btnBackups;
     @FXML
     Button btnPeerReview;
-
+    @FXML
+    Button btnPerf;
     @FXML
     MenuItem fileExit;
     @FXML
@@ -118,6 +119,8 @@ public class UvToolController implements Initializable {
     ImageView peerImageView;
     Image backupImage;
     ImageView backupImageView;
+    Image perfImage;
+    ImageView perfImageView;
 
     public UvToolController() {
         copyImage = new Image(getClass().getResourceAsStream("/com/webfront/uvtool/image/copy.png"), 50, 50, false, false);
@@ -126,6 +129,7 @@ public class UvToolController implements Initializable {
         pullImage = new Image(getClass().getResourceAsStream("/com/webfront/uvtool/image/arrows.png"), 50, 50, false, false);
         peerImage = new Image(getClass().getResourceAsStream("/com/webfront/uvtool/image/review.png"), 50, 50, false, false);
         backupImage = new Image(getClass().getResourceAsStream("/com/webfront/uvtool/image/backup.png"), 50, 50, false, false);
+        perfImage = new Image(getClass().getResourceAsStream("/com/webfront/uvtool/image/deploy.png"), 50, 50, false, false);
 
         copyImageView = new ImageView(copyImage);
         runImageView = new ImageView(runImage);
@@ -133,6 +137,7 @@ public class UvToolController implements Initializable {
         pullImageView = new ImageView(pullImage);
         peerImageView = new ImageView(peerImage);
         backupImageView = new ImageView(backupImage);
+        perfImageView = new ImageView(perfImage);
 
         config = Config.getInstance();
         accountList.setAll(config.getAccounts());
@@ -169,6 +174,7 @@ public class UvToolController implements Initializable {
         btnCompare.setGraphic(compareImageView);
         btnBackups.setGraphic(backupImageView);
         btnPull.setGraphic(pullImageView);
+        btnPerf.setGraphic(perfImageView);
 
         btnCopy.setAlignment(Pos.CENTER);
 
@@ -206,6 +212,10 @@ public class UvToolController implements Initializable {
         btnPeerReview.setOnAction(event -> launch("viewPeer", "titlePeer"));
         btnPeerReview.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
         btnPeerReview.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());
+        
+        btnPerf.setOnAction(event -> launch("viewPerf", "titlePerf"));
+        btnPerf.addEventHandler(MouseEvent.MOUSE_ENTERED, new MouseOver());
+        btnPerf.addEventHandler(MouseEvent.MOUSE_EXITED, new MouseOut());        
 
     }
 

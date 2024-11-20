@@ -12,11 +12,11 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="AnchorPane" prefHeight="153.0" prefWidth="928.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.webfront.uvtool.controller.UvToolController">
+<AnchorPane id="AnchorPane" prefHeight="153.0" prefWidth="943.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.webfront.uvtool.controller.UvToolController">
     <children>
-      <VBox prefHeight="153.0" prefWidth="928.0" spacing="10.0">
+      <VBox prefHeight="153.0" prefWidth="943.0" spacing="10.0">
          <children>
-            <MenuBar prefHeight="29.0" prefWidth="729.0">
+            <MenuBar prefHeight="32.0" prefWidth="952.0">
               <menus>
                 <Menu fx:id="mnuFile" mnemonicParsing="false" text="File">
                   <items>
@@ -52,7 +52,7 @@
                 </Menu>
               </menus>
             </MenuBar>
-            <HBox alignment="CENTER" prefHeight="68.0" prefWidth="807.0" spacing="10.0">
+            <HBox alignment="CENTER" prefHeight="66.0" prefWidth="953.0" spacing="10.0">
                <children>
                   <Button fx:id="btnRun" mnemonicParsing="false" prefHeight="52.0" prefWidth="140.0" text="Run" />
                   <Button fx:id="btnCompare" mnemonicParsing="false" prefHeight="52.0" prefWidth="140.0" text="Compare" />
@@ -60,10 +60,14 @@
                   <Button fx:id="btnBackups" mnemonicParsing="false" prefHeight="52.0" prefWidth="140.0" text="Deploy Backups" wrapText="true" />
                   <Button fx:id="btnPull" mnemonicParsing="false" prefHeight="52.0" prefWidth="140.0" text="Pull/Push" />
                   <Button fx:id="btnCopy" mnemonicParsing="false" prefHeight="52.0" prefWidth="141.0" text="Copy" />
+                  <Button fx:id="btnPerf" mnemonicParsing="false" prefHeight="52.0" prefWidth="140.0" text="Perf" />
                </children>
                <VBox.margin>
                   <Insets top="10.0" />
                </VBox.margin>
+               <padding>
+                  <Insets left="10.0" right="10.0" />
+               </padding>
             </HBox>
             <Pane prefHeight="26.0" prefWidth="284.0">
                <children>
