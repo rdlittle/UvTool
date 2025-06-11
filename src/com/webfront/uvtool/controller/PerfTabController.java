@@ -18,10 +18,6 @@ import java.util.Iterator;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -65,6 +61,10 @@ public class PerfTabController implements Initializable {
     @FXML
     TextField txtModule;
     @FXML
+    TextField txtVersion;
+    @FXML
+    TextField txtType;
+    @FXML
     ListView<String> listPrograms;
     @FXML
     ListView<String> listFiles;
@@ -93,6 +93,7 @@ public class PerfTabController implements Initializable {
     Profile profile;
     String perfId;
     boolean isNew;
+    final int TYPE = 1;
     final int CUST = 6;
     final int MODULE = 8;
     final int DESCRIPTION = 12;
@@ -102,8 +103,10 @@ public class PerfTabController implements Initializable {
     final int DATE = 21;
     final int PERSON = 22;
     final int MEMO = 30;
+    final int VERSION = 41;
     final int OTHER_FILE = 102;
     final int OTHER_ITEM = 103;
+    
     PerfModel model;
     boolean hasChanged;
 
@@ -135,6 +138,8 @@ public class PerfTabController implements Initializable {
         model.setModule(record.extract(MODULE).toString());
         model.setCustomer(record.extract(CUST).toString());
         model.setDescription(record.extract(DESCRIPTION).toString());
+        model.setVersion(record.extract(VERSION).toString());
+        model.setType(record.extract(TYPE).toString());
         int fileCount = record.dcount(FILES);
         for (int f = 1; f <= fileCount; f++) {
             model.getFiles().add(record.extract(FILES, f).toString());
@@ -180,6 +185,9 @@ public class PerfTabController implements Initializable {
         txtCustomer.setText(model.getCustomer());
         txtModule.setText(model.getModule());
         txtDescription.setText(model.getDescription());
+        txtVersion.setText(model.getVersion());
+        txtType.setText(model.getType());
+        
         listPrograms.setItems(model.getPrograms());
         listFiles.setItems(model.getFiles());
         tblOtherItems.setItems(model.otherItems);

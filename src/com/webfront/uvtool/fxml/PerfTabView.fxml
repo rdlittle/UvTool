@@ -47,5 +47,9 @@
       <Button layoutX="790.0" layoutY="186.0" mnemonicParsing="false" text="-" />
       <Button layoutX="441.0" layoutY="370.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="22.0" text="+" />
       <Button layoutX="473.0" layoutY="370.0" mnemonicParsing="false" text="-" />
+      <Label layoutX="535.0" layoutY="7.0" text="Version" />
+      <TextField fx:id="txtVersion" layoutX="535.0" layoutY="32.0" prefHeight="26.0" prefWidth="80.0" />
+      <Label layoutX="363.0" layoutY="7.0" text="Type" />
+      <TextField fx:id="txtType" layoutX="365.0" layoutY="32.0" />
    </children>
 </Pane>

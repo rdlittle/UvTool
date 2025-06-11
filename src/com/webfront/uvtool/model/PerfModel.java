@@ -49,6 +49,8 @@ public class PerfModel {
     private String person;
     private String date;
     private String memo;
+    private String version;
+    private String type;
 
     public PerfModel() {
         otherItems = FXCollections.observableArrayList();
@@ -107,6 +109,23 @@ public class PerfModel {
     public String getCustomer() {
         return customer;
     }
+    
+    /**
+     * @return module version
+     */
+    public String getVersion() {
+        return this.version;
+    }
+    
+    /**
+     * @return module version
+     */
+    public String getType() {
+        if("E".contains(this.type)) {
+            return "Enhancement";
+        }
+        return "Modification";
+    }    
 
     /**
      * @param customer the customer to set
@@ -114,7 +133,20 @@ public class PerfModel {
     public void setCustomer(String customer) {
         this.customer = customer;
     }
+    
+    /**
+     * @param version module version
+     */
+    public void setVersion(String version) {
+        this.version = version;
+    }
 
+    /**
+     * @param type the perf type
+     */
+    public void setType(String type) {
+        this.type = type;
+    }
     /**
      * @return the module
      */
